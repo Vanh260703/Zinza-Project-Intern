@@ -5,6 +5,7 @@ import RegisterPage from './pages/auth/RegisterPage'
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage'
+import StoryDetailPage from './pages/StoryDetailPage'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/story/:id" element={<StoryDetailPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

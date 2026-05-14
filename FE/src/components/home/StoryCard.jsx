@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom'
+
 const GRADIENTS = [
   ['#f59e0b', '#ef4444'],
   ['#8b5cf6', '#3b82f6'],
@@ -20,10 +22,11 @@ function formatViews(n) {
 }
 
 export default function StoryCard({ story }) {
+  const navigate = useNavigate()
   const [from, to] = GRADIENTS[story.gradient % GRADIENTS.length]
 
   return (
-    <div className="group flex-shrink-0 w-full cursor-pointer">
+    <div onClick={() => navigate('/story/100412')} className="group flex-shrink-0 w-full cursor-pointer">
       {/* Cover */}
       <div className="relative rounded-xl overflow-hidden aspect-[3/4] mb-3">
         <div
