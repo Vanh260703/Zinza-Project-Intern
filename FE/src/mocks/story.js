@@ -24,6 +24,22 @@ export async function fetchComments() {
   return res.json()
 }
 
+export async function fetchChapterComments(storyId, chapterNum) {
+  const res = await fetch(`/api/mock/chapter-comments?storyId=${storyId}&chapter=${chapterNum}`)
+  return res.json()
+}
+
+export async function postChapterComment(storyId, chapterNum, userName, content) {
+  const res = await fetch('/api/mock/chapter-comments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ storyId, chapter: chapterNum, userName, content }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message)
+  return data
+}
+
 export async function giftCandy(email, amount) {
   const res = await fetch('/api/mock/gift-candy', {
     method: 'POST',

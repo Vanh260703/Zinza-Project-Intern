@@ -57,13 +57,22 @@ export function AuthProvider({ children }) {
     })
   }
 
+  function unlockVip(storyId, newCandyCount) {
+    setUser((prev) => {
+      if (!prev) return prev
+      const unlockedVip = prev.unlockedVip ?? []
+      if (unlockedVip.includes(storyId)) return prev
+      return persist({ ...prev, candy: newCandyCount, unlockedVip: [...unlockedVip, storyId] })
+    })
+  }
+
   function logout() {
     setUser(null)
     localStorage.removeItem('auth_user')
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, updateUser, updateReadHistory, removeFromRead, toggleBookmark, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, updateReadHistory, removeFromRead, toggleBookmark, unlockVip, logout }}>
       {children}
     </AuthContext.Provider>
   )

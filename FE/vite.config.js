@@ -45,6 +45,10 @@ function getTitleCache(storyId) {
   return _titleCaches[storyId]
 }
 
+// ── VIP story indices (10 stories) ──────────────────────────────────────────
+const VIP_INDICES = new Set([1, 3, 6, 9, 12, 15, 18, 21, 24, 27])
+const VIP_PRICE = 50
+
 // ── Story list from upload folder ────────────────────────────────────────────
 let _storyListCache = null
 
@@ -66,6 +70,7 @@ function parseOverview(content, id, slug, index) {
   const descIdx = content.indexOf('Tóm tắt:')
   const description = descIdx >= 0 ? content.slice(descIdx + 'Tóm tắt:'.length).trim() : ''
 
+  const isVip = VIP_INDICES.has(index)
   return {
     id,
     slug,
@@ -84,6 +89,8 @@ function parseOverview(content, id, slug, index) {
     description,
     poster: `/mock-assets/${id}_${slug}/00000_poster.jpg`,
     gradient: index,
+    vip: isVip,
+    price: isVip ? VIP_PRICE : 0,
   }
 }
 
@@ -318,6 +325,58 @@ export default defineConfig({
           if (!files.length) return send(res, 404, { message: 'Không tìm thấy chương.' })
           const content = fs.readFileSync(path.join(dir, files[0]), 'utf-8')
           send(res, 200, { content })
+        })
+
+        /* ── Chapter comments ── */
+        const _chapterComments = {}  // key: `${storyId}_${chapter}`
+        let _commentIdSeq = 1
+
+        server.middlewares.use('/api/mock/chapter-comments', async (req, res, next) => {
+          const urlObj = new URL(req.url, 'http://localhost')
+
+          if (req.method === 'GET') {
+            const key = `${urlObj.searchParams.get('storyId')}_${urlObj.searchParams.get('chapter')}`
+            return send(res, 200, { comments: _chapterComments[key] ?? [] })
+          }
+
+          if (req.method === 'POST') {
+            const { storyId, chapter, userName, content } = await parseBody(req)
+            if (!content?.trim()) return send(res, 400, { message: 'Nội dung không được để trống.' })
+            const key = `${storyId}_${chapter}`
+            const comment = {
+              id: _commentIdSeq++,
+              user: userName,
+              content: content.trim(),
+              date: new Date().toISOString().slice(0, 10),
+            }
+            _chapterComments[key] = [comment, ...(_chapterComments[key] ?? [])]
+            return send(res, 201, { comment })
+          }
+
+          next()
+        })
+
+        /* ── VIP stories list ── */
+        server.middlewares.use('/api/mock/vip-stories', (req, res, next) => {
+          if (req.method !== 'GET') return next()
+          const list = (_storyListCache ?? []).filter((s) => s.vip)
+          send(res, 200, { stories: list })
+        })
+
+        /* ── Purchase VIP story ── */
+        server.middlewares.use('/api/mock/purchase-vip', async (req, res, next) => {
+          if (req.method !== 'POST') return next()
+          const { email, storyId } = await parseBody(req)
+          const story = (_storyListCache ?? []).find((s) => s.id === storyId)
+          if (!story || !story.vip) return send(res, 400, { message: 'Truyện không phải VIP.' })
+          const users = readUsers()
+          const idx = users.findIndex((u) => u.email === email)
+          if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          const currentCandy = users[idx].candy ?? 0
+          if (currentCandy < story.price) return send(res, 400, { message: `Không đủ kẹo. Bạn cần ${story.price} kẹo.` })
+          users[idx].candy = currentCandy - story.price
+          writeUsers(users)
+          send(res, 200, { candy: users[idx].candy })
         })
 
         /* ── Gift candy ── */

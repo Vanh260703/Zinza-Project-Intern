@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
-import { fetchChapterContent, fetchStoryDetail } from '../mocks/story'
+import { fetchChapterContent, fetchStoryDetail, fetchChapterComments, postChapterComment } from '../mocks/story'
 import { useAuth } from '../context/AuthContext'
 
 const FONT_SIZES = [
@@ -17,6 +17,106 @@ const Spinner = () => (
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
   </svg>
 )
+
+function ChapterComments({ storyId, chapterNum, user }) {
+  const [comments, setComments] = useState([])
+  const [loadingComments, setLoadingComments] = useState(true)
+  const [text, setText] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    setLoadingComments(true)
+    fetchChapterComments(storyId, chapterNum)
+      .then((data) => { if (!cancelled) setComments(data.comments ?? []) })
+      .finally(() => { if (!cancelled) setLoadingComments(false) })
+    return () => { cancelled = true }
+  }, [storyId, chapterNum])
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    if (!text.trim()) return
+    setSubmitting(true)
+    setError('')
+    try {
+      const data = await postChapterComment(storyId, chapterNum, user.name ?? user.email, text)
+      setComments((prev) => [data.comment, ...prev])
+      setText('')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto px-6 sm:px-8 pb-20">
+      <div className="border-t border-stone-800 pt-8">
+        <h3 className="text-white font-semibold mb-5 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-4 4-4-4z" />
+          </svg>
+          Bình luận chương
+          {!loadingComments && <span className="text-stone-500 text-sm font-normal">({comments.length})</span>}
+        </h3>
+
+        {user ? (
+          <form onSubmit={handleSubmit} className="mb-6">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Viết bình luận của bạn..."
+              rows={3}
+              className="w-full bg-stone-900 border border-stone-700 focus:border-amber-500 text-stone-200 text-sm rounded-xl px-4 py-3 outline-none transition-colors resize-none placeholder:text-stone-600"
+            />
+            {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+            <div className="flex justify-end mt-2">
+              <button
+                type="submit"
+                disabled={submitting || !text.trim()}
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
+              >
+                {submitting ? 'Đang gửi...' : 'Gửi bình luận'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="mb-6 p-4 bg-stone-900 rounded-xl border border-stone-800 text-center">
+            <p className="text-stone-500 text-sm">
+              <a href="/login" className="text-amber-400 hover:text-amber-300 underline">Đăng nhập</a> để bình luận.
+            </p>
+          </div>
+        )}
+
+        {loadingComments ? (
+          <div className="flex justify-center py-6">
+            <Spinner />
+          </div>
+        ) : comments.length === 0 ? (
+          <p className="text-stone-600 text-sm text-center py-6">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+        ) : (
+          <div className="space-y-4">
+            {comments.map((c) => (
+              <div key={c.id} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-stone-700 flex items-center justify-center shrink-0 text-xs text-stone-300 font-bold">
+                  {(c.user ?? '?')[0].toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-stone-200 text-sm font-medium">{c.user}</span>
+                    <span className="text-stone-600 text-xs">{c.date}</span>
+                  </div>
+                  <p className="text-stone-400 text-sm leading-relaxed whitespace-pre-wrap">{c.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
 
 export default function ChapterReadPage() {
   const { id: storyId, chapterNum } = useParams()
@@ -220,9 +320,14 @@ export default function ChapterReadPage() {
 
       {/* Bottom navigation */}
       {!loading && !error && (
-        <div className="max-w-3xl mx-auto px-6 sm:px-8 pb-16 border-t border-stone-800 pt-8">
+        <div className="max-w-3xl mx-auto px-6 sm:px-8 pb-8 border-t border-stone-800 pt-8">
           <NavButtons bottom />
         </div>
+      )}
+
+      {/* Chapter comments */}
+      {!loading && !error && (
+        <ChapterComments storyId={storyId} chapterNum={num} user={user} />
       )}
     </div>
   )
