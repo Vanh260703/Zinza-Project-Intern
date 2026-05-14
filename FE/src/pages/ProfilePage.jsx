@@ -83,6 +83,7 @@ function ProfileTab() {
   const [avatar, setAvatar] = useState(() => localStorage.getItem(avatarKey) || null)
 
   const [name, setName] = useState(user?.name || '')
+  const [gender, setGender] = useState(user?.gender || '')
   const [nameLoading, setNameLoading] = useState(false)
   const [nameToast, setNameToast] = useState(null)
 
@@ -111,25 +112,25 @@ function ProfileTab() {
     reader.readAsDataURL(file)
   }
 
-  /* Update name */
+  /* Update name + gender */
   async function handleSaveName(e) {
     e.preventDefault()
-    if (!name.trim() || name.trim() === user?.name) return
-    if (name.trim().length < 2) {
-      showToast(setNameToast, 'error', 'Tên hiển thị phải có ít nhất 2 ký tự.')
-      return
-    }
+    const nameChanged = name.trim() !== user?.name
+    const genderChanged = gender !== user?.gender
+    if (!name.trim()) { showToast(setNameToast, 'error', 'Tên hiển thị không được để trống.'); return }
+    if (name.trim().length < 2) { showToast(setNameToast, 'error', 'Tên hiển thị phải có ít nhất 2 ký tự.'); return }
+    if (!nameChanged && !genderChanged) return
     setNameLoading(true)
     try {
       const res = await fetch('/api/mock/update-profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email, name: name.trim() }),
+        body: JSON.stringify({ email: user.email, name: name.trim(), gender }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message)
-      updateUser({ name: data.user.name })
-      showToast(setNameToast, 'success', 'Cập nhật tên thành công!')
+      updateUser({ name: data.user.name, gender: data.user.gender })
+      showToast(setNameToast, 'success', 'Cập nhật thông tin thành công!')
     } catch (err) {
       showToast(setNameToast, 'error', err.message)
     } finally {
@@ -245,23 +246,31 @@ function ProfileTab() {
             <input value={user?.email || ''} readOnly className={inputDisabled} />
           </div>
 
-          {/* Gender - readonly */}
+          {/* Gender - editable */}
           <div>
-            <label className="block text-sm font-medium text-stone-400 mb-1.5">
-              Giới tính <span className="text-stone-600 font-normal text-xs">(không thể thay đổi)</span>
-            </label>
-            <input
-              value={user?.gender === 'male' ? 'Nam' : user?.gender === 'female' ? 'Nữ' : 'Khác'}
-              readOnly
-              className={inputDisabled}
-            />
+            <label className="block text-sm font-medium text-stone-400 mb-1.5">Giới tính</label>
+            <div className="flex gap-2">
+              {[{ value: 'male', label: 'Nam' }, { value: 'female', label: 'Nữ' }, { value: 'other', label: 'Khác' }].map((g) => (
+                <label
+                  key={g.value}
+                  className={`flex-1 flex items-center justify-center py-2.5 rounded-lg border text-sm cursor-pointer transition-all select-none
+                    ${gender === g.value
+                      ? 'border-amber-500/60 bg-amber-500/15 text-amber-400 font-medium'
+                      : 'border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300'
+                    }`}
+                >
+                  <input type="radio" name="gender" value={g.value} checked={gender === g.value} onChange={() => setGender(g.value)} className="sr-only" />
+                  {g.label}
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Edit name */}
       <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
-        <h3 className="text-white font-semibold mb-5">Tên hiển thị</h3>
+        <h3 className="text-white font-semibold mb-5">Thông tin cá nhân</h3>
         <form onSubmit={handleSaveName}>
           <div className="flex gap-3 items-start">
             <div className="flex-1">

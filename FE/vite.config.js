@@ -65,12 +65,13 @@ export default defineConfig({
 
         server.middlewares.use('/api/mock/update-profile', async (req, res, next) => {
           if (req.method !== 'PUT') return next()
-          const { email, name } = await parseBody(req)
+          const { email, name, gender } = await parseBody(req)
           await new Promise((r) => setTimeout(r, 800))
           const users = readUsers()
           const idx = users.findIndex((u) => u.email === email)
           if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
           users[idx].name = name
+          if (gender) users[idx].gender = gender
           writeUsers(users)
           send(res, 200, { user: publicUser(users[idx]) })
         })
