@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { fetchStoryDetail, fetchChapters, fetchReviews, fetchComments, giftCandy } from '../mocks/story'
@@ -21,6 +21,37 @@ const Spinner = () => (
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
   </svg>
 )
+
+/* ── Toast ── */
+function Toast({ toasts }) {
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 items-center pointer-events-none">
+      {toasts.map((t) => (
+        <div
+          key={t.id}
+          className={`flex items-center gap-3 px-5 py-3 rounded-2xl shadow-2xl text-sm font-medium animate-fade-in-up pointer-events-auto
+            ${t.type === 'success' ? 'bg-emerald-600 text-white' : 'bg-red-600 text-white'}`}
+        >
+          {t.type === 'success'
+            ? <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+            : <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          }
+          {t.message}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function useToast() {
+  const [toasts, setToasts] = useState([])
+  function push(type, message, duration = 3000) {
+    const id = Date.now()
+    setToasts((prev) => [...prev, { id, type, message }])
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), duration)
+  }
+  return { toasts, push }
+}
 
 function formatNum(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'tr'
@@ -166,7 +197,7 @@ function ReviewTab({ story, reviews }) {
 }
 
 /* ── Chapters tab ── */
-function ChaptersTab({ totalChapters }) {
+function ChaptersTab({ storyId, totalChapters }) {
   const navigate = useNavigate()
   const [data, setData] = useState(null)
   const [page, setPage] = useState(1)
@@ -175,9 +206,10 @@ function ChaptersTab({ totalChapters }) {
   const LIMIT = 30
 
   useEffect(() => {
-    setData(null)
-    fetchChapters(page, LIMIT, search).then(setData)
-  }, [page, search])
+    let cancelled = false
+    fetchChapters(storyId, page, LIMIT, search).then((d) => { if (!cancelled) setData(d) })
+    return () => { cancelled = true; setData(null) }
+  }, [storyId, page, search])
 
   function handleSearch(e) {
     e.preventDefault()
@@ -212,7 +244,7 @@ function ChaptersTab({ totalChapters }) {
             {data.chapters.map((ch) => (
               <button
                 key={ch.id}
-                onClick={() => navigate(`/story/100412/read/${ch.number}`)}
+                onClick={() => navigate(`/story/${storyId}/read/${ch.number}`)}
                 className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-stone-800/50 hover:bg-stone-800 hover:border-amber-500/30 border border-transparent text-left transition-all group"
               >
                 <span className="text-stone-600 text-xs font-mono w-10 shrink-0">#{ch.number}</span>
@@ -258,10 +290,25 @@ const RATING_DIST = [
   { stars: 1, count: 0, pct: 0 },
 ]
 
-function RatingsTab({ story }) {
+const STAR_LABELS = ['', 'Tệ', 'Không hay', 'Bình thường', 'Hay', 'Tuyệt vời']
+
+function RatingsTab({ story, user, onToast }) {
+  const [hover, setHover] = useState(0)
+  const [selected, setSelected] = useState(0)
+  const [review, setReview] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+
+  function handleSubmit() {
+    if (!selected) return
+    setSubmitted(true)
+    onToast('success', `Đã gửi đánh giá ${selected} sao${review.trim() ? ' kèm nhận xét' : ''}!`)
+  }
+
   return (
     <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
       <h3 className="text-white font-semibold mb-6">Đánh giá</h3>
+
+      {/* Summary */}
       <div className="flex gap-10 items-center mb-8">
         <div className="text-center shrink-0">
           <p className="text-5xl font-black text-amber-400">{story?.rating}</p>
@@ -283,7 +330,75 @@ function RatingsTab({ story }) {
           ))}
         </div>
       </div>
-      <p className="text-stone-500 text-sm text-center">Chức năng đánh giá sẽ được mở sau khi đăng nhập.</p>
+
+      {/* Rating form */}
+      <div className="border-t border-stone-800 pt-6">
+        {!user ? (
+          <p className="text-stone-500 text-sm text-center">
+            Vui lòng{' '}
+            <a href="/login" className="text-amber-400 hover:text-amber-300 underline">đăng nhập</a>
+            {' '}để đánh giá truyện.
+          </p>
+        ) : submitted ? (
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="flex gap-0.5">
+              {Array.from({ length: 5 }).map((_, i) => <StarIcon key={i} filled={i < selected} />)}
+            </div>
+            <p className="text-stone-300 text-sm font-medium">{STAR_LABELS[selected]}</p>
+            {review.trim() && (
+              <p className="text-stone-500 text-sm italic max-w-md text-center">"{review.trim()}"</p>
+            )}
+            <p className="text-emerald-400 text-sm font-medium mt-1">Cảm ơn bạn đã đánh giá!</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-stone-400 text-sm font-medium">Đánh giá của bạn</p>
+
+            {/* Stars */}
+            <div className="flex gap-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <button
+                  key={i}
+                  onMouseEnter={() => setHover(i + 1)}
+                  onMouseLeave={() => setHover(0)}
+                  onClick={() => setSelected(i + 1)}
+                  className="transition-transform hover:scale-125"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-9 h-9" viewBox="0 0 24 24"
+                    fill={(hover || selected) > i ? '#f59e0b' : 'none'}
+                    stroke="#f59e0b" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </button>
+              ))}
+            </div>
+            <p className={`text-sm font-medium h-5 transition-colors ${selected ? 'text-amber-400' : 'text-transparent'}`}>
+              {STAR_LABELS[hover || selected] || '-'}
+            </p>
+
+            {/* Review textarea */}
+            <div className="w-full max-w-lg">
+              <textarea
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+                placeholder="Chia sẻ cảm nhận của bạn về truyện... (không bắt buộc)"
+                maxLength={1000}
+                rows={4}
+                className="w-full bg-stone-800 border border-stone-700 focus:border-amber-500 rounded-xl px-4 py-3 text-stone-200 text-sm placeholder-stone-600 outline-none resize-none transition-colors"
+              />
+              <p className="text-stone-600 text-xs text-right mt-1">{review.length}/1000</p>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={!selected}
+              className="px-8 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+            >
+              Gửi đánh giá
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -325,21 +440,24 @@ const TABS = [
 ]
 
 export default function StoryDetailPage() {
-  const { user } = useAuth()
+  const { id: storyId } = useParams()
+  const { user, toggleBookmark } = useAuth()
   const navigate = useNavigate()
+  const { toasts, push: pushToast } = useToast()
   const [story, setStory] = useState(null)
   const [reviews, setReviews] = useState(null)
   const [comments, setComments] = useState(null)
   const [activeTab, setActiveTab] = useState('review')
-  const [followed, setFollowed] = useState(false)
   const [showGift, setShowGift] = useState(false)
   const [posterError, setPosterError] = useState(false)
 
+  const followed = user?.bookmark?.includes(storyId) ?? false
+
   useEffect(() => {
-    fetchStoryDetail().then(setStory)
+    fetchStoryDetail(storyId).then(setStory)
     fetchReviews().then((d) => setReviews(d.reviews))
     fetchComments().then((d) => setComments(d.comments))
-  }, [])
+  }, [storyId])
 
   const GRADIENTS = ['from-purple-700 to-blue-600', 'from-amber-600 to-red-500']
 
@@ -429,14 +547,14 @@ export default function StoryDetailPage() {
                 {/* Action buttons */}
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
-                    onClick={() => navigate('/story/100412/read/1')}
+                    onClick={() => navigate(`/story/${storyId}/read/1`)}
                     className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20"
                   >
                     <Icon d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" className="w-4 h-4" />
                     Đọc ngay
                   </button>
                   <button
-                    onClick={() => setFollowed((v) => !v)}
+                    onClick={() => user ? toggleBookmark(storyId) : navigate('/login')}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all border
                       ${followed
                         ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
@@ -481,13 +599,14 @@ export default function StoryDetailPage() {
 
         <div className="py-8">
           {activeTab === 'review' && <ReviewTab story={story} reviews={reviews} />}
-          {activeTab === 'chapters' && <ChaptersTab totalChapters={story?.totalChapters} />}
-          {activeTab === 'ratings' && <RatingsTab story={story} />}
+          {activeTab === 'chapters' && <ChaptersTab storyId={storyId} totalChapters={story?.totalChapters} />}
+          {activeTab === 'ratings' && <RatingsTab story={story} user={user} onToast={pushToast} />}
           {activeTab === 'comments' && <CommentsTab comments={comments} />}
         </div>
       </div>
 
       {showGift && <GiftCandyPopup story={story} onClose={() => setShowGift(false)} />}
+      <Toast toasts={toasts} />
     </div>
   )
 }

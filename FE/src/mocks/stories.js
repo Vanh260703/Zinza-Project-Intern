@@ -1,20 +1,17 @@
-import allStories from '../../mocks/stories/stories.json'
-
-function delay(ms = 600) {
-  return new Promise((r) => setTimeout(r, ms))
+async function fetchStories(sort, limit = 10) {
+  const res = await fetch(`/api/mock/stories?sort=${sort}&limit=${limit}`)
+  const data = await res.json()
+  return data.stories ?? []
 }
 
 export async function getLatestStories() {
-  await delay()
-  return allStories.slice(0, 10)
+  return fetchStories('latest', 10)
 }
 
 export async function getHotStories() {
-  await delay()
-  return [...allStories].sort((a, b) => b.views - a.views).slice(0, 10)
+  return fetchStories('hot', 10)
 }
 
 export async function getRecommendedStories() {
-  await delay()
-  return [...allStories].sort((a, b) => b.rating - a.rating).slice(0, 10)
+  return fetchStories('rating', 10)
 }

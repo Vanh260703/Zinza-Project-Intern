@@ -5,35 +5,112 @@ import fs from 'fs'
 import path from 'path'
 
 const USERS_PATH = path.resolve('./mocks/users/users.json')
-const STORY_DIR = path.resolve('./mocks/upload/100412_muc-than-ky')
+const UPLOAD_DIR = path.resolve('./mocks/upload')
+const STORIES_JSON_PATH = path.resolve('./mocks/stories/stories.json')
 
-// Cache sorted filename list — chỉ đọc tên file, không đọc content
-let _fileCache = null
-function getFileCache() {
-  if (_fileCache) return _fileCache
-  _fileCache = fs.readdirSync(STORY_DIR)
+// ── Per-story chapter file cache (keyed by storyId) ──────────────────────────
+const _fileCaches = {}
+function getFileCache(storyId) {
+  if (_fileCaches[storyId]) return _fileCaches[storyId]
+  const dir = _storyDirById(storyId)
+  if (!dir) return []
+  _fileCaches[storyId] = fs.readdirSync(dir)
     .filter((f) => f.endsWith('.txt') && !f.startsWith('00000'))
-  return _fileCache
+  return _fileCaches[storyId]
 }
 
-// Tổng số chương = số ở filename cuối cùng (không cần đọc content)
-function getTotalChapters() {
-  const files = getFileCache()
+function _storyDirById(storyId) {
+  const entries = fs.readdirSync(UPLOAD_DIR)
+  const folder = entries.find((e) => e.startsWith(storyId + '_'))
+  return folder ? path.join(UPLOAD_DIR, folder) : null
+}
+
+function getTotalChapters(storyId) {
+  const files = getFileCache(storyId)
   if (!files.length) return 0
   return parseInt(files[files.length - 1].match(/^(\d+)/)[1])
 }
 
-// Cache title cho search (lazy — chỉ load khi có search query)
-let _titleCache = null
-function getTitleCache() {
-  if (_titleCache) return _titleCache
-  _titleCache = getFileCache().map((f) => {
+// Cache title cho search (lazy per story)
+const _titleCaches = {}
+function getTitleCache(storyId) {
+  if (_titleCaches[storyId]) return _titleCaches[storyId]
+  const dir = _storyDirById(storyId)
+  if (!dir) return []
+  _titleCaches[storyId] = getFileCache(storyId).map((f) => {
     const match = f.match(/^(\d+)_(\d+)\.txt$/)
-    const firstLine = fs.readFileSync(path.join(STORY_DIR, f), 'utf-8').split('\n')[0].trim()
+    const firstLine = fs.readFileSync(path.join(dir, f), 'utf-8').split('\n')[0].trim()
     return { number: parseInt(match[1]), id: match[2], title: firstLine }
   })
-  return _titleCache
+  return _titleCaches[storyId]
 }
+
+// ── Story list from upload folder ────────────────────────────────────────────
+let _storyListCache = null
+
+function parseOverview(content, id, slug, index) {
+  const get = (key) => {
+    const re = new RegExp(`^${key}\\s*:\\s*(.+)$`, 'm')
+    const m = content.match(re)
+    return m ? m[1].trim() : ''
+  }
+
+  const ratingStr = get('Đánh giá')
+  const ratingMatch = ratingStr.match(/([\d.]+)\s*⭐\s*\((\d+)/)
+
+  const tagsStr = get('Tags')
+  const tags = (!tagsStr || tagsStr === '—') ? [] : tagsStr.split(',').map((t) => t.trim())
+
+  const genreStr = get('Thể loại')
+
+  const descIdx = content.indexOf('Tóm tắt:')
+  const description = descIdx >= 0 ? content.slice(descIdx + 'Tóm tắt:'.length).trim() : ''
+
+  return {
+    id,
+    slug,
+    title: get('Tên truyện'),
+    type: get('Loại'),
+    target: get('Đối tượng'),
+    status: get('Trạng thái'),
+    rating: ratingMatch ? parseFloat(ratingMatch[1]) : 0,
+    ratingCount: ratingMatch ? parseInt(ratingMatch[2]) : 0,
+    commentCount: parseInt(get('Bình luận')) || 0,
+    nominations: parseInt(get('Đề cử')) || 0,
+    author: get('Tác giả'),
+    postedBy: get('Đăng bởi'),
+    genres: genreStr ? [genreStr] : [],
+    tags,
+    description,
+    poster: `/mock-assets/${id}_${slug}/00000_poster.jpg`,
+    gradient: index,
+  }
+}
+
+// Async init: đọc tất cả overview song song → ghi stories.json
+const _initPromise = (async () => {
+  const folders = (await fs.promises.readdir(UPLOAD_DIR))
+    .filter((f) => /^\d+_/.test(f))
+  const results = await Promise.all(
+    folders.map(async (folder, index) => {
+      const m = folder.match(/^(\d+)_(.+)$/)
+      if (!m) return null
+      const [, id, slug] = m
+      const overviewPath = path.join(UPLOAD_DIR, folder, '00000_overview.txt')
+      try {
+        const content = await fs.promises.readFile(overviewPath, 'utf-8')
+        const story = parseOverview(content, id, slug, index)
+        story.totalChapters = getTotalChapters(id)
+        return story
+      } catch {
+        return null
+      }
+    })
+  )
+  _storyListCache = results.filter(Boolean)
+  await fs.promises.writeFile(STORIES_JSON_PATH, JSON.stringify(_storyListCache, null, 2), 'utf-8')
+  console.log(`[mock] ✓ Khởi tạo ${_storyListCache.length} truyện → mocks/stories/stories.json`)
+})()
 
 function readUsers() {
   return JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'))
@@ -56,26 +133,10 @@ function publicUser(u) {
   return { email: u.email, name: u.name, gender: u.gender, candy: u.candy ?? 0, chaptersRead: u.chaptersRead ?? 0 }
 }
 
-const STORY_DETAIL = {
-  id: '100412',
-  slug: 'muc-than-ky',
-  title: 'Mục Thần Ký',
-  type: 'Chuyển ngữ',
-  target: 'Nam',
-  status: 'Hoàn thành',
-  rating: 4.949,
-  ratingCount: 28,
-  commentCount: 347,
-  nominations: 2540,
-  author: 'Trạch Trư (宅猪)',
-  postedBy: 'DarkHero',
-  genres: ['Huyền Huyễn'],
-  tags: [],
-  description: 'Đại Khư tổ huấn nói, trời tối, đừng đi ra ngoài.\n\nĐại Khư Tàn Lão thôn mấy kẻ già yếu tàn tật từ bờ sông nhặt được một đứa bé, lấy tên Tần Mục, ngậm đắng nuốt cay đem hắn nuôi lớn. Một ngày này màn đêm buông xuống, bóng tối bao trùm Đại Khư, Tần Mục đi ra cửa chính...\n\nLàm trong gió xuân nhộn nhạo nhân vật phản diện đi!\n\nMù lòa nói với hắn.\n\nTần Mục nhân vật phản diện chi lộ, ngay tại quật khởi!',
-  poster: '/mock-assets/100412_muc-than-ky/00000_poster.jpg',
-  views: 1520000,
-  followers: 8542,
-  get totalChapters() { return getTotalChapters() },
+function getStoryDetail(storyId) {
+  const story = (_storyListCache ?? []).find((s) => s.id === storyId)
+  if (!story) return null
+  return { ...story, views: 0, followers: 0, totalChapters: getTotalChapters(storyId) }
 }
 
 const MOCK_REVIEWS = [
@@ -101,6 +162,12 @@ export default defineConfig({
     {
       name: 'mock-api',
       configureServer(server) {
+
+        /* ── Wait for async init before serving any request ── */
+        server.middlewares.use(async (_req, _res, next) => {
+          await _initPromise
+          next()
+        })
 
         /* ── Static mock assets (images) ── */
         server.middlewares.use('/mock-assets', (req, res, next) => {
@@ -161,10 +228,34 @@ export default defineConfig({
           send(res, 200, { message: 'Đổi mật khẩu thành công.' })
         })
 
+        /* ── Story list ── */
+        server.middlewares.use('/api/mock/stories', (req, res, next) => {
+          if (req.method !== 'GET') return next()
+          const urlObj = new URL(req.url, 'http://localhost')
+          const sort = urlObj.searchParams.get('sort') || 'latest'
+          const limit = Math.min(40, parseInt(urlObj.searchParams.get('limit') || '10'))
+          const q = (urlObj.searchParams.get('q') || '').toLowerCase().trim()
+          let list = [...(_storyListCache ?? [])]
+          if (q) {
+            list = list.filter((s) =>
+              s.title.toLowerCase().includes(q) || s.author.toLowerCase().includes(q)
+            )
+          } else {
+            if (sort === 'hot') list.sort((a, b) => b.nominations - a.nominations)
+            else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating)
+            else list.sort((a, b) => parseInt(b.id) - parseInt(a.id))
+          }
+          send(res, 200, { stories: list.slice(0, limit) })
+        })
+
         /* ── Story detail ── */
         server.middlewares.use('/api/mock/story-detail', (req, res, next) => {
           if (req.method !== 'GET') return next()
-          send(res, 200, STORY_DETAIL)
+          const urlObj = new URL(req.url, 'http://localhost')
+          const storyId = urlObj.searchParams.get('id') || '100412'
+          const story = getStoryDetail(storyId)
+          if (!story) return send(res, 404, { message: 'Không tìm thấy truyện.' })
+          send(res, 200, story)
         })
 
         /* ── Story reviews ── */
@@ -183,13 +274,15 @@ export default defineConfig({
         server.middlewares.use('/api/mock/story-chapters', (req, res, next) => {
           if (req.method !== 'GET') return next()
           const urlObj = new URL(req.url, 'http://localhost')
+          const storyId = urlObj.searchParams.get('storyId') || '100412'
           const page = Math.max(1, parseInt(urlObj.searchParams.get('page') || '1'))
           const limit = Math.min(50, parseInt(urlObj.searchParams.get('limit') || '30'))
           const search = (urlObj.searchParams.get('search') || '').toLowerCase()
+          const dir = _storyDirById(storyId)
+          if (!dir) return send(res, 404, { message: 'Không tìm thấy truyện.' })
 
           if (search) {
-            // Search: dùng title cache (load lazy lần đầu)
-            const all = getTitleCache()
+            const all = getTitleCache(storyId)
             const filtered = all.filter((c) => c.title.toLowerCase().includes(search))
             const start = (page - 1) * limit
             return send(res, 200, {
@@ -200,14 +293,12 @@ export default defineConfig({
             })
           }
 
-          // Pagination thường: lấy tên file từ cache, chỉ đọc content đúng page đó
-          const files = getFileCache()
-          const total = getTotalChapters()
+          const files = getFileCache(storyId)
+          const total = getTotalChapters(storyId)
           const start = (page - 1) * limit
-          const pageFiles = files.slice(start, start + limit)
-          const chapters = pageFiles.map((f) => {
+          const chapters = files.slice(start, start + limit).map((f) => {
             const match = f.match(/^(\d+)_(\d+)\.txt$/)
-            const firstLine = fs.readFileSync(path.join(STORY_DIR, f), 'utf-8').split('\n')[0].trim()
+            const firstLine = fs.readFileSync(path.join(dir, f), 'utf-8').split('\n')[0].trim()
             return { number: parseInt(match[1]), id: match[2], title: firstLine }
           })
           send(res, 200, { chapters, total, page, limit, totalPages: Math.ceil(total / limit) })
@@ -217,12 +308,15 @@ export default defineConfig({
         server.middlewares.use('/api/mock/story-chapter-content', (req, res, next) => {
           if (req.method !== 'GET') return next()
           const urlObj = new URL(req.url, 'http://localhost')
+          const storyId = urlObj.searchParams.get('storyId') || '100412'
           const chapterNum = urlObj.searchParams.get('chapter')
           if (!chapterNum) return send(res, 400, { message: 'Thiếu số chương.' })
+          const dir = _storyDirById(storyId)
+          if (!dir) return send(res, 404, { message: 'Không tìm thấy truyện.' })
           const padded = String(chapterNum).padStart(5, '0')
-          const files = fs.readdirSync(STORY_DIR).filter((f) => f.startsWith(padded + '_') && f.endsWith('.txt'))
+          const files = fs.readdirSync(dir).filter((f) => f.startsWith(padded + '_') && f.endsWith('.txt'))
           if (!files.length) return send(res, 404, { message: 'Không tìm thấy chương.' })
-          const content = fs.readFileSync(path.join(STORY_DIR, files[0]), 'utf-8')
+          const content = fs.readFileSync(path.join(dir, files[0]), 'utf-8')
           send(res, 200, { content })
         })
 

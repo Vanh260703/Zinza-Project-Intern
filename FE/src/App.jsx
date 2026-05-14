@@ -6,6 +6,8 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage'
 import HomePage from './pages/HomePage'
 import ProfilePage from './pages/ProfilePage'
 import StoryDetailPage from './pages/StoryDetailPage'
+import ChapterReadPage from './pages/ChapterReadPage'
+import LibraryPage from './pages/LibraryPage'
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="/home" element={<HomePage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/story/:id" element={<StoryDetailPage />} />
+          <Route path="/story/:id/read/:chapterNum" element={<ChapterReadPage />} />
+          <Route path="/tu-truyen" element={<LibraryPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
@@ -342,6 +342,148 @@ function ProfileTab() {
   )
 }
 
+/* ─── Bookshelf tab ───────────────────────────────────────────────────── */
+const GRADIENTS = [
+  ['#f59e0b','#ef4444'],['#8b5cf6','#3b82f6'],['#10b981','#0891b2'],
+  ['#f97316','#eab308'],['#6366f1','#8b5cf6'],['#ec4899','#f43f5e'],
+  ['#14b8a6','#22c55e'],['#3b82f6','#06b6d4'],['#a855f7','#ec4899'],
+  ['#f59e0b','#84cc16'],['#ef4444','#f97316'],['#0ea5e9','#6366f1'],
+]
+
+function BookshelfTab() {
+  const { user, toggleBookmark } = useAuth()
+  const navigate = useNavigate()
+  const [stories, setStories] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const bookmarkIds = user?.bookmark ?? []
+
+  useEffect(() => {
+    if (!bookmarkIds.length) { setLoading(false); return }
+    fetch('/api/mock/stories?limit=40')
+      .then((r) => r.json())
+      .then((data) => {
+        const all = data.stories ?? []
+        setStories(all.filter((s) => bookmarkIds.includes(s.id)))
+      })
+      .finally(() => setLoading(false))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Sync list when bookmark changes (remove story immediately on unfollow)
+  const displayed = stories.filter((s) => bookmarkIds.includes(s.id))
+
+  if (loading) {
+    return (
+      <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex gap-4 animate-pulse">
+              <div className="w-16 h-22 rounded-xl bg-stone-800 shrink-0" />
+              <div className="flex-1 space-y-2 py-1">
+                <div className="h-4 bg-stone-800 rounded w-3/4" />
+                <div className="h-3 bg-stone-800 rounded w-1/2" />
+                <div className="h-3 bg-stone-800 rounded w-1/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (!displayed.length) {
+    return (
+      <div className="bg-stone-900 rounded-2xl border border-stone-800 flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-stone-800 flex items-center justify-center text-3xl mb-4">📚</div>
+        <h3 className="text-white font-semibold mb-2">Tủ truyện trống</h3>
+        <p className="text-stone-500 text-sm mb-5">Theo dõi truyện để lưu vào tủ của bạn</p>
+        <button
+          onClick={() => navigate('/home')}
+          className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors"
+        >
+          Khám phá truyện
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-white font-semibold">Tủ truyện</h3>
+        <span className="text-stone-500 text-sm">{displayed.length} truyện</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {displayed.map((s) => {
+          const [from, to] = GRADIENTS[s.gradient % GRADIENTS.length]
+          return (
+            <div
+              key={s.id}
+              className="group flex gap-4 p-3 rounded-xl bg-stone-800/50 hover:bg-stone-800 border border-transparent hover:border-stone-700 transition-all"
+            >
+              {/* Poster */}
+              <div
+                className="w-14 shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
+                style={{ aspectRatio: '3/4' }}
+                onClick={() => navigate('/story/' + s.id)}
+              >
+                <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
+                {s.poster && (
+                  <img
+                    src={s.poster}
+                    alt={s.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                  />
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                <div>
+                  <p
+                    className="text-stone-100 text-sm font-semibold line-clamp-1 cursor-pointer group-hover:text-amber-400 transition-colors"
+                    onClick={() => navigate('/story/' + s.id)}
+                  >
+                    {s.title}
+                  </p>
+                  <p className="text-stone-500 text-xs mt-0.5">{s.author}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className={`text-xs px-1.5 py-0.5 rounded-full ${s.status === 'Hoàn thành' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                      {s.status === 'Hoàn thành' ? 'Full' : 'Đang ra'}
+                    </span>
+                    <span className="text-stone-600 text-xs">{s.totalChapters?.toLocaleString()} chương</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-amber-400 fill-amber-400" viewBox="0 0 24 24">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    <span className="text-stone-400 text-xs">{s.rating}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleBookmark(s.id)}
+                    className="text-xs text-stone-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Bỏ theo dõi
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Placeholder tabs ────────────────────────────────────────────────── */
 function PlaceholderTab({ icon, title, description }) {
   return (
@@ -382,9 +524,7 @@ export default function ProfilePage() {
             {activeTab === 'notifications' && (
               <PlaceholderTab icon="🔔" title="Thông báo" description="Bạn chưa có thông báo nào." />
             )}
-            {activeTab === 'bookshelf' && (
-              <PlaceholderTab icon="📚" title="Tủ truyện" description="Tủ truyện của bạn đang trống." />
-            )}
+            {activeTab === 'bookshelf' && <BookshelfTab />}
             {activeTab === 'transactions' && (
               <PlaceholderTab icon="💳" title="Lịch sử giao dịch" description="Chưa có giao dịch nào được ghi nhận." />
             )}

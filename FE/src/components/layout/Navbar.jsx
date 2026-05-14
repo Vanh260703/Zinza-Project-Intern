@@ -1,6 +1,117 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+
+const GRADIENTS = [
+  ['#f59e0b','#ef4444'],['#8b5cf6','#3b82f6'],['#10b981','#0891b2'],
+  ['#f97316','#eab308'],['#6366f1','#8b5cf6'],['#ec4899','#f43f5e'],
+  ['#14b8a6','#22c55e'],['#3b82f6','#06b6d4'],['#a855f7','#ec4899'],
+  ['#f59e0b','#84cc16'],['#ef4444','#f97316'],['#0ea5e9','#6366f1'],
+]
+
+function SearchBox({ onNavigate }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const ref = useRef()
+  const timerRef = useRef()
+
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const search = useCallback((q) => {
+    if (!q.trim()) { setResults([]); setOpen(false); return }
+    setLoading(true)
+    fetch(`/api/mock/stories?q=${encodeURIComponent(q)}&limit=6`)
+      .then((r) => r.json())
+      .then((data) => { setResults(data.stories ?? []); setOpen(true) })
+      .finally(() => setLoading(false))
+  }, [])
+
+  function handleChange(e) {
+    const v = e.target.value
+    setQuery(v)
+    clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => search(v), 300)
+  }
+
+  function handleKeyDown(e) {
+    if (e.key === 'Escape') { setOpen(false); setQuery('') }
+  }
+
+  function handleSelect(id) {
+    setOpen(false)
+    setQuery('')
+    onNavigate(id)
+  }
+
+  return (
+    <div ref={ref} className="relative hidden md:block">
+      <div className={`flex items-center gap-2 bg-stone-800/70 border rounded-xl px-3 py-2 transition-all w-52 focus-within:w-72 focus-within:border-amber-500/60 ${open && results.length ? 'border-amber-500/60' : 'border-stone-700'}`}>
+        <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 shrink-0 transition-colors ${loading ? 'text-amber-400 animate-pulse' : 'text-stone-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          value={query}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onFocus={() => results.length && setOpen(true)}
+          placeholder="Tìm truyện, tác giả..."
+          className="bg-transparent text-stone-200 text-sm placeholder-stone-500 outline-none w-full"
+        />
+        {query && (
+          <button onClick={() => { setQuery(''); setResults([]); setOpen(false) }} className="text-stone-500 hover:text-stone-300 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {open && (
+        <div className="absolute top-full mt-2 left-0 w-80 bg-stone-800 border border-stone-700 rounded-xl shadow-2xl overflow-hidden z-50">
+          {results.length === 0 ? (
+            <p className="px-4 py-3 text-stone-500 text-sm">Không tìm thấy kết quả.</p>
+          ) : (
+            <ul>
+              {results.map((s) => {
+                const [from, to] = GRADIENTS[s.gradient % GRADIENTS.length]
+                return (
+                  <li key={s.id}>
+                    <button
+                      onClick={() => handleSelect(s.id)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-stone-700/60 transition-colors text-left"
+                    >
+                      <div className="w-9 h-12 rounded-lg overflow-hidden shrink-0 relative">
+                        <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
+                        {s.poster && (
+                          <img src={s.poster} alt="" className="absolute inset-0 w-full h-full object-cover" onError={(e) => e.currentTarget.style.display='none'} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-stone-100 text-sm font-medium truncate">{s.title}</p>
+                        <p className="text-stone-500 text-xs truncate">{s.author}</p>
+                      </div>
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 ${s.status === 'Hoàn thành' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                        {s.status === 'Hoàn thành' ? 'Full' : 'Đang ra'}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 const BookIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -22,6 +133,10 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  function handleSearchNavigate(storyId) {
+    navigate('/story/' + storyId)
+  }
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -72,6 +187,7 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
+            <SearchBox onNavigate={handleSearchNavigate} />
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
