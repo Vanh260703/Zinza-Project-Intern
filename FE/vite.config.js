@@ -27,6 +27,10 @@ function send(res, status, data) {
   res.end(JSON.stringify(data))
 }
 
+function publicUser(u) {
+  return { email: u.email, name: u.name, gender: u.gender, candy: u.candy ?? 0, chaptersRead: u.chaptersRead ?? 0 }
+}
+
 export default defineConfig({
   plugins: [
     react(),
@@ -40,7 +44,7 @@ export default defineConfig({
           await new Promise((r) => setTimeout(r, 1200))
           const user = readUsers().find((u) => u.email === email && u.password === password)
           if (user) {
-            send(res, 200, { user: { email: user.email, name: user.name, gender: user.gender } })
+            send(res, 200, { user: publicUser(user) })
           } else {
             send(res, 401, { message: 'Email hoặc mật khẩu không chính xác.' })
           }
@@ -54,9 +58,36 @@ export default defineConfig({
           if (users.find((u) => u.email === email)) {
             return send(res, 409, { message: 'Email này đã được sử dụng.' })
           }
-          users.push({ email, name, gender, password })
+          users.push({ email, name, gender, password, candy: 0, chaptersRead: 0 })
           writeUsers(users)
           send(res, 201, { message: 'Đăng ký thành công.' })
+        })
+
+        server.middlewares.use('/api/mock/update-profile', async (req, res, next) => {
+          if (req.method !== 'PUT') return next()
+          const { email, name } = await parseBody(req)
+          await new Promise((r) => setTimeout(r, 800))
+          const users = readUsers()
+          const idx = users.findIndex((u) => u.email === email)
+          if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          users[idx].name = name
+          writeUsers(users)
+          send(res, 200, { user: publicUser(users[idx]) })
+        })
+
+        server.middlewares.use('/api/mock/change-password', async (req, res, next) => {
+          if (req.method !== 'PUT') return next()
+          const { email, currentPassword, newPassword } = await parseBody(req)
+          await new Promise((r) => setTimeout(r, 800))
+          const users = readUsers()
+          const idx = users.findIndex((u) => u.email === email)
+          if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          if (users[idx].password !== currentPassword) {
+            return send(res, 400, { message: 'Mật khẩu hiện tại không đúng.' })
+          }
+          users[idx].password = newPassword
+          writeUsers(users)
+          send(res, 200, { message: 'Đổi mật khẩu thành công.' })
         })
       },
     },
