@@ -164,7 +164,7 @@ export default function LoginPage() {
             {/* Forgot password */}
             <div className="text-right mb-6">
               <Link
-                to="/quen-mat-khau"
+                to="/forgot-password"
                 className="text-xs text-amber-600 hover:text-amber-700 hover:underline transition-colors"
               >
                 Quên mật khẩu?
@@ -199,7 +199,7 @@ export default function LoginPage() {
           <p className="text-center text-sm text-gray-600">
             Chưa có tài khoản?{' '}
             <Link
-              to="/dang-ky"
+              to="/register"
               className="text-amber-600 font-medium hover:text-amber-700 hover:underline transition-colors"
             >
               Đăng ký ngay

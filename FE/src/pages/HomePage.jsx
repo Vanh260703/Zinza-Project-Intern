@@ -4,7 +4,7 @@ export default function HomePage() {
   const navigate = useNavigate()
 
   function handleLogout() {
-    navigate('/dang-nhap')
+    navigate('/login')
   }
 
   return (

@@ -8,10 +8,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dang-nhap" replace />} />
-        <Route path="/dang-nhap" element={<LoginPage />} />
-        <Route path="/dang-ky" element={<RegisterPage />} />
-        <Route path="/quen-mat-khau" element={<ForgotPasswordPage />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/home" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
