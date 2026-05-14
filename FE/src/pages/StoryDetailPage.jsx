@@ -470,8 +470,11 @@ export default function StoryDetailPage() {
                   ? 'border-amber-500 text-amber-400'
                   : 'border-transparent text-stone-500 hover:text-stone-300'}`}
             >
-              {tab.key === 'chapters' && story ? `Danh sách chương (${story.totalChapters?.toLocaleString()})` : tab.label}
-              {tab.key === 'comments' && story ? `Bình luận (${story.commentCount})` : tab.key !== 'chapters' ? tab.label : ''}
+              {tab.key === 'chapters' && story
+                ? `Danh sách chương (${story.totalChapters?.toLocaleString()})`
+                : tab.key === 'comments' && story
+                  ? `Bình luận (${story.commentCount})`
+                  : tab.label}
             </button>
           ))}
         </div>
