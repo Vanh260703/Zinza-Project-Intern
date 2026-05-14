@@ -1,24 +1,33 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import StoryCard from './StoryCard'
 
-const VISIBLE = 5
 const GAP = 16
 const AUTO_DELAY = 2500
+
+function getVisible(width) {
+  if (width < 480) return 2
+  if (width < 768) return 3
+  if (width < 1024) return 4
+  return 5
+}
 
 export default function StoryCarousel({ stories = [], loading = false }) {
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
   const [cardWidth, setCardWidth] = useState(0)
+  const [visible, setVisible] = useState(() => getVisible(window.innerWidth))
   const containerRef = useRef(null)
   const timerRef = useRef(null)
-  const maxIndex = Math.max(0, stories.length - VISIBLE)
+  const maxIndex = Math.max(0, stories.length - visible)
 
-  // Measure card width from container
+  // Measure card width and update visible count from container
   useEffect(() => {
     function measure() {
       if (containerRef.current) {
         const w = containerRef.current.offsetWidth
-        setCardWidth((w - GAP * (VISIBLE - 1)) / VISIBLE)
+        const v = getVisible(w)
+        setVisible(v)
+        setCardWidth((w - GAP * (v - 1)) / v)
       }
     }
     measure()
@@ -41,7 +50,7 @@ export default function StoryCarousel({ stories = [], loading = false }) {
   if (loading) {
     return (
       <div className="flex gap-4">
-        {Array.from({ length: VISIBLE }).map((_, i) => (
+        {Array.from({ length: visible }).map((_, i) => (
           <div key={i} className="flex-1">
             <div className="aspect-[3/4] rounded-xl bg-stone-800 animate-pulse mb-3" />
             <div className="h-3 bg-stone-800 rounded animate-pulse mb-2 w-full" />
@@ -78,7 +87,7 @@ export default function StoryCarousel({ stories = [], loading = false }) {
             <div
               key={story.id}
               className="flex-shrink-0"
-              style={{ width: cardWidth || `calc((100% - ${GAP * (VISIBLE - 1)}px) / ${VISIBLE})` }}
+              style={{ width: cardWidth || `calc((100% - ${GAP * (visible - 1)}px) / ${visible})` }}
             >
               <StoryCard story={story} />
             </div>

@@ -478,10 +478,10 @@ export default function StoryDetailPage() {
               </div>
             </div>
           ) : (
-            <div className="flex gap-8 items-start">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
               {/* Poster */}
-              <div className="shrink-0">
-                <div className="w-40 h-56 rounded-2xl overflow-hidden border border-stone-700 shadow-xl">
+              <div className="shrink-0 self-center sm:self-start">
+                <div className="w-32 h-44 sm:w-40 sm:h-56 rounded-2xl overflow-hidden border border-stone-700 shadow-xl">
                   {!posterError ? (
                     <img
                       src={story.poster}
@@ -509,7 +509,7 @@ export default function StoryDetailPage() {
                   ))}
                 </div>
 
-                <h1 className="text-3xl font-black text-white mb-1">{story.title}</h1>
+                <h1 className="text-2xl sm:text-3xl font-black text-white mb-1">{story.title}</h1>
                 <p className="text-stone-400 text-sm mb-1">
                   Tác giả: <span className="text-stone-300">{story.author}</span>
                 </p>

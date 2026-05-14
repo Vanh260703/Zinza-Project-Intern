@@ -92,9 +92,11 @@ function ManualForm({ onClose, onAdded, genres, userEmail }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Cover + fields side by side */}
-      <div className="flex gap-6">
-        <CoverUpload value={cover} onChange={setCover} />
+      {/* Cover + fields */}
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+        <div className="self-center sm:self-start">
+          <CoverUpload value={cover} onChange={setCover} />
+        </div>
         <div className="flex-1 flex flex-col gap-3">
           <div>
             <label className="block text-stone-400 text-xs font-medium mb-1.5">Tên truyện <span className="text-red-400">*</span></label>
@@ -278,7 +280,7 @@ function AddStoryModal({ onClose, onAdded, genres, userEmail }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-xl bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-xl bg-stone-900 border border-stone-700 rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-800">
           <h2 className="text-white font-bold text-base">Thêm truyện mới</h2>
@@ -426,7 +428,7 @@ export default function MyStoriesPage() {
     <div className="min-h-screen bg-stone-950">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

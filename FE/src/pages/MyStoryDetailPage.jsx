@@ -474,19 +474,19 @@ export default function MyStoryDetailPage() {
     <div className="min-h-screen bg-stone-950">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* Breadcrumb + actions */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2 text-sm">
-            <Link to="/truyen-cua-toi" className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors">
+        <div className="flex items-center justify-between mb-8 gap-3">
+          <div className="flex items-center gap-2 text-sm min-w-0">
+            <Link to="/truyen-cua-toi" className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
               Truyện của tôi
             </Link>
-            <span className="text-stone-700">/</span>
-            <span className="text-stone-300 truncate max-w-48">{story.title}</span>
+            <span className="text-stone-700 shrink-0">/</span>
+            <span className="text-stone-300 truncate">{story.title}</span>
           </div>
           <ManageDropdown
             onEdit={() => setModal('edit')}
@@ -496,9 +496,9 @@ export default function MyStoryDetailPage() {
         </div>
 
         {/* Story info */}
-        <div className="flex gap-8 mb-8">
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 mb-8">
           {/* Cover */}
-          <div className="shrink-0 w-36 sm:w-44">
+          <div className="shrink-0 w-32 sm:w-36 lg:w-44 self-center sm:self-start">
             <div className="relative rounded-2xl overflow-hidden ring-1 ring-stone-700" style={{ aspectRatio: '3/4' }}>
               <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
               {story.cover && (
@@ -511,7 +511,7 @@ export default function MyStoryDetailPage() {
           {/* Meta */}
           <div className="flex-1 min-w-0 py-1">
             <div className="flex items-start gap-3 flex-wrap mb-2">
-              <h1 className="text-white text-2xl font-bold leading-snug">{story.title}</h1>
+              <h1 className="text-white text-xl sm:text-2xl font-bold leading-snug">{story.title}</h1>
               {story.fromZip && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 mt-1 shrink-0">ZIP</span>
               )}

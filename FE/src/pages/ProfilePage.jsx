@@ -32,8 +32,26 @@ const TABS = [
 
 function Sidebar({ active, onChange }) {
   return (
-    <aside className="w-60 shrink-0">
-      <nav className="bg-stone-900 rounded-2xl border border-stone-800 overflow-hidden">
+    <aside className="w-full lg:w-60 lg:shrink-0">
+      {/* Mobile: horizontal scrollable tabs */}
+      <div className="lg:hidden flex gap-1 overflow-x-auto bg-stone-900 rounded-2xl border border-stone-800 p-2 scrollbar-hide">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => onChange(tab.key)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0
+              ${active === tab.key
+                ? 'bg-amber-500/15 text-amber-400 border border-amber-500/20'
+                : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800'
+              }`}
+          >
+            <Icon d={tab.d} className="w-3.5 h-3.5 shrink-0" />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+      {/* Desktop: vertical nav */}
+      <nav className="hidden lg:block bg-stone-900 rounded-2xl border border-stone-800 overflow-hidden">
         <div className="px-4 py-5 border-b border-stone-800">
           <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tài khoản</p>
         </div>
@@ -516,10 +534,10 @@ export default function ProfilePage() {
           <p className="text-stone-500 text-sm mt-1">Quản lý thông tin và cài đặt tài khoản của bạn</p>
         </div>
 
-        <div className="flex gap-8 items-start">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
           <Sidebar active={activeTab} onChange={setActiveTab} />
 
-          <main className="flex-1 min-w-0">
+          <main className="flex-1 min-w-0 w-full">
             {activeTab === 'profile' && <ProfileTab />}
             {activeTab === 'notifications' && (
               <PlaceholderTab icon="🔔" title="Thông báo" description="Bạn chưa có thông báo nào." />

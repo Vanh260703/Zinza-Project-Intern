@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import StoryCarousel from '../components/home/StoryCarousel'
@@ -35,10 +35,10 @@ function FilterBar({ genres, onSearch, onReset, hasFilter }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-8 relative z-10 flex flex-wrap items-center gap-2 bg-stone-900/80 backdrop-blur-sm border border-stone-700/60 rounded-2xl px-4 py-3"
+      className="mt-8 relative z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 bg-stone-900/80 backdrop-blur-sm border border-stone-700/60 rounded-2xl px-4 py-3"
     >
-      {/* Search text */}
-      <div className="relative flex-[2] min-w-44">
+      {/* Search text — full width on mobile */}
+      <div className="relative w-full sm:flex-[2] sm:min-w-44">
         <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -52,37 +52,35 @@ function FilterBar({ genres, onSearch, onReset, hasFilter }) {
         />
       </div>
 
-      {/* Thể loại */}
-      <div className="relative flex-1 min-w-32">
-        <select value={genre} onChange={(e) => setGenre(e.target.value)} className={SELECT_CLS}>
-          <option value="">Thể loại</option>
-          {genres.map((g) => <option key={g} value={g}>{g}</option>)}
-        </select>
-        <ChevronIcon />
-      </div>
-
-      {/* Trạng thái */}
-      <div className="relative flex-1 min-w-32">
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className={SELECT_CLS}>
-          <option value="">Trạng thái</option>
-          <option value="Đang ra">Đang ra</option>
-          <option value="Hoàn thành">Hoàn thành</option>
-        </select>
-        <ChevronIcon />
-      </div>
-
-      {/* Sắp xếp */}
-      <div className="relative flex-1 min-w-36">
-        <select value={sort} onChange={(e) => setSort(e.target.value)} className={SELECT_CLS}>
-          <option value="latest">⚡ Mới nhất</option>
-          <option value="views">👁 Lượt xem</option>
-          <option value="candy">🍬 Số kẹo tặng</option>
-        </select>
-        <ChevronIcon />
+      {/* Selects — 3 cols on mobile, inline on sm+ */}
+      <div className="grid grid-cols-3 sm:contents gap-2">
+        <div className="relative">
+          <select value={genre} onChange={(e) => setGenre(e.target.value)} className={SELECT_CLS}>
+            <option value="">Thể loại</option>
+            {genres.map((g) => <option key={g} value={g}>{g}</option>)}
+          </select>
+          <ChevronIcon />
+        </div>
+        <div className="relative">
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={SELECT_CLS}>
+            <option value="">Trạng thái</option>
+            <option value="Đang ra">Đang ra</option>
+            <option value="Hoàn thành">Hoàn thành</option>
+          </select>
+          <ChevronIcon />
+        </div>
+        <div className="relative">
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className={SELECT_CLS}>
+            <option value="latest">⚡ Mới nhất</option>
+            <option value="views">👁 Lượt xem</option>
+            <option value="candy">🍬 Số kẹo tặng</option>
+          </select>
+          <ChevronIcon />
+        </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-1.5 sm:shrink-0">
         {hasFilter && (
           <button type="button" onClick={handleReset}
             className="p-2.5 text-stone-500 hover:text-stone-300 hover:bg-stone-800 rounded-xl transition-colors"
@@ -94,7 +92,7 @@ function FilterBar({ genres, onSearch, onReset, hasFilter }) {
           </button>
         )}
         <button type="submit"
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-amber-500/20"
+          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-amber-500/20"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -280,8 +278,7 @@ const RANK_STYLES = [
   'text-stone-500 font-bold text-sm',
 ]
 
-function TopStoriesWidget({ visible }) {
-  const [open, setOpen] = useState(true)
+function TopStoriesPanel() {
   const [tab, setTab] = useState('day')
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -299,74 +296,59 @@ function TopStoriesWidget({ visible }) {
   ]
 
   return (
-    <div className={`fixed right-6 top-32 z-50 w-68 transition-all duration-300 ease-out ${visible ? 'opacity-100 translate-x-0 pointer-events-auto' : 'opacity-0 translate-x-8 pointer-events-none'}`}>
-      {/* Toggle header */}
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-stone-900 border border-stone-700 rounded-2xl shadow-xl text-sm font-bold text-white hover:border-amber-500/50 transition-colors"
-      >
-        <span className="flex items-center gap-2">
-          <span className="text-base">🏆</span>
-          BXH Top 5
-        </span>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {/* Panel */}
-      <div className={`mt-1.5 bg-stone-900/95 backdrop-blur-sm border border-stone-700/80 rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 origin-bottom-right ${open ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
-        {/* Tabs */}
-        <div className="flex border-b border-stone-800">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex-1 py-2 text-xs font-semibold transition-colors ${tab === t.key ? 'text-amber-400 border-b-2 border-amber-500 -mb-px' : 'text-stone-500 hover:text-stone-300'}`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* List */}
-        <div className="p-3 space-y-0.5">
-          {loading ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 px-2 py-2">
-                <div className="w-5 h-4 bg-stone-800 rounded animate-pulse shrink-0" />
-                <div className="flex-1 h-3 bg-stone-800 rounded animate-pulse" />
-                <div className="w-10 h-3 bg-stone-800 rounded animate-pulse shrink-0" />
-              </div>
-            ))
-          ) : (
-            stories.map((s, i) => (
-              <Link
-                key={s.id}
-                to={`/story/${s.id}`}
-                className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-stone-800/60 transition-colors group"
-              >
-                <span className={`w-5 shrink-0 text-center ${RANK_STYLES[i]}`}>{i + 1}</span>
-                <span className="flex-1 text-stone-300 text-xs font-medium line-clamp-1 group-hover:text-amber-400 transition-colors">
-                  {s.title}
-                </span>
-                <span className="shrink-0 text-stone-600 text-xs flex items-center gap-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  {(s.nominations ?? 0).toLocaleString()}
-                </span>
-              </Link>
-            ))
-          )}
-        </div>
-        <p className="text-center text-stone-700 text-xs pb-2.5">Dữ liệu cập nhật theo mock</p>
+    <div className="sticky top-24 bg-stone-900 border border-stone-700/80 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-stone-800">
+        <span className="text-base">🏆</span>
+        <h3 className="text-white text-sm font-bold flex-1">Bảng xếp hạng</h3>
       </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-stone-800">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`flex-1 py-2.5 text-xs font-semibold transition-colors ${tab === t.key ? 'text-amber-400 border-b-2 border-amber-500 -mb-px bg-amber-500/5' : 'text-stone-500 hover:text-stone-300'}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* List */}
+      <div className="p-2 space-y-0.5">
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3 px-3 py-2.5">
+              <div className="w-5 h-4 bg-stone-800 rounded animate-pulse shrink-0" />
+              <div className="flex-1 h-3 bg-stone-800 rounded animate-pulse" />
+              <div className="w-10 h-3 bg-stone-800 rounded animate-pulse shrink-0" />
+            </div>
+          ))
+        ) : (
+          stories.map((s, i) => (
+            <Link
+              key={s.id}
+              to={`/story/${s.id}`}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-stone-800/60 transition-colors group"
+            >
+              <span className={`w-5 shrink-0 text-center ${RANK_STYLES[i]}`}>{i + 1}</span>
+              <span className="flex-1 text-stone-300 text-xs font-medium line-clamp-2 leading-snug group-hover:text-amber-400 transition-colors">
+                {s.title}
+              </span>
+              <span className="shrink-0 text-stone-600 text-xs flex items-center gap-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {(s.nominations ?? 0).toLocaleString()}
+              </span>
+            </Link>
+          ))
+        )}
+      </div>
+      <p className="text-center text-stone-700 text-xs py-2.5">Dữ liệu cập nhật theo mock</p>
     </div>
   )
 }
@@ -425,29 +407,6 @@ export default function HomePage() {
 
   const hasFilter = activeFilters !== null
 
-  // Show top-stories widget when user reaches "Truyện hot" section
-  const hotSectionRef = useRef(null)
-  const [showTopWidget, setShowTopWidget] = useState(false)
-
-  useEffect(() => {
-    const el = hotSectionRef.current
-    if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setShowTopWidget(true)
-        } else if (entry.boundingClientRect.top > 0) {
-          // section is below viewport → user hasn't reached it yet
-          setShowTopWidget(false)
-        }
-        // if top <= 0 → section scrolled past top → keep showing
-      },
-      { threshold: 0 }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-
   useEffect(() => {
     getLatestStories().then((data) => { setLatest(data); setLoadingLatest(false) })
     getHotStories().then((data) => { setHot(data); setLoadingHot(false) })
@@ -498,17 +457,17 @@ export default function HomePage() {
 
       {/* Hero banner */}
       <div className="relative bg-linear-to-br from-stone-900 via-amber-950/30 to-stone-900 border-b border-stone-800">
-        <div className="max-w-7xl mx-auto px-6 py-12 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-4 py-1.5 mb-5">
+            <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1.5 mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
               <span className="text-amber-400 text-xs font-medium">Hơn 10,000 truyện đang chờ bạn</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3 sm:mb-4">
               Kho truyện chữ<br />
               <span className="text-amber-400">hàng đầu</span> Việt Nam
             </h1>
-            <p className="text-stone-400 text-base mb-7 leading-relaxed">
+            <p className="text-stone-400 text-sm sm:text-base mb-5 sm:mb-7 leading-relaxed">
               Khám phá hàng nghìn bộ truyện tiên hiệp, huyền huyễn, võ hiệp được cập nhật mỗi ngày.
             </p>
             <div className="flex items-center gap-3">
@@ -531,7 +490,7 @@ export default function HomePage() {
         </div>
 
         {/* Filter bar */}
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
           <FilterBar
             genres={genres}
             onSearch={handleSearch}
@@ -546,7 +505,7 @@ export default function HomePage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 py-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
 
         {/* Filtered results */}
         <FilteredResults
@@ -564,69 +523,74 @@ export default function HomePage() {
         </section>
         )}
 
-        {/* Hot stories */}
+        {/* 2-col layout: content (2/3) + ranking (1/3) */}
         {!hasFilter && (
-        <section ref={hotSectionRef}>
-          <SectionHeader title="Truyện hot" icon="🔥" />
-          <StoryCarousel stories={hot} loading={loadingHot} />
-        </section>
-        )}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 items-start">
 
-        {/* Recommended */}
-        {!hasFilter && (
-        <section>
-          <SectionHeader title="Truyện đề cử" icon="⭐" />
-          {!user ? (
-            <EmptyRecommended />
-          ) : (
-            <StoryCarousel stories={recommended} loading={loadingRec} />
-          )}
-        </section>
-        )}
+          {/* Left col — hot, recommended, vip */}
+          <div className="lg:col-span-3 space-y-16">
+            <section>
+              <SectionHeader title="Truyện hot" icon="🔥" />
+              <StoryCarousel stories={hot} loading={loadingHot} />
+            </section>
 
-        {/* VIP Stories - only for logged-in users */}
-        {user && (
-          <section>
-            <SectionHeader title="Truyện VIP" icon="👑" badge="Nội dung độc quyền" />
-            <div className="bg-linear-to-br from-amber-950/20 via-stone-900/50 to-stone-900/20 border border-amber-500/20 rounded-2xl p-6">
-              <div className="flex items-start gap-3 mb-5 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-xs text-amber-300/80 leading-relaxed">
-                  Truyện VIP là nội dung độc quyền. Dùng <span className="font-semibold text-amber-300">🍬 kẹo</span> để mở khóa và theo dõi truyện.
-                  Bạn hiện có <span className="font-bold text-amber-400">{user.candy ?? 0} kẹo</span>.
-                </p>
-              </div>
-              {loadingVip ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i}>
-                      <div className="aspect-3/4 rounded-xl bg-stone-800 animate-pulse mb-3" />
-                      <div className="h-3 bg-stone-800 rounded animate-pulse mb-2" />
-                      <div className="h-3 bg-stone-800 rounded animate-pulse w-2/3" />
-                    </div>
-                  ))}
-                </div>
+            <section>
+              <SectionHeader title="Truyện đề cử" icon="⭐" />
+              {!user ? (
+                <EmptyRecommended />
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                  {vipStories.map((story) => (
-                    <VipStoryCard
-                      key={story.id}
-                      story={story}
-                      user={user}
-                      onUnlock={unlockVip}
-                    />
-                  ))}
-                </div>
+                <StoryCarousel stories={recommended} loading={loadingRec} />
               )}
-            </div>
-          </section>
+            </section>
+
+            {user && (
+              <section>
+                <SectionHeader title="Truyện VIP" icon="👑" badge="Nội dung độc quyền" />
+                <div className="bg-linear-to-br from-amber-950/20 via-stone-900/50 to-stone-900/20 border border-amber-500/20 rounded-2xl p-6">
+                  <div className="flex items-start gap-3 mb-5 p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-xs text-amber-300/80 leading-relaxed">
+                      Truyện VIP là nội dung độc quyền. Dùng <span className="font-semibold text-amber-300">🍬 kẹo</span> để mở khóa và theo dõi truyện.
+                      Bạn hiện có <span className="font-bold text-amber-400">{user.candy ?? 0} kẹo</span>.
+                    </p>
+                  </div>
+                  {loadingVip ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i}>
+                          <div className="aspect-3/4 rounded-xl bg-stone-800 animate-pulse mb-3" />
+                          <div className="h-3 bg-stone-800 rounded animate-pulse mb-2" />
+                          <div className="h-3 bg-stone-800 rounded animate-pulse w-2/3" />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {vipStories.map((story) => (
+                        <VipStoryCard
+                          key={story.id}
+                          story={story}
+                          user={user}
+                          onUnlock={unlockVip}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </div>
+
+          {/* Right col — ranking panel */}
+          <div className="lg:col-span-1">
+            <TopStoriesPanel />
+          </div>
+
+        </div>
         )}
       </div>
-
-      {/* Top stories floating widget */}
-      <TopStoriesWidget visible={showTopWidget} />
 
       {/* Footer */}
       <footer className="border-t border-stone-800 mt-8">
