@@ -13,7 +13,6 @@ function getFileCache() {
   if (_fileCache) return _fileCache
   _fileCache = fs.readdirSync(STORY_DIR)
     .filter((f) => f.endsWith('.txt') && !f.startsWith('00000'))
-    .sort()
   return _fileCache
 }
 
