@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { mockLogin } from '../../mocks/auth'
+import { useAuth } from '../../context/AuthContext'
 
 const BookOpenIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -44,6 +45,7 @@ function validate(email, password) {
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
@@ -67,7 +69,8 @@ export default function LoginPage() {
     setLoading(true)
     setServerError('')
     try {
-      await mockLogin(form.email, form.password)
+      const data = await mockLogin(form.email, form.password)
+      login(data.user)
       navigate('/home')
     } catch (err) {
       setServerError(err.message)
