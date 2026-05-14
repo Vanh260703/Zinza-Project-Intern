@@ -121,7 +121,6 @@ const BookIcon = () => (
 
 const NAV_LINKS = [
   { label: 'Trang chủ', to: '/home' },
-  { label: 'Thể loại', to: '/the-loai' },
   { label: 'Bảng xếp hạng', to: '/bang-xep-hang' },
   { label: 'Mới cập nhật', to: '/moi-cap-nhat' },
 ]
@@ -189,7 +188,12 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <SearchBox onNavigate={handleSearchNavigate} />
             {user ? (
-              <div className="relative" ref={dropdownRef}>
+              <div
+                className="relative"
+                ref={dropdownRef}
+                onMouseEnter={() => setDropdownOpen(true)}
+                onMouseLeave={() => setDropdownOpen(false)}
+              >
                 <button
                   onClick={() => setDropdownOpen((v) => !v)}
                   className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl hover:bg-stone-700/60 transition-colors group"
@@ -200,24 +204,37 @@ export default function Navbar() {
                   <span className="hidden sm:block text-stone-200 text-sm font-medium max-w-28 truncate">
                     {user.name}
                   </span>
-                  <svg xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 text-stone-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={`w-4 h-4 text-stone-400 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
 
-                {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-stone-800 border border-stone-700 rounded-xl shadow-xl overflow-hidden">
-                    <div className="px-4 py-3 border-b border-stone-700">
+                {/* Always mounted — visibility controlled by CSS for smooth transition */}
+                <div
+                  className={`absolute right-0 top-full pt-2 w-56 z-50 transition-all duration-200 ease-out origin-top-right
+                    ${dropdownOpen
+                      ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                      : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
+                    }`}
+                >
+                  <div className="bg-stone-800/95 backdrop-blur-sm border border-stone-700/80 rounded-xl shadow-2xl shadow-black/40 overflow-hidden ring-1 ring-white/5">
+                    {/* User info header */}
+                    <div className="px-4 py-3 border-b border-stone-700/60 bg-stone-900/40">
                       <p className="text-white text-sm font-semibold truncate">{user.name}</p>
                       <p className="text-stone-400 text-xs truncate mt-0.5">{user.email}</p>
                     </div>
+
                     <div className="py-1">
                       <Link
                         to="/profile"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/60 text-sm transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         Trang cá nhân
@@ -225,27 +242,38 @@ export default function Navbar() {
                       <Link
                         to="/tu-truyen"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/60 text-sm transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                         Tủ truyện
                       </Link>
+                      <Link
+                        to="/truyen-cua-toi"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Truyện của tôi
+                      </Link>
                     </div>
-                    <div className="py-1 border-t border-stone-700">
+
+                    <div className="py-1 border-t border-stone-700/60">
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 text-sm transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 text-sm transition-colors duration-150"
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                         </svg>
                         Đăng xuất
                       </button>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">

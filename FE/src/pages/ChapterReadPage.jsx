@@ -4,6 +4,46 @@ import Navbar from '../components/layout/Navbar'
 import { fetchChapterContent, fetchStoryDetail, fetchChapterComments, postChapterComment } from '../mocks/story'
 import { useAuth } from '../context/AuthContext'
 
+function NavButtons({ bottom, num, storyId, isFirst, isLast, onGoTo }) {
+  return (
+    <div className={`flex items-center gap-3 ${bottom ? 'justify-between' : ''}`}>
+      <button
+        onClick={() => onGoTo(num - 1)}
+        disabled={isFirst}
+        className="flex items-center gap-1.5 px-4 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-35 disabled:cursor-not-allowed text-stone-300 text-sm rounded-xl transition-colors"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        {bottom ? 'Chương trước' : 'Trước'}
+      </button>
+
+      {bottom && (
+        <Link
+          to={`/story/${storyId}`}
+          className="flex items-center gap-1.5 px-4 py-2 border border-stone-700 hover:border-stone-500 text-stone-400 hover:text-stone-200 text-sm rounded-xl transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+          </svg>
+          Thông tin truyện
+        </Link>
+      )}
+
+      <button
+        onClick={() => onGoTo(num + 1)}
+        disabled={isLast}
+        className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-35 disabled:cursor-not-allowed text-white text-sm rounded-xl transition-colors shadow-lg shadow-amber-600/20"
+      >
+        {bottom ? 'Chương sau' : 'Sau'}
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  )
+}
+
 const FONT_SIZES = [
   { label: 'Nhỏ',  cls: 'text-sm',  px: 14 },
   { label: 'Vừa',  cls: 'text-base', px: 16 },
@@ -27,10 +67,13 @@ function ChapterComments({ storyId, chapterNum, user }) {
 
   useEffect(() => {
     let cancelled = false
-    setLoadingComments(true)
-    fetchChapterComments(storyId, chapterNum)
-      .then((data) => { if (!cancelled) setComments(data.comments ?? []) })
-      .finally(() => { if (!cancelled) setLoadingComments(false) })
+    setTimeout(() => {
+      if (cancelled) return
+      setLoadingComments(true)
+      fetchChapterComments(storyId, chapterNum)
+        .then((data) => { if (!cancelled) setComments(data.comments ?? []) })
+        .finally(() => { if (!cancelled) setLoadingComments(false) })
+    }, 0)
     return () => { cancelled = true }
   }, [storyId, chapterNum])
 
@@ -142,23 +185,25 @@ export default function ChapterReadPage() {
   /* Fetch chapter content on num change */
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(false)
-    setContent(null)
     topRef.current?.scrollIntoView({ behavior: 'instant' })
-
-    fetchChapterContent(storyId, num)
-      .then((data) => {
-        if (cancelled) return
-        if (data?.content) {
-          setContent(data.content)
-          if (user) updateReadHistory(storyId, num)
-        } else setError(true)
-      })
-      .catch(() => { if (!cancelled) setError(true) })
-      .finally(() => { if (!cancelled) setLoading(false) })
-
+    setTimeout(() => {
+      if (cancelled) return
+      setLoading(true)
+      setError(false)
+      setContent(null)
+      fetchChapterContent(storyId, num)
+        .then((data) => {
+          if (cancelled) return
+          if (data?.content) {
+            setContent(data.content)
+            if (user) updateReadHistory(storyId, num)
+          } else setError(true)
+        })
+        .catch(() => { if (!cancelled) setError(true) })
+        .finally(() => { if (!cancelled) setLoading(false) })
+    }, 0)
     return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyId, num])
 
   function changeFontSize(cls) {
@@ -186,44 +231,6 @@ export default function ChapterReadPage() {
 
   const isFirst = num <= 1
   const isLast = !!story?.totalChapters && num >= story.totalChapters
-
-  const NavButtons = ({ bottom }) => (
-    <div className={`flex items-center gap-3 ${bottom ? 'justify-between' : ''}`}>
-      <button
-        onClick={() => goTo(num - 1)}
-        disabled={isFirst}
-        className="flex items-center gap-1.5 px-4 py-2 bg-stone-800 hover:bg-stone-700 disabled:opacity-35 disabled:cursor-not-allowed text-stone-300 text-sm rounded-xl transition-colors"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        {bottom ? 'Chương trước' : 'Trước'}
-      </button>
-
-      {bottom && (
-        <Link
-          to={`/story/${storyId}`}
-          className="flex items-center gap-1.5 px-4 py-2 border border-stone-700 hover:border-stone-500 text-stone-400 hover:text-stone-200 text-sm rounded-xl transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
-          </svg>
-          Thông tin truyện
-        </Link>
-      )}
-
-      <button
-        onClick={() => goTo(num + 1)}
-        disabled={isLast}
-        className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-35 disabled:cursor-not-allowed text-white text-sm rounded-xl transition-colors shadow-lg shadow-amber-600/20"
-      >
-        {bottom ? 'Chương sau' : 'Sau'}
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    </div>
-  )
 
   return (
     <div className="min-h-screen bg-stone-950" ref={topRef}>
@@ -285,7 +292,7 @@ export default function ChapterReadPage() {
 
           {/* Prev/Next compact */}
           <div className="shrink-0">
-            <NavButtons />
+            <NavButtons num={num} storyId={storyId} isFirst={isFirst} isLast={isLast} onGoTo={goTo} />
           </div>
         </div>
       </div>
@@ -321,7 +328,7 @@ export default function ChapterReadPage() {
       {/* Bottom navigation */}
       {!loading && !error && (
         <div className="max-w-3xl mx-auto px-6 sm:px-8 pb-8 border-t border-stone-800 pt-8">
-          <NavButtons bottom />
+          <NavButtons bottom num={num} storyId={storyId} isFirst={isFirst} isLast={isLast} onGoTo={goTo} />
         </div>
       )}
 

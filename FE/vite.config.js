@@ -143,7 +143,13 @@ function publicUser(u) {
 function getStoryDetail(storyId) {
   const story = (_storyListCache ?? []).find((s) => s.id === storyId)
   if (!story) return null
-  return { ...story, views: 0, followers: 0, totalChapters: getTotalChapters(storyId) }
+  const diskChapters = getTotalChapters(storyId)
+  return {
+    ...story,
+    views: story.views ?? 0,
+    followers: story.followers ?? 0,
+    totalChapters: diskChapters || story.totalChapters || 0,
+  }
 }
 
 const MOCK_REVIEWS = [
@@ -239,20 +245,27 @@ export default defineConfig({
         server.middlewares.use('/api/mock/stories', (req, res, next) => {
           if (req.method !== 'GET') return next()
           const urlObj = new URL(req.url, 'http://localhost')
-          const sort = urlObj.searchParams.get('sort') || 'latest'
-          const limit = Math.min(40, parseInt(urlObj.searchParams.get('limit') || '10'))
-          const q = (urlObj.searchParams.get('q') || '').toLowerCase().trim()
+          const sort   = urlObj.searchParams.get('sort')   || 'latest'
+          const limit  = Math.min(40, parseInt(urlObj.searchParams.get('limit') || '10'))
+          const q      = (urlObj.searchParams.get('q')      || '').toLowerCase().trim()
+          const genre  = (urlObj.searchParams.get('genre')  || '').trim()
+          const status = (urlObj.searchParams.get('status') || '').trim()
+
           let list = [...(_storyListCache ?? [])]
-          if (q) {
-            list = list.filter((s) =>
-              s.title.toLowerCase().includes(q) || s.author.toLowerCase().includes(q)
-            )
-          } else {
-            if (sort === 'hot') list.sort((a, b) => b.nominations - a.nominations)
-            else if (sort === 'rating') list.sort((a, b) => b.rating - a.rating)
-            else list.sort((a, b) => parseInt(b.id) - parseInt(a.id))
-          }
-          send(res, 200, { stories: list.slice(0, limit) })
+
+          // ── Filters (always applied) ──────────────────────────────
+          if (q)      list = list.filter((s) => s.title.toLowerCase().includes(q) || s.author.toLowerCase().includes(q))
+          if (genre)  list = list.filter((s) => s.genres?.includes(genre))
+          if (status) list = list.filter((s) => s.status === status)
+
+          // ── Sort ──────────────────────────────────────────────────
+          if      (sort === 'hot'    ) list.sort((a, b) => b.nominations - a.nominations)
+          else if (sort === 'rating' ) list.sort((a, b) => b.rating      - a.rating)
+          else if (sort === 'views'  ) list.sort((a, b) => b.nominations - a.nominations) // proxy
+          else if (sort === 'candy'  ) list.sort((a, b) => (b.nominations * 10 + b.ratingCount) - (a.nominations * 10 + a.ratingCount))
+          else                         list.sort((a, b) => parseInt(b.id) - parseInt(a.id))
+
+          send(res, 200, { stories: list.slice(0, limit), total: list.length })
         })
 
         /* ── Story detail ── */
@@ -351,6 +364,178 @@ export default defineConfig({
             }
             _chapterComments[key] = [comment, ...(_chapterComments[key] ?? [])]
             return send(res, 201, { comment })
+          }
+
+          next()
+        })
+
+        /* ── Genres list ── */
+        server.middlewares.use('/api/mock/genres', (req, res, next) => {
+          if (req.method !== 'GET') return next()
+          const genres = [...new Set((_storyListCache ?? []).flatMap((s) => s.genres).filter(Boolean))]
+          send(res, 200, { genres })
+        })
+
+        /* ── My stories (user-submitted) ── */
+        const _myStories = {}   // { [email]: story[] }
+        const _myChapters = {}  // { [storyId]: chapter[] }
+        let _myStorySeq = 1
+        let _myChapterSeq = 1
+
+        server.middlewares.use('/api/mock/my-stories', async (req, res, next) => {
+          const urlObj = new URL(req.url, 'http://localhost')
+
+          if (req.method === 'GET') {
+            const email = urlObj.searchParams.get('email')
+            if (!email) return send(res, 400, { message: 'Thiếu email.' })
+            return send(res, 200, { stories: _myStories[email] ?? [] })
+          }
+
+          if (req.method === 'POST') {
+            const { email, title, author, genre, description, cover, fromZip } = await parseBody(req)
+            if (!email || !title?.trim()) return send(res, 400, { message: 'Thiếu thông tin bắt buộc.' })
+            const story = {
+              id: String(Date.now() + _myStorySeq++),
+              title: title.trim(),
+              author: author?.trim() || '',
+              genre: genre || '',
+              description: description?.trim() || '',
+              cover: cover || null,
+              fromZip: fromZip || null,
+              status: 'Đang viết',
+              chaptersCount: 0,
+              views: 0,
+              followers: 0,
+              candyEarned: 0,
+              createdAt: new Date().toISOString().slice(0, 10),
+            }
+            _myStories[email] = [story, ...(_myStories[email] ?? [])]
+            // Unshift vào đầu mock story list để hiện ở trang chủ / tìm kiếm
+            if (_storyListCache) {
+              _storyListCache.unshift({
+                id: story.id,
+                slug: `user-story-${story.id}`,
+                title: story.title,
+                type: 'Truyện chữ',
+                target: '',
+                status: story.status,
+                rating: 0, ratingCount: 0, commentCount: 0, nominations: 0,
+                author: story.author,
+                postedBy: email,
+                genres: story.genre ? [story.genre] : [],
+                tags: [],
+                description: story.description,
+                poster: story.cover || null,
+                gradient: _storyListCache.length % 12,
+                vip: false, price: 0,
+                totalChapters: 0,
+                isUserStory: true,
+                views: 0, followers: 0,
+              })
+            }
+            return send(res, 201, { story })
+          }
+
+          if (req.method === 'DELETE') {
+            const email = urlObj.searchParams.get('email')
+            const id = urlObj.searchParams.get('id')
+            if (!email || !id) return send(res, 400, { message: 'Thiếu thông tin.' })
+            _myStories[email] = (_myStories[email] ?? []).filter((s) => s.id !== id)
+            delete _myChapters[id]
+            // Xóa khỏi mock story list
+            if (_storyListCache) {
+              const idx = _storyListCache.findIndex((s) => s.id === id)
+              if (idx !== -1) _storyListCache.splice(idx, 1)
+            }
+            return send(res, 200, { message: 'Đã xóa.' })
+          }
+
+          next()
+        })
+
+        /* ── Update my story info ── */
+        server.middlewares.use('/api/mock/my-story-update', async (req, res, next) => {
+          if (req.method !== 'PUT') return next()
+          const { email, id, title, author, genre, description, cover, status } = await parseBody(req)
+          const stories = _myStories[email] ?? []
+          const idx = stories.findIndex((s) => s.id === id)
+          if (idx === -1) return send(res, 404, { message: 'Không tìm thấy truyện.' })
+          stories[idx] = {
+            ...stories[idx],
+            title: title?.trim() || stories[idx].title,
+            author: author?.trim() ?? stories[idx].author,
+            genre: genre ?? stories[idx].genre,
+            description: description?.trim() ?? stories[idx].description,
+            status: status ?? stories[idx].status,
+            ...(cover !== undefined && { cover }),
+          }
+          // Sync vào mock story list
+          if (_storyListCache) {
+            const cacheIdx = _storyListCache.findIndex((s) => s.id === id)
+            if (cacheIdx !== -1) {
+              const s = stories[idx]
+              _storyListCache[cacheIdx] = {
+                ..._storyListCache[cacheIdx],
+                title: s.title, author: s.author,
+                genres: s.genre ? [s.genre] : [],
+                description: s.description, status: s.status,
+                poster: s.cover ?? _storyListCache[cacheIdx].poster,
+              }
+            }
+          }
+          return send(res, 200, { story: stories[idx] })
+        })
+
+        /* ── My story chapters ── */
+        server.middlewares.use('/api/mock/my-story-chapters', async (req, res, next) => {
+          const urlObj = new URL(req.url, 'http://localhost')
+
+          if (req.method === 'GET') {
+            const storyId = urlObj.searchParams.get('storyId')
+            return send(res, 200, { chapters: (_myChapters[storyId] ?? []).slice().reverse() })
+          }
+
+          if (req.method === 'POST') {
+            const { email, storyId, title, content } = await parseBody(req)
+            if (!content?.trim()) return send(res, 400, { message: 'Nội dung chương không được để trống.' })
+            const ownerStories = _myStories[email] ?? []
+            const storyIdx = ownerStories.findIndex((s) => s.id === storyId)
+            if (storyIdx === -1) return send(res, 403, { message: 'Không có quyền.' })
+            const number = (_myChapters[storyId]?.length ?? 0) + 1
+            const chapter = {
+              id: String(_myChapterSeq++),
+              storyId,
+              number,
+              title: title?.trim() || `Chương ${number}`,
+              content: content.trim(),
+              publishedAt: new Date().toISOString().slice(0, 10),
+            }
+            _myChapters[storyId] = [...(_myChapters[storyId] ?? []), chapter]
+            const newCount = _myChapters[storyId].length
+            ownerStories[storyIdx].chaptersCount = newCount
+            if (_storyListCache) {
+              const ci = _storyListCache.findIndex((s) => s.id === storyId)
+              if (ci !== -1) _storyListCache[ci].totalChapters = newCount
+            }
+            return send(res, 201, { chapter })
+          }
+
+          if (req.method === 'DELETE') {
+            const email = urlObj.searchParams.get('email')
+            const storyId = urlObj.searchParams.get('storyId')
+            const chapterId = urlObj.searchParams.get('chapterId')
+            const ownerStories = _myStories[email] ?? []
+            const storyIdx = ownerStories.findIndex((s) => s.id === storyId)
+            if (storyIdx === -1) return send(res, 403, { message: 'Không có quyền.' })
+            _myChapters[storyId] = (_myChapters[storyId] ?? []).filter((c) => c.id !== chapterId)
+            _myChapters[storyId].forEach((c, i) => { c.number = i + 1 })
+            const newCount = _myChapters[storyId].length
+            ownerStories[storyIdx].chaptersCount = newCount
+            if (_storyListCache) {
+              const ci = _storyListCache.findIndex((s) => s.id === storyId)
+              if (ci !== -1) _storyListCache[ci].totalChapters = newCount
+            }
+            return send(res, 200, { message: 'Đã xóa chương.' })
           }
 
           next()
