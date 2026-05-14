@@ -7,6 +7,35 @@ import path from 'path'
 const USERS_PATH = path.resolve('./mocks/users/users.json')
 const STORY_DIR = path.resolve('./mocks/upload/100412_muc-than-ky')
 
+// Cache sorted filename list — chỉ đọc tên file, không đọc content
+let _fileCache = null
+function getFileCache() {
+  if (_fileCache) return _fileCache
+  _fileCache = fs.readdirSync(STORY_DIR)
+    .filter((f) => f.endsWith('.txt') && !f.startsWith('00000'))
+    .sort()
+  return _fileCache
+}
+
+// Tổng số chương = số ở filename cuối cùng (không cần đọc content)
+function getTotalChapters() {
+  const files = getFileCache()
+  if (!files.length) return 0
+  return parseInt(files[files.length - 1].match(/^(\d+)/)[1])
+}
+
+// Cache title cho search (lazy — chỉ load khi có search query)
+let _titleCache = null
+function getTitleCache() {
+  if (_titleCache) return _titleCache
+  _titleCache = getFileCache().map((f) => {
+    const match = f.match(/^(\d+)_(\d+)\.txt$/)
+    const firstLine = fs.readFileSync(path.join(STORY_DIR, f), 'utf-8').split('\n')[0].trim()
+    return { number: parseInt(match[1]), id: match[2], title: firstLine }
+  })
+  return _titleCache
+}
+
 function readUsers() {
   return JSON.parse(fs.readFileSync(USERS_PATH, 'utf-8'))
 }
@@ -47,7 +76,7 @@ const STORY_DETAIL = {
   poster: '/mock-assets/100412_muc-than-ky/00000_poster.jpg',
   views: 1520000,
   followers: 8542,
-  totalChapters: 1844,
+  get totalChapters() { return getTotalChapters() },
 }
 
 const MOCK_REVIEWS = [
@@ -151,37 +180,38 @@ export default defineConfig({
           send(res, 200, { comments: MOCK_COMMENTS })
         })
 
-        /* ── Chapter list (paginated, reads real files) ── */
+        /* ── Chapter list ── */
         server.middlewares.use('/api/mock/story-chapters', (req, res, next) => {
           if (req.method !== 'GET') return next()
-          try {
-            const urlObj = new URL(req.url, 'http://localhost')
-            const page = Math.max(1, parseInt(urlObj.searchParams.get('page') || '1'))
-            const limit = Math.min(50, parseInt(urlObj.searchParams.get('limit') || '30'))
-            const search = urlObj.searchParams.get('search') || ''
+          const urlObj = new URL(req.url, 'http://localhost')
+          const page = Math.max(1, parseInt(urlObj.searchParams.get('page') || '1'))
+          const limit = Math.min(50, parseInt(urlObj.searchParams.get('limit') || '30'))
+          const search = (urlObj.searchParams.get('search') || '').toLowerCase()
 
-            const allFiles = fs.readdirSync(STORY_DIR)
-              .filter((f) => f.endsWith('.txt') && !f.startsWith('00000'))
-              .sort()
-
-            const chapters = allFiles.map((f) => {
-              const match = f.match(/^(\d+)_(\d+)\.txt$/)
-              const firstLine = fs.readFileSync(path.join(STORY_DIR, f), 'utf-8').split('\n')[0].trim()
-              return { number: parseInt(match[1]), id: match[2], title: firstLine, filename: f }
-            })
-
-            const filtered = search
-              ? chapters.filter((c) => c.title.toLowerCase().includes(search.toLowerCase()))
-              : chapters
-
-            const total = filtered.length
+          if (search) {
+            // Search: dùng title cache (load lazy lần đầu)
+            const all = getTitleCache()
+            const filtered = all.filter((c) => c.title.toLowerCase().includes(search))
             const start = (page - 1) * limit
-            const data = filtered.slice(start, start + limit)
-
-            send(res, 200, { chapters: data, total, page, limit, totalPages: Math.ceil(total / limit) })
-          } catch {
-            send(res, 500, { message: 'Không thể đọc danh sách chương.' })
+            return send(res, 200, {
+              chapters: filtered.slice(start, start + limit),
+              total: filtered.length,
+              page, limit,
+              totalPages: Math.ceil(filtered.length / limit),
+            })
           }
+
+          // Pagination thường: lấy tên file từ cache, chỉ đọc content đúng page đó
+          const files = getFileCache()
+          const total = getTotalChapters()
+          const start = (page - 1) * limit
+          const pageFiles = files.slice(start, start + limit)
+          const chapters = pageFiles.map((f) => {
+            const match = f.match(/^(\d+)_(\d+)\.txt$/)
+            const firstLine = fs.readFileSync(path.join(STORY_DIR, f), 'utf-8').split('\n')[0].trim()
+            return { number: parseInt(match[1]), id: match[2], title: firstLine }
+          })
+          send(res, 200, { chapters, total, page, limit, totalPages: Math.ceil(total / limit) })
         })
 
         /* ── Chapter content ── */
