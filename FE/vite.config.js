@@ -9,6 +9,7 @@ const UPLOAD_DIR = path.resolve('./mocks/upload')
 const STORIES_JSON_PATH = path.resolve('./mocks/stories/stories.json')
 
 // ── Per-story chapter file cache (keyed by storyId) ──────────────────────────
+
 const _fileCaches = {}
 function getFileCache(storyId) {
   if (_fileCaches[storyId]) return _fileCaches[storyId]
@@ -137,7 +138,7 @@ function send(res, status, data) {
   res.end(JSON.stringify(data))
 }
 function publicUser(u) {
-  return { email: u.email, name: u.name, gender: u.gender, candy: u.candy ?? 0, chaptersRead: u.chaptersRead ?? 0 }
+  return { email: u.email, name: u.name, gender: u.gender, candy: u.candy ?? 0, chaptersRead: u.chaptersRead ?? 0, followers: u.followers ?? 0 }
 }
 
 function getStoryDetail(storyId) {
@@ -169,6 +170,11 @@ const MOCK_COMMENTS = [
 ]
 
 export default defineConfig({
+  server: {
+    allowedHosts: [
+      'its-compatible-under-boolean.trycloudflare.com'
+    ]
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -180,6 +186,33 @@ export default defineConfig({
         server.middlewares.use(async (_req, _res, next) => {
           await _initPromise
           next()
+        })
+
+        /* ── Fake QR image ── */
+        server.middlewares.use('/api/mock/fake-qr', (_req, res) => {
+          const filePath = path.resolve('./mocks/fake-qr.jpeg')
+          if (fs.existsSync(filePath)) {
+            res.writeHead(200, { 'Content-Type': 'image/jpeg' })
+            fs.createReadStream(filePath).pipe(res)
+          } else { res.writeHead(404); res.end() }
+        })
+
+        /* ── Top-up candy ── */
+        server.middlewares.use('/api/mock/topup', async (req, res, next) => {
+          if (req.method !== 'POST') return next()
+          const { email, candy, vnd } = await parseBody(req)
+          const users = readUsers()
+          const idx = users.findIndex((u) => u.email === email)
+          if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          users[idx].candy = (users[idx].candy ?? 0) + candy
+          writeUsers(users)
+          addTx(email, {
+            type: 'topup',
+            description: vnd ? `Nạp ${candy} kẹo · ${Number(vnd).toLocaleString('vi-VN')}đ` : `Nạp ${candy} kẹo`,
+            candyChange: candy,
+            candyAfter: users[idx].candy,
+          })
+          send(res, 200, { candy: users[idx].candy })
         })
 
         /* ── Static mock assets (images) ── */
@@ -251,7 +284,7 @@ export default defineConfig({
           const genre  = (urlObj.searchParams.get('genre')  || '').trim()
           const status = (urlObj.searchParams.get('status') || '').trim()
 
-          let list = [...(_storyListCache ?? [])]
+          let list = (_storyListCache ?? []).filter((s) => !s.vip)
 
           // ── Filters (always applied) ──────────────────────────────
           if (q)      list = list.filter((s) => s.title.toLowerCase().includes(q) || s.author.toLowerCase().includes(q))
@@ -263,7 +296,12 @@ export default defineConfig({
           else if (sort === 'rating' ) list.sort((a, b) => b.rating      - a.rating)
           else if (sort === 'views'  ) list.sort((a, b) => b.nominations - a.nominations) // proxy
           else if (sort === 'candy'  ) list.sort((a, b) => (b.nominations * 10 + b.ratingCount) - (a.nominations * 10 + a.ratingCount))
-          else                         list.sort((a, b) => parseInt(b.id) - parseInt(a.id))
+          else                         list.sort((a, b) => {
+            // User stories have createdAt; disk stories use id for ordering
+            const tA = a.createdAt ? new Date(a.createdAt).getTime() : parseInt(a.id)
+            const tB = b.createdAt ? new Date(b.createdAt).getTime() : parseInt(b.id)
+            return tB - tA
+          })
 
           send(res, 200, { stories: list.slice(0, limit), total: list.length })
         })
@@ -299,7 +337,18 @@ export default defineConfig({
           const limit = Math.min(50, parseInt(urlObj.searchParams.get('limit') || '30'))
           const search = (urlObj.searchParams.get('search') || '').toLowerCase()
           const dir = _storyDirById(storyId)
-          if (!dir) return send(res, 404, { message: 'Không tìm thấy truyện.' })
+          if (!dir) {
+            // User-created story: serve from _myChapters
+            const userChs = _myChapters[storyId]
+            if (!userChs || !userChs.length) return send(res, 404, { message: 'Không tìm thấy truyện.' })
+            let chList = [...userChs].sort((a, b) => a.number - b.number)
+            if (search) chList = chList.filter((c) => c.title.toLowerCase().includes(search))
+            const start = (page - 1) * limit
+            const paged = chList.slice(start, start + limit).map((c) => ({
+              number: c.number, id: c.id, title: c.title, candyPrice: c.candyPrice ?? 0,
+            }))
+            return send(res, 200, { chapters: paged, total: chList.length, page, limit, totalPages: Math.ceil(chList.length / limit) })
+          }
 
           if (search) {
             const all = getTitleCache(storyId)
@@ -331,13 +380,22 @@ export default defineConfig({
           const storyId = urlObj.searchParams.get('storyId') || '100412'
           const chapterNum = urlObj.searchParams.get('chapter')
           if (!chapterNum) return send(res, 400, { message: 'Thiếu số chương.' })
+          // User-created story: serve from _myChapters (supports candyPrice)
+          const userChs = _myChapters[storyId]
+          if (userChs) {
+            const ch = userChs.find((c) => c.number === parseInt(chapterNum))
+            if (!ch) return send(res, 404, { message: 'Không tìm thấy chương.' })
+            const cacheStory = (_storyListCache ?? []).find((s) => s.id === storyId)
+            return send(res, 200, { content: ch.content, candyPrice: ch.candyPrice ?? 0, ownerEmail: cacheStory?.postedBy ?? '' })
+          }
+          // Disk story fallback (always free)
           const dir = _storyDirById(storyId)
           if (!dir) return send(res, 404, { message: 'Không tìm thấy truyện.' })
           const padded = String(chapterNum).padStart(5, '0')
           const files = fs.readdirSync(dir).filter((f) => f.startsWith(padded + '_') && f.endsWith('.txt'))
           if (!files.length) return send(res, 404, { message: 'Không tìm thấy chương.' })
           const content = fs.readFileSync(path.join(dir, files[0]), 'utf-8')
-          send(res, 200, { content })
+          send(res, 200, { content, candyPrice: 0, ownerEmail: '' })
         })
 
         /* ── Chapter comments ── */
@@ -381,6 +439,14 @@ export default defineConfig({
         const _myChapters = {}  // { [storyId]: chapter[] }
         let _myStorySeq = 1
         let _myChapterSeq = 1
+
+        /* ── Transaction history ── */
+        const _transactions = {}  // { [email]: tx[] }
+        let _txSeq = 1
+        function addTx(email, { type, description, candyChange, candyAfter }) {
+          const tx = { id: _txSeq++, type, description, candyChange, candyAfter, date: new Date().toISOString() }
+          _transactions[email] = [tx, ...(_transactions[email] ?? [])]
+        }
 
         server.middlewares.use('/api/mock/my-stories', async (req, res, next) => {
           const urlObj = new URL(req.url, 'http://localhost')
@@ -428,9 +494,11 @@ export default defineConfig({
                 poster: story.cover || null,
                 gradient: _storyListCache.length % 12,
                 vip: false, price: 0,
+                hasVipChapters: false,
                 totalChapters: 0,
                 isUserStory: true,
                 views: 0, followers: 0,
+                createdAt: story.createdAt,
               })
             }
             return send(res, 201, { story })
@@ -486,6 +554,41 @@ export default defineConfig({
           return send(res, 200, { story: stories[idx] })
         })
 
+        /* ── Toggle / update VIP on user's own story ── */
+        server.middlewares.use('/api/mock/my-story-vip', async (req, res, next) => {
+          if (req.method !== 'PUT') return next()
+          const { email, id, price, action } = await parseBody(req)
+          const users = readUsers()
+          const u = users.find((u) => u.email === email)
+          if (!u || (u.followers ?? 0) < 1000)
+            return send(res, 403, { message: 'Cần ít nhất 1.000 người theo dõi để mở khoá tính năng VIP.' })
+          const stories = _myStories[email] ?? []
+          const idx = stories.findIndex((s) => s.id === id)
+          if (idx === -1) return send(res, 404, { message: 'Không tìm thấy truyện.' })
+
+          const parsedPrice = Math.max(1, parseInt(price) || VIP_PRICE)
+
+          if (action === 'update-price') {
+            // Only update price, keep VIP status
+            stories[idx].price = parsedPrice
+          } else {
+            // Toggle VIP on/off
+            const newVip = !stories[idx].vip
+            stories[idx].vip = newVip
+            if (newVip) stories[idx].price = parsedPrice
+          }
+
+          // Sync into story list cache
+          if (_storyListCache) {
+            const cacheIdx = _storyListCache.findIndex((s) => s.id === id)
+            if (cacheIdx !== -1) {
+              _storyListCache[cacheIdx].vip = stories[idx].vip
+              _storyListCache[cacheIdx].price = stories[idx].vip ? stories[idx].price : 0
+            }
+          }
+          return send(res, 200, { vip: stories[idx].vip, price: stories[idx].price ?? 0 })
+        })
+
         /* ── My story chapters ── */
         server.middlewares.use('/api/mock/my-story-chapters', async (req, res, next) => {
           const urlObj = new URL(req.url, 'http://localhost')
@@ -496,7 +599,7 @@ export default defineConfig({
           }
 
           if (req.method === 'POST') {
-            const { email, storyId, title, content } = await parseBody(req)
+            const { email, storyId, title, content, candyPrice } = await parseBody(req)
             if (!content?.trim()) return send(res, 400, { message: 'Nội dung chương không được để trống.' })
             const ownerStories = _myStories[email] ?? []
             const storyIdx = ownerStories.findIndex((s) => s.id === storyId)
@@ -508,6 +611,7 @@ export default defineConfig({
               number,
               title: title?.trim() || `Chương ${number}`,
               content: content.trim(),
+              candyPrice: Math.max(0, parseInt(candyPrice) || 0),
               publishedAt: new Date().toISOString().slice(0, 10),
             }
             _myChapters[storyId] = [...(_myChapters[storyId] ?? []), chapter]
@@ -515,7 +619,10 @@ export default defineConfig({
             ownerStories[storyIdx].chaptersCount = newCount
             if (_storyListCache) {
               const ci = _storyListCache.findIndex((s) => s.id === storyId)
-              if (ci !== -1) _storyListCache[ci].totalChapters = newCount
+              if (ci !== -1) {
+                _storyListCache[ci].totalChapters = newCount
+                if (chapter.candyPrice > 0) _storyListCache[ci].hasVipChapters = true
+              }
             }
             return send(res, 201, { chapter })
           }
@@ -533,7 +640,10 @@ export default defineConfig({
             ownerStories[storyIdx].chaptersCount = newCount
             if (_storyListCache) {
               const ci = _storyListCache.findIndex((s) => s.id === storyId)
-              if (ci !== -1) _storyListCache[ci].totalChapters = newCount
+              if (ci !== -1) {
+                _storyListCache[ci].totalChapters = newCount
+                _storyListCache[ci].hasVipChapters = (_myChapters[storyId] ?? []).some((c) => c.candyPrice > 0)
+              }
             }
             return send(res, 200, { message: 'Đã xóa chương.' })
           }
@@ -541,10 +651,168 @@ export default defineConfig({
           next()
         })
 
+        /* ── Set chapter candy price ── */
+        server.middlewares.use('/api/mock/my-chapter-price', async (req, res, next) => {
+          if (req.method !== 'PUT') return next()
+          const { email, storyId, chapterId, candyPrice } = await parseBody(req)
+          const users = readUsers()
+          const u = users.find((u) => u.email === email)
+          if (!u || (u.followers ?? 0) < 1000)
+            return send(res, 403, { message: 'Cần ít nhất 1.000 người theo dõi để đặt giá chương.' })
+          if (!(_myStories[email] ?? []).find((s) => s.id === storyId))
+            return send(res, 403, { message: 'Không có quyền.' })
+          const chapters = _myChapters[storyId] ?? []
+          const idx = chapters.findIndex((c) => c.id === chapterId)
+          if (idx === -1) return send(res, 404, { message: 'Không tìm thấy chương.' })
+          chapters[idx].candyPrice = Math.max(0, parseInt(candyPrice) || 0)
+          // Recalculate hasVipChapters for this story
+          if (_storyListCache) {
+            const ci = _storyListCache.findIndex((s) => s.id === storyId)
+            if (ci !== -1) _storyListCache[ci].hasVipChapters = chapters.some((c) => c.candyPrice > 0)
+          }
+          return send(res, 200, { candyPrice: chapters[idx].candyPrice })
+        })
+
+        /* ── Purchase chapter ── */
+        server.middlewares.use('/api/mock/purchase-chapter', async (req, res, next) => {
+          if (req.method !== 'POST') return next()
+          const { email, storyId, chapterNum } = await parseBody(req)
+          const chapters = _myChapters[storyId] ?? []
+          const chapter = chapters.find((c) => c.number === parseInt(chapterNum))
+          if (!chapter || !(chapter.candyPrice > 0))
+            return send(res, 400, { message: 'Chương này không yêu cầu mở khoá.' })
+          const users = readUsers()
+          const buyerIdx = users.findIndex((u) => u.email === email)
+          if (buyerIdx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          const currentCandy = users[buyerIdx].candy ?? 0
+          if (currentCandy < chapter.candyPrice)
+            return send(res, 400, { message: `Không đủ kẹo. Bạn cần ${chapter.candyPrice} 🍬.` })
+          users[buyerIdx].candy = currentCandy - chapter.candyPrice
+          const cacheStory = (_storyListCache ?? []).find((s) => s.id === storyId)
+          const ownerEmail = cacheStory?.postedBy
+          if (ownerEmail && ownerEmail !== email) {
+            const ownerIdx = users.findIndex((u) => u.email === ownerEmail)
+            if (ownerIdx !== -1) users[ownerIdx].candy = (users[ownerIdx].candy ?? 0) + chapter.candyPrice
+          }
+          writeUsers(users)
+          const ownerStories = _myStories[ownerEmail] ?? []
+          const stIdx = ownerStories.findIndex((s) => s.id === storyId)
+          if (stIdx !== -1) ownerStories[stIdx].candyEarned = (ownerStories[stIdx].candyEarned ?? 0) + chapter.candyPrice
+          const storyTitle = cacheStory?.title ?? storyId
+          addTx(email, {
+            type: 'purchase',
+            description: `Mở khoá chương ${chapterNum} · ${storyTitle}`,
+            candyChange: -chapter.candyPrice,
+            candyAfter: users[buyerIdx].candy,
+          })
+          return send(res, 200, { candy: users[buyerIdx].candy })
+        })
+
+        /* ── Rankings ── */
+        server.middlewares.use('/api/mock/rankings', (req, res, next) => {
+          if (req.method !== 'GET') return next()
+          const urlObj = new URL(req.url, 'http://localhost')
+          const type = urlObj.searchParams.get('type') || 'reader'
+          const limit = Math.min(20, parseInt(urlObj.searchParams.get('limit') || '10'))
+
+          const realUsers = readUsers()
+
+          // Merge seed + real arrays (real scores added on top of seed)
+          function merge(seed, real) {
+            const map = {}
+            seed.forEach((r) => { map[r.key] = { ...r } })
+            real.forEach((r) => {
+              if (map[r.key]) map[r.key].score += r.score
+              else map[r.key] = { ...r }
+            })
+            return Object.values(map)
+          }
+
+          if (type === 'reader') {
+            const real = realUsers.map((u) => ({ key: u.email, name: u.name, score: u.chaptersRead ?? 0 }))
+            const seed = [
+              { key: 'k1@r.mock', name: 'Kiếm Khách 99', score: 5420 },
+              { key: 'k2@r.mock', name: 'Tiên Hiệp Fan', score: 4100 },
+              { key: 'k3@r.mock', name: 'Long Vân Hiệp', score: 3280 },
+              { key: 'k4@r.mock', name: 'Dark Reader', score: 2910 },
+              { key: 'k5@r.mock', name: 'Phantom 007', score: 2340 },
+              { key: 'k6@r.mock', name: 'Bảo Ngọc', score: 1950 },
+              { key: 'k7@r.mock', name: 'Thuỳ Lam Online', score: 1680 },
+            ]
+            const merged = merge(seed, real).sort((a, b) => b.score - a.score).slice(0, limit)
+            return send(res, 200, { rankings: merged.map((r, i) => ({ ...r, rank: i + 1 })) })
+          }
+
+          if (type === 'spender') {
+            const txReal = {}
+            Object.entries(_transactions).forEach(([email, txs]) => {
+              const spent = txs.filter((t) => t.type === 'purchase' || t.type === 'gift')
+                               .reduce((s, t) => s + Math.abs(t.candyChange), 0)
+              if (spent > 0) {
+                const u = realUsers.find((u) => u.email === email)
+                txReal[email] = { key: email, name: u?.name ?? email.split('@')[0], score: spent }
+              }
+            })
+            const seed = [
+              { key: 's1@s.mock', name: 'Đại Gia Vô Danh', score: 8800 },
+              { key: 's2@s.mock', name: 'Mộng Tiên', score: 6500 },
+              { key: 's3@s.mock', name: 'Vũ Long', score: 5200 },
+              { key: 's4@s.mock', name: 'Bạch Ngọc', score: 4100 },
+              { key: 's5@s.mock', name: 'Kiếm Khách', score: 3300 },
+              { key: 's6@s.mock', name: 'Long Vân', score: 2800 },
+              { key: 's7@s.mock', name: 'Thiên Phú', score: 2100 },
+              { key: 's8@s.mock', name: 'Hoa Hồng Đen', score: 1500 },
+            ]
+            const merged = merge(seed, Object.values(txReal)).sort((a, b) => b.score - a.score).slice(0, limit)
+            return send(res, 200, { rankings: merged.map((r, i) => ({ ...r, rank: i + 1 })) })
+          }
+
+          if (type === 'topup') {
+            const txReal = {}
+            Object.entries(_transactions).forEach(([email, txs]) => {
+              const total = txs.filter((t) => t.type === 'topup').reduce((s, t) => s + t.candyChange, 0)
+              if (total > 0) {
+                const u = realUsers.find((u) => u.email === email)
+                txReal[email] = { key: email, name: u?.name ?? email.split('@')[0], score: total }
+              }
+            })
+            const seed = [
+              { key: 't1@t.mock', name: 'Vương Giả Nạp Kẹo', score: 12000 },
+              { key: 't2@t.mock', name: 'Đại Gia Nạp Kẹo', score: 9500 },
+              { key: 't3@t.mock', name: 'Tiên Hiệp 2024', score: 7800 },
+              { key: 't4@t.mock', name: 'Long Vương Tiêu', score: 6200 },
+              { key: 't5@t.mock', name: 'Ngọc Linh', score: 5100 },
+              { key: 't6@t.mock', name: 'Hoàng Anh', score: 4300 },
+              { key: 't7@t.mock', name: 'Minh Tuấn', score: 3600 },
+              { key: 't8@t.mock', name: 'Phương Nga', score: 2900 },
+            ]
+            const merged = merge(seed, Object.values(txReal)).sort((a, b) => b.score - a.score).slice(0, limit)
+            return send(res, 200, { rankings: merged.map((r, i) => ({ ...r, rank: i + 1 })) })
+          }
+
+          if (type === 'author') {
+            // Group disk stories by author name; user stories by poster's display name
+            const map = {}
+            ;(_storyListCache ?? []).forEach((s) => {
+              const name = s.isUserStory
+                ? (realUsers.find((u) => u.email === s.postedBy)?.name ?? s.author ?? s.postedBy ?? 'Ẩn danh')
+                : (s.author || 'Ẩn danh')
+              const key = s.isUserStory ? (s.postedBy ?? name) : name
+              if (!map[key]) map[key] = { key, name, score: 0, nominations: 0 }
+              map[key].score += 1
+              map[key].nominations += (s.nominations ?? 0)
+            })
+            const list = Object.values(map).sort((a, b) => b.score - a.score || b.nominations - a.nominations)
+            return send(res, 200, { rankings: list.slice(0, limit).map((r, i) => ({ ...r, rank: i + 1 })) })
+          }
+
+          send(res, 400, { message: 'Invalid type.' })
+        })
+
         /* ── VIP stories list ── */
         server.middlewares.use('/api/mock/vip-stories', (req, res, next) => {
           if (req.method !== 'GET') return next()
-          const list = (_storyListCache ?? []).filter((s) => s.vip)
+          const list = (_storyListCache ?? []).filter((s) => s.vip || s.hasVipChapters)
           send(res, 200, { stories: list })
         })
 
@@ -552,28 +820,58 @@ export default defineConfig({
         server.middlewares.use('/api/mock/purchase-vip', async (req, res, next) => {
           if (req.method !== 'POST') return next()
           const { email, storyId } = await parseBody(req)
-          const story = (_storyListCache ?? []).find((s) => s.id === storyId)
-          if (!story || !story.vip) return send(res, 400, { message: 'Truyện không phải VIP.' })
+          const cacheStory = (_storyListCache ?? []).find((s) => s.id === storyId)
+          if (!cacheStory || !cacheStory.vip) return send(res, 400, { message: 'Truyện không phải VIP.' })
           const users = readUsers()
-          const idx = users.findIndex((u) => u.email === email)
-          if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
-          const currentCandy = users[idx].candy ?? 0
-          if (currentCandy < story.price) return send(res, 400, { message: `Không đủ kẹo. Bạn cần ${story.price} kẹo.` })
-          users[idx].candy = currentCandy - story.price
+          const buyerIdx = users.findIndex((u) => u.email === email)
+          if (buyerIdx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
+          const currentCandy = users[buyerIdx].candy ?? 0
+          if (currentCandy < cacheStory.price) return send(res, 400, { message: `Không đủ kẹo. Bạn cần ${cacheStory.price} kẹo.` })
+
+          // Deduct candy from buyer
+          users[buyerIdx].candy = currentCandy - cacheStory.price
+
+          // Add candy to story owner
+          const ownerEmail = cacheStory.postedBy
+          if (ownerEmail && ownerEmail !== email) {
+            const ownerIdx = users.findIndex((u) => u.email === ownerEmail)
+            if (ownerIdx !== -1) users[ownerIdx].candy = (users[ownerIdx].candy ?? 0) + cacheStory.price
+          }
           writeUsers(users)
-          send(res, 200, { candy: users[idx].candy })
+
+          // Increment candyEarned on the story
+          const ownerStories = _myStories[ownerEmail] ?? []
+          const storyIdx = ownerStories.findIndex((s) => s.id === storyId)
+          if (storyIdx !== -1) ownerStories[storyIdx].candyEarned = (ownerStories[storyIdx].candyEarned ?? 0) + cacheStory.price
+
+          send(res, 200, { candy: users[buyerIdx].candy })
+        })
+
+        /* ── Transaction history ── */
+        server.middlewares.use('/api/mock/transactions', (req, res, next) => {
+          if (req.method !== 'GET') return next()
+          const urlObj = new URL(req.url, 'http://localhost')
+          const email = urlObj.searchParams.get('email')
+          if (!email) return send(res, 400, { message: 'Thiếu email.' })
+          send(res, 200, { transactions: _transactions[email] ?? [] })
         })
 
         /* ── Gift candy ── */
         server.middlewares.use('/api/mock/gift-candy', async (req, res, next) => {
           if (req.method !== 'POST') return next()
-          const { email, amount } = await parseBody(req)
+          const { email, amount, storyTitle } = await parseBody(req)
           const users = readUsers()
           const idx = users.findIndex((u) => u.email === email)
           if (idx === -1) return send(res, 404, { message: 'Người dùng không tồn tại.' })
           if ((users[idx].candy ?? 0) < amount) return send(res, 400, { message: 'Số kẹo không đủ.' })
           users[idx].candy = (users[idx].candy ?? 0) - amount
           writeUsers(users)
+          addTx(email, {
+            type: 'gift',
+            description: storyTitle ? `Tặng kẹo · ${storyTitle}` : 'Tặng kẹo cho tác giả',
+            candyChange: -amount,
+            candyAfter: users[idx].candy,
+          })
           send(res, 200, { candy: users[idx].candy })
         })
       },

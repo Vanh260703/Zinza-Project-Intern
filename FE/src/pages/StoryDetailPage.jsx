@@ -78,7 +78,7 @@ function GiftCandyPopup({ story, onClose }) {
     if (amount < 1) return
     setLoading(true)
     try {
-      const data = await giftCandy(user.email, amount)
+      const data = await giftCandy(user.email, amount, story?.title)
       updateUser({ candy: data.candy })
       setResult({ type: 'success', message: `Đã tặng ${amount} kẹo thành công! Số kẹo còn lại: ${data.candy}` })
     } catch (err) {
@@ -196,14 +196,95 @@ function ReviewTab({ story, reviews }) {
   )
 }
 
+/* ── Unlock chapter modal ── */
+function UnlockChapterModal({ chapter, storyId, user, onClose, onUnlocked }) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const canAfford = (user?.candy ?? 0) >= chapter.candyPrice
+
+  async function handleUnlock() {
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/mock/purchase-chapter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, storyId, chapterNum: chapter.number }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      onUnlocked(chapter.number, data.candy)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 w-full max-w-sm relative animate-fade-in-up">
+        <button onClick={onClose} className="absolute top-4 right-4 text-stone-500 hover:text-stone-300 transition-colors">
+          <Icon d="M6 18L18 6M6 6l12 12" className="w-5 h-5" />
+        </button>
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-amber-500/15 flex items-center justify-center text-2xl shrink-0">🔒</div>
+          <div>
+            <h3 className="text-white font-semibold mb-1">Chương trả phí</h3>
+            <p className="text-stone-400 text-sm leading-relaxed">
+              <span className="text-stone-200 font-medium line-clamp-1">{chapter.title}</span>
+              <br />
+              Cần <span className="text-amber-400 font-bold">{chapter.candyPrice} 🍬</span> để mở khoá
+            </p>
+          </div>
+          <div className="w-full bg-stone-800 rounded-xl px-4 py-2.5 flex items-center justify-between text-sm">
+            <span className="text-stone-500">Kẹo hiện có</span>
+            <span className={`font-bold ${canAfford ? 'text-amber-400' : 'text-red-400'}`}>
+              {(user?.candy ?? 0).toLocaleString()} 🍬
+            </span>
+          </div>
+          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {!canAfford && !error && (
+            <p className="text-red-400 text-xs">
+              Không đủ kẹo.{' '}
+              <a href="/profile?tab=topup" className="underline hover:text-red-300">Nạp thêm</a>
+            </p>
+          )}
+          <div className="flex gap-3 w-full">
+            <button onClick={onClose}
+              className="flex-1 py-2.5 border border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300 rounded-xl text-sm transition-colors">
+              Huỷ
+            </button>
+            <button
+              onClick={handleUnlock}
+              disabled={loading || !canAfford}
+              className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-400 disabled:bg-stone-700 disabled:text-stone-500 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? <><Spinner />Đang mở...</> : `Mở khoá ${chapter.candyPrice} 🍬`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Chapters tab ── */
-function ChaptersTab({ storyId, totalChapters }) {
+function ChaptersTab({ storyId, totalChapters, storyPostedBy }) {
   const navigate = useNavigate()
+  const { user, unlockChapter } = useAuth()
   const [data, setData] = useState(null)
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [unlockModal, setUnlockModal] = useState(null)
   const LIMIT = 30
+
+  const isOwner = user?.email === storyPostedBy
+
+  function isUnlocked(chapterNum) {
+    return isOwner || !!(user?.unlockedChapters?.[`${storyId}_${chapterNum}`])
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -215,6 +296,21 @@ function ChaptersTab({ storyId, totalChapters }) {
     e.preventDefault()
     setPage(1)
     setSearch(searchInput)
+  }
+
+  function handleChapterClick(ch) {
+    if ((ch.candyPrice ?? 0) > 0 && !isUnlocked(ch.number)) {
+      if (!user) { navigate('/login'); return }
+      setUnlockModal(ch)
+    } else {
+      navigate(`/story/${storyId}/read/${ch.number}`)
+    }
+  }
+
+  function handleUnlocked(chapterNum, newCandy) {
+    unlockChapter(storyId, chapterNum, newCandy)
+    setUnlockModal(null)
+    navigate(`/story/${storyId}/read/${chapterNum}`)
   }
 
   return (
@@ -241,41 +337,60 @@ function ChaptersTab({ storyId, totalChapters }) {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-6">
-            {data.chapters.map((ch) => (
-              <button
-                key={ch.id}
-                onClick={() => navigate(`/story/${storyId}/read/${ch.number}`)}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg bg-stone-800/50 hover:bg-stone-800 hover:border-amber-500/30 border border-transparent text-left transition-all group"
-              >
-                <span className="text-stone-600 text-xs font-mono w-10 shrink-0">#{ch.number}</span>
-                <span className="text-stone-300 text-sm group-hover:text-amber-400 transition-colors truncate">{ch.title}</span>
-              </button>
-            ))}
+            {data.chapters.map((ch) => {
+              const locked = (ch.candyPrice ?? 0) > 0 && !isUnlocked(ch.number)
+              const paid = (ch.candyPrice ?? 0) > 0
+              return (
+                <button
+                  key={ch.id}
+                  onClick={() => handleChapterClick(ch)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border text-left transition-all group
+                    ${locked
+                      ? 'bg-stone-800/30 border-stone-800/60 hover:border-amber-500/30 hover:bg-stone-800/60'
+                      : 'bg-stone-800/50 hover:bg-stone-800 hover:border-amber-500/30 border-transparent'
+                    }`}
+                >
+                  <span className="text-stone-600 text-xs font-mono w-10 shrink-0">#{ch.number}</span>
+                  <span className={`text-sm group-hover:text-amber-400 transition-colors truncate flex-1 text-left ${locked ? 'text-stone-500' : 'text-stone-300'}`}>
+                    {ch.title}
+                  </span>
+                  {locked ? (
+                    <span className="shrink-0 flex items-center gap-0.5 text-xs text-amber-500 font-medium">
+                      🔒 {ch.candyPrice}🍬
+                    </span>
+                  ) : paid ? (
+                    <span className="shrink-0 text-xs text-emerald-400 font-medium">✓ Đã mở</span>
+                  ) : null}
+                </button>
+              )
+            })}
           </div>
 
           {/* Pagination */}
           {data.totalPages > 1 && (
             <div className="flex items-center justify-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="px-3 py-1.5 rounded-lg bg-stone-800 text-stone-400 hover:text-white hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm transition-all"
-              >
+              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+                className="px-3 py-1.5 rounded-lg bg-stone-800 text-stone-400 hover:text-white hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm transition-all">
                 ‹ Trước
               </button>
-              <span className="text-stone-500 text-sm px-2">
-                Trang {page} / {data.totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages}
-                className="px-3 py-1.5 rounded-lg bg-stone-800 text-stone-400 hover:text-white hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm transition-all"
-              >
+              <span className="text-stone-500 text-sm px-2">Trang {page} / {data.totalPages}</span>
+              <button onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))} disabled={page === data.totalPages}
+                className="px-3 py-1.5 rounded-lg bg-stone-800 text-stone-400 hover:text-white hover:bg-stone-700 disabled:opacity-40 disabled:cursor-not-allowed text-sm transition-all">
                 Sau ›
               </button>
             </div>
           )}
         </>
+      )}
+
+      {unlockModal && (
+        <UnlockChapterModal
+          chapter={unlockModal}
+          storyId={storyId}
+          user={user}
+          onClose={() => setUnlockModal(null)}
+          onUnlocked={handleUnlocked}
+        />
       )}
     </div>
   )
@@ -599,7 +714,7 @@ export default function StoryDetailPage() {
 
         <div className="py-8">
           {activeTab === 'review' && <ReviewTab story={story} reviews={reviews} />}
-          {activeTab === 'chapters' && <ChaptersTab storyId={storyId} totalChapters={story?.totalChapters} />}
+          {activeTab === 'chapters' && <ChaptersTab storyId={storyId} totalChapters={story?.totalChapters} storyPostedBy={story?.postedBy} />}
           {activeTab === 'ratings' && <RatingsTab story={story} user={user} onToast={pushToast} />}
           {activeTab === 'comments' && <CommentsTab comments={comments} />}
         </div>

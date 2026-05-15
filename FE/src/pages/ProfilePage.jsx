@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 
@@ -27,6 +27,7 @@ const TABS = [
   { key: 'profile', label: 'Hồ sơ', d: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' },
   { key: 'notifications', label: 'Thông báo', d: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
   { key: 'bookshelf', label: 'Tủ truyện', d: 'M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z' },
+  { key: 'topup', label: 'Nạp kẹo', d: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
   { key: 'transactions', label: 'Lịch sử giao dịch', d: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' },
 ]
 
@@ -204,7 +205,7 @@ function ProfileTab() {
     <div className="space-y-8">
 
       {/* Stats bar */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="bg-stone-900 rounded-2xl border border-stone-800 px-5 py-4 flex items-center gap-4">
           <div className="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center text-xl shrink-0">🍬</div>
           <div>
@@ -219,7 +220,38 @@ function ProfileTab() {
             <p className="text-white text-2xl font-bold">{(user?.chaptersRead ?? 0).toLocaleString()}</p>
           </div>
         </div>
+        <div className="col-span-2 sm:col-span-1 bg-stone-900 rounded-2xl border border-stone-800 px-5 py-4 flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-rose-500/15 flex items-center justify-center text-xl shrink-0">👥</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-stone-500 text-xs mb-0.5">Người theo dõi</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <p className="text-white text-2xl font-bold">{(user?.followers ?? 0).toLocaleString()}</p>
+              {(user?.followers ?? 0) >= 1000 && (
+                <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full border border-amber-500/30 font-medium">
+                  👑 VIP
+                </span>
+              )}
+            </div>
+            {(user?.followers ?? 0) < 1000 && (
+              <p className="text-stone-600 text-xs mt-0.5">{1000 - (user?.followers ?? 0)} nữa để mở VIP</p>
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* VIP unlock banner */}
+      {(user?.followers ?? 0) >= 1000 && (
+        <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl">
+          <span className="text-xl shrink-0">👑</span>
+          <div>
+            <p className="text-amber-300 text-sm font-semibold mb-0.5">Tính năng VIP đã được mở khoá!</p>
+            <p className="text-amber-400/70 text-xs leading-relaxed">
+              Bạn đã đạt <span className="font-bold text-amber-400">{(user?.followers ?? 0).toLocaleString()}</span> người theo dõi.
+              Vào <span className="font-semibold">Truyện của tôi</span> để đưa truyện vào danh sách VIP.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Avatar + basic info */}
       <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
@@ -502,6 +534,297 @@ function BookshelfTab() {
   )
 }
 
+/* ─── Top-up tab ─────────────────────────────────────────────────────── */
+const PACKAGES = [
+  { vnd: 10_000,  candy: 10,  bonus: 0 },
+  { vnd: 20_000,  candy: 22,  bonus: 2 },
+  { vnd: 50_000,  candy: 60,  bonus: 10 },
+  { vnd: 100_000, candy: 130, bonus: 30 },
+  { vnd: 200_000, candy: 280, bonus: 80 },
+  { vnd: 500_000, candy: 750, bonus: 250 },
+]
+
+function TopUpTab() {
+  const { user, updateUser } = useAuth()
+  const [selected, setSelected] = useState(null)
+  const [showQR, setShowQR] = useState(false)
+  const [timer, setTimer] = useState(15 * 60)
+  const [confirmed, setConfirmed] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [toast, setToast] = useState(null)
+  const timerRef = useRef(null)
+
+  function startTimer() {
+    setTimer(15 * 60)
+    clearInterval(timerRef.current)
+    timerRef.current = setInterval(() => {
+      setTimer((t) => {
+        if (t <= 1) { clearInterval(timerRef.current); return 0 }
+        return t - 1
+      })
+    }, 1000)
+  }
+
+  function handleSelectPackage(pkg) {
+    setSelected(pkg)
+    setConfirmed(false)
+    setToast(null)
+    setShowQR(true)
+    startTimer()
+  }
+
+  function handleClose() {
+    setShowQR(false)
+    clearInterval(timerRef.current)
+  }
+
+  async function handleConfirm() {
+    if (!selected || !user) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/mock/topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, candy: selected.candy, vnd: selected.vnd }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      updateUser({ candy: data.candy })
+      setConfirmed(true)
+      clearInterval(timerRef.current)
+      setToast({ type: 'success', message: `Nạp thành công ${selected.candy} kẹo!` })
+      setTimeout(() => { setShowQR(false); setToast(null) }, 2500)
+    } catch (err) {
+      setToast({ type: 'error', message: err.message })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const mins = String(Math.floor(timer / 60)).padStart(2, '0')
+  const secs = String(timer % 60).padStart(2, '0')
+  const expired = timer === 0
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-xl shrink-0">🍬</div>
+          <div>
+            <h3 className="text-white font-semibold">Nạp kẹo</h3>
+            <p className="text-stone-500 text-xs">Chọn gói nạp phù hợp với bạn</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 px-4 py-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+          <span className="text-amber-400 text-sm">Số kẹo hiện có:</span>
+          <span className="text-amber-300 text-lg font-bold ml-1">{(user?.candy ?? 0).toLocaleString()} 🍬</span>
+        </div>
+      </div>
+
+      {/* Packages grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {PACKAGES.map((pkg) => (
+          <button
+            key={pkg.vnd}
+            onClick={() => handleSelectPackage(pkg)}
+            className="relative bg-stone-900 border border-stone-800 hover:border-amber-500/50 rounded-2xl p-4 text-left transition-all group hover:bg-stone-800/80"
+          >
+            {pkg.bonus > 0 && (
+              <div className="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                +{pkg.bonus}
+              </div>
+            )}
+            <p className="text-2xl font-bold text-white group-hover:text-amber-300 transition-colors">
+              {pkg.candy} 🍬
+            </p>
+            <p className="text-stone-400 text-sm mt-1 font-medium">
+              {pkg.vnd.toLocaleString('vi-VN')}đ
+            </p>
+            {pkg.bonus > 0 && (
+              <p className="text-amber-500 text-xs mt-1">Ưu đãi thêm {pkg.bonus} kẹo</p>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* QR Modal */}
+      {showQR && selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 w-full max-w-sm relative animate-fade-in-up">
+            {/* Close */}
+            <button
+              onClick={handleClose}
+              className="absolute top-4 right-4 text-stone-500 hover:text-stone-300 transition-colors"
+            >
+              <Icon d="M6 18L18 6M6 6l12 12" className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-white font-semibold text-center mb-1">Quét mã QR để thanh toán</h3>
+            <p className="text-stone-500 text-xs text-center mb-4">
+              Chuyển khoản{' '}
+              <span className="text-amber-400 font-semibold">{selected.vnd.toLocaleString('vi-VN')}đ</span>
+              {' '}để nhận{' '}
+              <span className="text-amber-400 font-semibold">{selected.candy} 🍬</span>
+            </p>
+
+            {/* QR image */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-white p-3 rounded-xl">
+                <img
+                  src="/api/mock/fake-qr"
+                  alt="QR code"
+                  className="w-44 h-44 object-cover rounded"
+                />
+              </div>
+            </div>
+
+            {/* Bank info */}
+            <div className="bg-stone-800 rounded-xl p-3 mb-4 space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-stone-500">Ngân hàng</span>
+                <span className="text-stone-200 font-medium">VCB – Vietcombank</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-stone-500">Số tài khoản</span>
+                <span className="text-stone-200 font-medium font-mono">1234 5678 90</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-stone-500">Số tiền</span>
+                <span className="text-amber-400 font-bold">{selected.vnd.toLocaleString('vi-VN')}đ</span>
+              </div>
+              <div className="flex justify-between items-center gap-4">
+                <span className="text-stone-500 shrink-0">Nội dung</span>
+                <span className="text-stone-200 font-mono text-right">NAP {user?.email?.split('@')[0].toUpperCase()}</span>
+              </div>
+            </div>
+
+            {/* Timer */}
+            <div className={`flex items-center justify-center gap-2 mb-4 py-2 rounded-xl text-sm font-semibold
+              ${expired ? 'bg-red-500/10 text-red-400' : 'bg-stone-800 text-stone-300'}`}
+            >
+              <Icon d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" className="w-4 h-4" />
+              {expired ? 'Hết thời gian – vui lòng thử lại' : `Còn lại ${mins}:${secs}`}
+            </div>
+
+            {toast && <div className="mb-3"><Toast {...toast} /></div>}
+
+            {!confirmed && !expired && (
+              <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className="w-full py-3 bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? <><Spinner />Đang xử lý...</> : 'Tôi đã chuyển tiền'}
+              </button>
+            )}
+
+            {expired && (
+              <button
+                onClick={handleClose}
+                className="w-full py-2.5 border border-stone-700 hover:border-stone-600 text-stone-400 hover:text-stone-300 text-sm rounded-xl transition-all"
+              >
+                Chọn gói khác
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ─── Transactions tab ────────────────────────────────────────────────── */
+const TX_CONFIG = {
+  topup:    { icon: '💎', label: 'Nạp kẹo',   badge: 'bg-emerald-500/15 border-emerald-500/20 text-emerald-400' },
+  purchase: { icon: '🔓', label: 'Mở chương', badge: 'bg-amber-500/15 border-amber-500/20 text-amber-400' },
+  gift:     { icon: '🎁', label: 'Tặng kẹo',  badge: 'bg-rose-500/15 border-rose-500/20 text-rose-400' },
+}
+
+function TransactionsTab() {
+  const { user } = useAuth()
+  const [txs, setTxs] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!user) return
+    fetch(`/api/mock/transactions?email=${encodeURIComponent(user.email)}`)
+      .then((r) => r.json())
+      .then((data) => setTxs(data.transactions ?? []))
+      .finally(() => setLoading(false))
+  }, [user?.email])
+
+  if (loading) {
+    return (
+      <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6 flex justify-center py-20">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (!txs.length) {
+    return (
+      <div className="bg-stone-900 rounded-2xl border border-stone-800 flex flex-col items-center justify-center py-24 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-stone-800 flex items-center justify-center text-3xl mb-4">💳</div>
+        <h3 className="text-white font-semibold mb-2">Chưa có giao dịch nào</h3>
+        <p className="text-stone-500 text-sm">Các giao dịch kẹo sẽ hiện thị tại đây</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-stone-900 rounded-2xl border border-stone-800 p-6">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-white font-semibold">Lịch sử giao dịch</h3>
+        <span className="text-stone-500 text-sm">{txs.length} giao dịch</span>
+      </div>
+      <div className="space-y-2">
+        {txs.map((tx) => {
+          const cfg = TX_CONFIG[tx.type] ?? TX_CONFIG.gift
+          const isPositive = tx.candyChange > 0
+          const sign = isPositive ? '+' : ''
+          const dateStr = new Date(tx.date).toLocaleString('vi-VN', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+          })
+          return (
+            <div
+              key={tx.id}
+              className="flex items-center gap-4 px-4 py-3.5 rounded-xl bg-stone-800/50 hover:bg-stone-800/80 transition-colors border border-transparent hover:border-stone-700/50"
+            >
+              {/* Icon */}
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 border ${cfg.badge}`}>
+                {cfg.icon}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-stone-100 text-sm font-medium line-clamp-1">{tx.description}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${cfg.badge}`}>
+                    {cfg.label}
+                  </span>
+                  <span className="text-stone-600 text-xs">{dateStr}</span>
+                </div>
+              </div>
+
+              {/* Amount */}
+              <div className="text-right shrink-0">
+                <p className={`text-sm font-bold tabular-nums ${isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {sign}{tx.candyChange.toLocaleString()} 🍬
+                </p>
+                <p className="text-stone-600 text-xs mt-0.5 tabular-nums">
+                  Còn: {(tx.candyAfter ?? 0).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Placeholder tabs ────────────────────────────────────────────────── */
 function PlaceholderTab({ icon, title, description }) {
   return (
@@ -517,7 +840,9 @@ function PlaceholderTab({ icon, title, description }) {
 export default function ProfilePage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState('profile')
+  const location = useLocation()
+  const tabFromUrl = new URLSearchParams(location.search).get('tab')
+  const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile')
 
   if (!user) {
     navigate('/login')
@@ -543,9 +868,8 @@ export default function ProfilePage() {
               <PlaceholderTab icon="🔔" title="Thông báo" description="Bạn chưa có thông báo nào." />
             )}
             {activeTab === 'bookshelf' && <BookshelfTab />}
-            {activeTab === 'transactions' && (
-              <PlaceholderTab icon="💳" title="Lịch sử giao dịch" description="Chưa có giao dịch nào được ghi nhận." />
-            )}
+            {activeTab === 'topup' && <TopUpTab />}
+            {activeTab === 'transactions' && <TransactionsTab />}
           </main>
         </div>
       </div>

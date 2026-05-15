@@ -10,6 +10,7 @@ import ChapterReadPage from './pages/ChapterReadPage'
 import LibraryPage from './pages/LibraryPage'
 import MyStoriesPage from './pages/MyStoriesPage'
 import MyStoryDetailPage from './pages/MyStoryDetailPage'
+import RankPage from './pages/RankPage'
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/tu-truyen" element={<LibraryPage />} />
           <Route path="/truyen-cua-toi" element={<MyStoriesPage />} />
           <Route path="/truyen-cua-toi/:id" element={<MyStoryDetailPage />} />
+          <Route path="/bang-xep-hang" element={<RankPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

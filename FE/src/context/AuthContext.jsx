@@ -57,12 +57,14 @@ export function AuthProvider({ children }) {
     })
   }
 
-  function unlockVip(storyId, newCandyCount) {
+  // unlockedChapters: { [`${storyId}_${chapterNum}`]: true }
+  function unlockChapter(storyId, chapterNum, newCandyCount) {
     setUser((prev) => {
       if (!prev) return prev
-      const unlockedVip = prev.unlockedVip ?? []
-      if (unlockedVip.includes(storyId)) return prev
-      return persist({ ...prev, candy: newCandyCount, unlockedVip: [...unlockedVip, storyId] })
+      const key = `${storyId}_${chapterNum}`
+      const unlockedChapters = prev.unlockedChapters ?? {}
+      if (unlockedChapters[key]) return prev
+      return persist({ ...prev, candy: newCandyCount, unlockedChapters: { ...unlockedChapters, [key]: true } })
     })
   }
 
@@ -72,7 +74,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, updateUser, updateReadHistory, removeFromRead, toggleBookmark, unlockVip, logout }}>
+    <AuthContext.Provider value={{ user, login, updateUser, updateReadHistory, removeFromRead, toggleBookmark, unlockChapter, logout }}>
       {children}
     </AuthContext.Provider>
   )

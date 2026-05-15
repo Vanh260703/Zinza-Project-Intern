@@ -119,10 +119,106 @@ const BookIcon = () => (
   </svg>
 )
 
+const MOCK_NOTIFICATIONS = [
+  { id: 1, icon: '👑', title: 'Tính năng VIP đã được mở khoá', desc: 'Bạn đã đạt 1.000 người theo dõi.', time: '2 giờ trước', unread: true },
+  { id: 2, icon: '🍬', title: 'Có người mua truyện VIP của bạn', desc: 'Nhận được 50 kẹo từ "Thiên Đạo Đồ Thư Quán".', time: '5 giờ trước', unread: true },
+  { id: 3, icon: '💬', title: 'Bình luận mới', desc: 'Có người bình luận vào chương 12 truyện của bạn.', time: 'Hôm qua', unread: false },
+  { id: 4, icon: '⭐', title: 'Truyện của bạn được đề cử', desc: '"Vũ Động Càn Khôn" vừa được thêm vào đề cử.', time: '2 ngày trước', unread: false },
+]
+
+function NotificationBell({ navigate }) {
+  const [open, setOpen] = useState(false)
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
+  const ref = useRef(null)
+  const unreadCount = notifications.filter((n) => n.unread).length
+
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  function handleClickNotif(notif) {
+    setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, unread: false } : n))
+    setOpen(false)
+    navigate('/profile?tab=notifications')
+  }
+
+  function markAllRead() {
+    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="bell-hover relative p-2 text-stone-400 hover:text-white rounded-xl hover:bg-stone-700/60 transition-colors"
+        aria-label="Thông báo"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="bell-icon w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        {unreadCount > 0 && (
+          <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+            {unreadCount}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-stone-800/95 backdrop-blur-sm border border-stone-700/80 rounded-xl shadow-2xl shadow-black/40 z-50 overflow-hidden animate-fade-in-up">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-stone-700/60">
+            <span className="text-white text-sm font-semibold">Thông báo</span>
+            {unreadCount > 0 && (
+              <button onClick={markAllRead} className="text-amber-400 hover:text-amber-300 text-xs transition-colors">
+                Đọc tất cả
+              </button>
+            )}
+          </div>
+
+          {/* List */}
+          <ul className="max-h-80 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <li className="px-4 py-8 text-center text-stone-500 text-sm">Không có thông báo nào.</li>
+            ) : notifications.map((n) => (
+              <li key={n.id}>
+                <button
+                  onClick={() => handleClickNotif(n)}
+                  className={`w-full flex items-start gap-3 px-4 py-3 hover:bg-stone-700/50 transition-colors text-left ${n.unread ? 'bg-amber-500/5' : ''}`}
+                >
+                  <span className="text-xl shrink-0 mt-0.5">{n.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm leading-snug truncate ${n.unread ? 'text-white font-medium' : 'text-stone-300'}`}>{n.title}</p>
+                    <p className="text-stone-500 text-xs mt-0.5 line-clamp-1">{n.desc}</p>
+                    <p className="text-stone-600 text-xs mt-1">{n.time}</p>
+                  </div>
+                  {n.unread && <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0 mt-1.5" />}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          {/* Footer */}
+          <div className="border-t border-stone-700/60">
+            <button
+              onClick={() => { setOpen(false); navigate('/profile?tab=notifications') }}
+              className="w-full py-3 text-amber-400 hover:text-amber-300 text-xs font-medium transition-colors hover:bg-stone-700/30"
+            >
+              Xem tất cả thông báo →
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const NAV_LINKS = [
   { label: 'Trang chủ', to: '/home' },
   { label: 'Bảng xếp hạng', to: '/bang-xep-hang' },
-  { label: 'Mới cập nhật', to: '/moi-cap-nhat' },
 ]
 
 export default function Navbar() {
@@ -187,6 +283,7 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center gap-3">
             <SearchBox onNavigate={handleSearchNavigate} />
+            {user && <NotificationBell navigate={navigate} />}
             {user ? (
               <div
                 className="relative"

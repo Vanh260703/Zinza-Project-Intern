@@ -40,11 +40,11 @@ export async function postChapterComment(storyId, chapterNum, userName, content)
   return data
 }
 
-export async function giftCandy(email, amount) {
+export async function giftCandy(email, amount, storyTitle = '') {
   const res = await fetch('/api/mock/gift-candy', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, amount }),
+    body: JSON.stringify({ email, amount, storyTitle }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message)

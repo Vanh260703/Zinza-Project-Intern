@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import StoryCarousel from '../components/home/StoryCarousel'
 import { useAuth } from '../context/AuthContext'
-import { getLatestStories, getHotStories, getRecommendedStories, getVipStories, purchaseVip, fetchFilteredStories } from '../mocks/stories'
+import { getHotStories, getRecommendedStories, getVipStories, fetchFilteredStories } from '../mocks/stories'
 import StoryCard from '../components/home/StoryCard'
 
 const GRADIENTS = [
@@ -16,11 +16,11 @@ const GRADIENTS = [
 const FIELD_CLS = 'w-full bg-stone-800 border border-stone-700 hover:border-stone-600 focus:border-amber-500 text-stone-200 text-sm rounded-xl px-3 py-2.5 outline-none transition-colors'
 const SELECT_CLS = FIELD_CLS + ' appearance-none cursor-pointer pr-8'
 
-function FilterBar({ genres, onSearch, onReset, hasFilter }) {
-  const [q,      setQ]      = useState('')
-  const [genre,  setGenre]  = useState('')
-  const [status, setStatus] = useState('')
-  const [sort,   setSort]   = useState('latest')
+function FilterBar({ genres, onSearch, onReset, hasFilter, defaultValues }) {
+  const [q,      setQ]      = useState(defaultValues?.q      ?? '')
+  const [genre,  setGenre]  = useState(defaultValues?.genre  ?? '')
+  const [status, setStatus] = useState(defaultValues?.status ?? '')
+  const [sort,   setSort]   = useState(defaultValues?.sort   ?? 'latest')
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -29,7 +29,7 @@ function FilterBar({ genres, onSearch, onReset, hasFilter }) {
 
   function handleReset() {
     setQ(''); setGenre(''); setStatus(''); setSort('latest')
-    onReset()
+    onReset()  // clears URL params → navigates to /home base
   }
 
   return (
@@ -164,43 +164,24 @@ function FilteredResults({ stories, loading, total, hasFilter }) {
   )
 }
 
-function VipStoryCard({ story, user, onUnlock }) {
+function VipStoryCard({ story, user }) {
   const navigate = useNavigate()
   const [imgError, setImgError] = useState(false)
-  const [purchasing, setPurchasing] = useState(false)
-  const [err, setErr] = useState('')
   const [from, to] = GRADIENTS[(story.gradient ?? 0) % GRADIENTS.length]
   const showImg = story.poster && !imgError
-  const isUnlocked = user?.unlockedVip?.includes(story.id)
-
-  async function handleUnlock(e) {
-    e.stopPropagation()
-    setErr('')
-    setPurchasing(true)
-    try {
-      const data = await purchaseVip(user.email, story.id)
-      onUnlock(story.id, data.candy)
-    } catch (e) {
-      setErr(e.message)
-    } finally {
-      setPurchasing(false)
-    }
-  }
+  const isOwner = user?.email === story.postedBy
 
   return (
-    <div className="group flex-shrink-0 w-full">
+    <div className="group flex-shrink-0 w-full cursor-pointer" onClick={() => navigate('/story/' + story.id)}>
       {/* Cover */}
-      <div
-        className="relative rounded-xl overflow-hidden aspect-[3/4] mb-3 cursor-pointer ring-1 ring-amber-500/30 hover:ring-amber-400/60 transition-all"
-        onClick={() => isUnlocked && navigate('/story/' + story.id)}
-      >
+      <div className="relative rounded-xl overflow-hidden aspect-3/4 mb-3 ring-1 ring-amber-500/30 hover:ring-amber-400/60 transition-all">
         <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
         {story.poster && (
           <img
             src={story.poster}
             alt={story.title}
             onError={() => setImgError(true)}
-            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${showImg ? 'opacity-100' : 'opacity-0'} ${!isUnlocked ? 'brightness-50' : ''}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 ${showImg ? 'opacity-100' : 'opacity-0'}`}
           />
         )}
         {/* Gradient overlay */}
@@ -221,22 +202,10 @@ function VipStoryCard({ story, user, onUnlock }) {
           </span>
         </div>
 
-        {/* Lock overlay */}
-        {!isUnlocked && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <button
-              onClick={handleUnlock}
-              disabled={purchasing}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white text-xs font-bold rounded-lg transition-colors shadow-lg"
-            >
-              🍬 {purchasing ? 'Đang mở...' : `${story.price} kẹo`}
-            </button>
-            {err && <p className="text-red-300 text-xs text-center px-2">{err}</p>}
+        {/* Owner badge */}
+        {isOwner && (
+          <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+            <span className="text-xs px-2 py-0.5 bg-black/60 text-amber-300 rounded-full font-medium">Truyện của bạn</span>
           </div>
         )}
 
@@ -248,22 +217,13 @@ function VipStoryCard({ story, user, onUnlock }) {
 
       {/* Info */}
       <div className="space-y-1">
-        <h3
-          className={`text-stone-100 text-sm font-semibold line-clamp-1 transition-colors ${isUnlocked ? 'cursor-pointer hover:text-amber-400' : 'cursor-default'}`}
-          onClick={() => isUnlocked && navigate('/story/' + story.id)}
-        >
+        <h3 className="text-stone-100 text-sm font-semibold line-clamp-1 hover:text-amber-400 transition-colors">
           {story.title}
         </h3>
         <p className="text-stone-500 text-xs">{story.author}</p>
         <div className="flex items-center justify-between">
           <span className="text-stone-500 text-xs">{story.totalChapters?.toLocaleString()} chương</span>
-          {isUnlocked ? (
-            <span className="text-emerald-400 text-xs font-medium">Đã mở khóa</span>
-          ) : (
-            <span className="flex items-center gap-1 text-amber-400 text-xs font-medium">
-              🍬 {story.price}
-            </span>
-          )}
+          <span className="text-amber-400 text-xs font-medium">🍬 Một số chương mất phí</span>
         </div>
       </div>
     </div>
@@ -353,6 +313,179 @@ function TopStoriesPanel() {
   )
 }
 
+function RandomStorySection() {
+  const navigate = useNavigate()
+  const [pool, setPool] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [picked, setPicked] = useState(null)
+  const [spinning, setSpinning] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/mock/stories?sort=rating&limit=60')
+      .then((r) => r.json())
+      .then((d) => {
+        const qual = (d.stories ?? []).filter((s) => s.rating >= 4.5)
+        setPool(qual)
+        if (qual.length > 0) setPicked(qual[Math.floor(Math.random() * qual.length)])
+        setLoading(false)
+      })
+  }, [])
+
+  function spin() {
+    if (pool.length < 2 || spinning) return
+    setSpinning(true)
+    setImgError(false)
+    setTimeout(() => {
+      let next
+      do { next = pool[Math.floor(Math.random() * pool.length)] } while (pool.length > 1 && next?.id === picked?.id)
+      setPicked(next)
+      setSpinning(false)
+    }, 420)
+  }
+
+  const [from, to] = GRADIENTS[(picked?.gradient ?? 0) % GRADIENTS.length]
+  const showImg = picked?.poster && !imgError
+
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center justify-center w-8 h-8 bg-violet-500/20 rounded-lg">
+          <span className="text-violet-400 text-base">🎲</span>
+        </div>
+        <h2 className="text-white text-xl font-bold">Khám phá ngẫu nhiên</h2>
+        <span className="text-xs px-2 py-0.5 bg-violet-500/20 text-violet-400 rounded-full font-medium border border-violet-500/30">
+          Chất lượng &gt;4.5⭐
+        </span>
+        <div className="flex-1 h-px bg-stone-700/60 ml-2" />
+      </div>
+
+      {loading ? (
+        <div className="flex gap-6 p-6 rounded-2xl bg-stone-900 border border-stone-800 animate-pulse">
+          <div className="w-36 shrink-0 rounded-xl bg-stone-800" style={{ aspectRatio: '3/4' }} />
+          <div className="flex-1 space-y-3 py-2">
+            <div className="h-6 bg-stone-800 rounded w-2/3" />
+            <div className="h-4 bg-stone-800 rounded w-1/3" />
+            <div className="h-4 bg-stone-800 rounded w-1/2" />
+            <div className="flex gap-2 mt-3">
+              <div className="h-6 bg-stone-800 rounded-full w-16" />
+              <div className="h-6 bg-stone-800 rounded-full w-20" />
+            </div>
+            <div className="h-4 bg-stone-800 rounded w-full mt-2" />
+            <div className="h-4 bg-stone-800 rounded w-5/6" />
+          </div>
+        </div>
+      ) : !picked ? null : (
+        <div
+          className="relative overflow-hidden rounded-2xl border border-stone-700/60 transition-all duration-500"
+          style={{ background: `linear-gradient(135deg, ${from}18, ${to}10, transparent)` }}
+        >
+          {/* Faint bg pattern */}
+          <div className="absolute inset-0 opacity-5 pointer-events-none"
+            style={{ background: `radial-gradient(ellipse at top right, ${to}, transparent 65%)` }} />
+
+          <div className="relative flex flex-col sm:flex-row gap-5 p-5 sm:p-6">
+            {/* Cover */}
+            <div
+              className={`relative w-full sm:w-36 shrink-0 rounded-xl overflow-hidden cursor-pointer transition-opacity duration-300 ${spinning ? 'opacity-0' : 'opacity-100'}`}
+              style={{ aspectRatio: '3/4' }}
+              onClick={() => navigate('/story/' + picked.id)}
+            >
+              <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
+              {picked.poster && (
+                <img
+                  src={picked.poster}
+                  alt={picked.title}
+                  onError={() => setImgError(true)}
+                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105 ${showImg ? 'opacity-100' : 'opacity-0'}`}
+                />
+              )}
+              {!showImg && (
+                <div className="absolute inset-0 flex items-center justify-center opacity-25">
+                  <span className="text-white font-black" style={{ fontSize: '4rem', lineHeight: 1 }}>
+                    {picked.title.charAt(0)}
+                  </span>
+                </div>
+              )}
+              <div className="absolute top-2 right-2">
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${picked.status === 'Hoàn thành' ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white'}`}>
+                  {picked.status === 'Hoàn thành' ? 'Full' : 'Đang ra'}
+                </span>
+              </div>
+            </div>
+
+            {/* Info */}
+            <div className={`flex flex-col justify-between gap-3 min-w-0 transition-opacity duration-300 ${spinning ? 'opacity-0' : 'opacity-100'}`}>
+              <div>
+                <h3
+                  className="text-white text-xl font-bold leading-tight line-clamp-2 cursor-pointer hover:text-amber-400 transition-colors mb-1"
+                  onClick={() => navigate('/story/' + picked.id)}
+                >
+                  {picked.title}
+                </h3>
+                <p className="text-stone-400 text-sm mb-3">{picked.author}</p>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-0.5">
+                    {[1,2,3,4,5].map((s) => (
+                      <svg key={s} xmlns="http://www.w3.org/2000/svg" className={`w-4 h-4 ${picked.rating >= s ? 'fill-amber-400 text-amber-400' : 'fill-stone-700 text-stone-700'}`} viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                      </svg>
+                    ))}
+                  </div>
+                  <span className="text-amber-400 font-bold text-sm">{picked.rating}</span>
+                  {picked.ratingCount > 0 && (
+                    <span className="text-stone-500 text-xs">({picked.ratingCount.toLocaleString()} đánh giá)</span>
+                  )}
+                </div>
+
+                {/* Genres */}
+                {picked.genres?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {picked.genres.slice(0, 4).map((g) => (
+                      <span key={g} className="text-xs px-2 py-0.5 rounded-full bg-stone-800 border border-stone-700 text-stone-400">
+                        {g}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Chapters */}
+                <p className="text-stone-500 text-sm">
+                  {picked.totalChapters?.toLocaleString()} chương
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  onClick={() => navigate('/story/' + picked.id)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white shadow-lg transition-all hover:scale-105 active:scale-95"
+                  style={{ background: `linear-gradient(135deg,${from},${to})` }}
+                >
+                  Đọc ngay
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={spin}
+                  disabled={spinning}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-stone-300 border border-stone-700 hover:border-stone-500 hover:text-white bg-stone-900 transition-all disabled:opacity-50"
+                >
+                  <span className={`inline-block transition-transform duration-300 ${spinning ? 'rotate-180' : ''}`}>🎲</span>
+                  Xoay lại
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
 function SectionHeader({ title, icon, badge }) {
   return (
     <div className="flex items-center gap-3 mb-6">
@@ -388,56 +521,59 @@ function EmptyRecommended() {
 }
 
 export default function HomePage() {
-  const { user, unlockVip } = useAuth()
-  const [latest, setLatest] = useState([])
+  const { user } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [hot, setHot] = useState([])
   const [recommended, setRecommended] = useState([])
-  const [loadingLatest, setLoadingLatest] = useState(true)
   const [loadingHot, setLoadingHot] = useState(true)
   const [loadingRec, setLoadingRec] = useState(true)
   const [vipStories, setVipStories] = useState([])
   const [loadingVip, setLoadingVip] = useState(true)
 
-  // Filter state
+  // Filter state — driven by URL params
   const [genres, setGenres] = useState([])
-  const [activeFilters, setActiveFilters] = useState(null) // null = no search yet
   const [filtered, setFiltered] = useState([])
   const [filteredTotal, setFilteredTotal] = useState(0)
   const [loadingFiltered, setLoadingFiltered] = useState(false)
 
-  const hasFilter = activeFilters !== null
+  const pQ      = searchParams.get('q')      ?? ''
+  const pGenre  = searchParams.get('genre')  ?? ''
+  const pStatus = searchParams.get('status') ?? ''
+  const pSort   = searchParams.get('sort')   ?? 'latest'
+  const hasFilter = searchParams.has('searched')
 
   useEffect(() => {
-    getLatestStories().then((data) => { setLatest(data); setLoadingLatest(false) })
     getHotStories().then((data) => { setHot(data); setLoadingHot(false) })
     getVipStories().then((data) => { setVipStories(data); setLoadingVip(false) })
     fetch('/api/mock/genres').then((r) => r.json()).then((d) => setGenres(d.genres ?? []))
   }, [])
 
-  // Only fetch when activeFilters changes (button clicked)
+  // Fetch filtered results whenever URL params change
   useEffect(() => {
-    if (!activeFilters) return
+    if (!hasFilter) return
     let cancelled = false
-    setTimeout(() => {
-      if (cancelled) return
-      setLoadingFiltered(true)
-      fetchFilteredStories({ ...activeFilters, limit: 40 })
-        .then(({ stories, total }) => {
-          if (cancelled) return
-          setFiltered(stories)
-          setFilteredTotal(total)
-        })
-        .finally(() => { if (!cancelled) setLoadingFiltered(false) })
-    }, 0)
+    setLoadingFiltered(true)
+    fetchFilteredStories({ q: pQ, genre: pGenre, status: pStatus, sort: pSort, limit: 40 })
+      .then(({ stories, total }) => {
+        if (cancelled) return
+        setFiltered(stories)
+        setFilteredTotal(total)
+      })
+      .finally(() => { if (!cancelled) setLoadingFiltered(false) })
     return () => { cancelled = true }
-  }, [activeFilters])
+  }, [hasFilter, pQ, pGenre, pStatus, pSort])
 
   function handleSearch(q, genre, status, sort) {
-    setActiveFilters({ q, genre, status, sort })
+    const params = { searched: '1' }
+    if (q)      params.q      = q
+    if (genre)  params.genre  = genre
+    if (status) params.status = status
+    if (sort && sort !== 'latest') params.sort = sort
+    setSearchParams(params)
   }
 
   function handleReset() {
-    setActiveFilters(null)
+    setSearchParams({})
     setFiltered([])
     setFilteredTotal(0)
   }
@@ -496,6 +632,7 @@ export default function HomePage() {
             onSearch={handleSearch}
             onReset={handleReset}
             hasFilter={hasFilter}
+            defaultValues={{ q: pQ, genre: pGenre, status: pStatus, sort: pSort }}
           />
         </div>
 
@@ -515,13 +652,8 @@ export default function HomePage() {
           hasFilter={hasFilter}
         />
 
-        {/* Latest stories — hidden when filter active */}
-        {!hasFilter && (
-        <section>
-          <SectionHeader title="Truyện mới nhất" icon="⚡" />
-          <StoryCarousel stories={latest} loading={loadingLatest} />
-        </section>
-        )}
+        {/* Random quality story — hidden when filter active */}
+        {!hasFilter && <RandomStorySection />}
 
         {/* 2-col layout: content (2/3) + ranking (1/3) */}
         {!hasFilter && (
@@ -552,7 +684,7 @@ export default function HomePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p className="text-xs text-amber-300/80 leading-relaxed">
-                      Truyện VIP là nội dung độc quyền. Dùng <span className="font-semibold text-amber-300">🍬 kẹo</span> để mở khóa và theo dõi truyện.
+                      Truyện VIP có các chương trả phí. Dùng <span className="font-semibold text-amber-300">🍬 kẹo</span> để mở khoá từng chương.
                       Bạn hiện có <span className="font-bold text-amber-400">{user.candy ?? 0} kẹo</span>.
                     </p>
                   </div>
@@ -573,7 +705,6 @@ export default function HomePage() {
                           key={story.id}
                           story={story}
                           user={user}
-                          onUnlock={unlockVip}
                         />
                       ))}
                     </div>

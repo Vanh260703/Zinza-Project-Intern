@@ -154,9 +154,10 @@ function EditStoryModal({ story, genres, userEmail, onClose, onSaved }) {
 }
 
 /* ── Add chapter modal ───────────────────────────────────────── */
-function AddChapterModal({ story, nextNumber, userEmail, onClose, onAdded }) {
+function AddChapterModal({ story, nextNumber, userEmail, canSetVip, onClose, onAdded }) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [candyPrice, setCandyPrice] = useState('0')
   const [submitting, setSubmitting] = useState(false)
   const [err, setErr] = useState('')
 
@@ -169,7 +170,7 @@ function AddChapterModal({ story, nextNumber, userEmail, onClose, onAdded }) {
       const res = await fetch('/api/mock/my-story-chapters', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: userEmail, storyId: story.id, title: title || `Chương ${nextNumber}`, content }),
+        body: JSON.stringify({ email: userEmail, storyId: story.id, title: title || `Chương ${nextNumber}`, content, candyPrice: parseInt(candyPrice) || 0 }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.message)
@@ -189,10 +190,25 @@ function AddChapterModal({ story, nextNumber, userEmail, onClose, onAdded }) {
             placeholder={`Chương ${nextNumber} (để trống sẽ dùng tên mặc định)`} />
         </Field>
         <Field label="Nội dung" required>
-          <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={14}
+          <textarea value={content} onChange={(e) => setContent(e.target.value)} rows={12}
             className={INPUT + ' resize-none font-mono text-sm leading-relaxed'}
             placeholder="Viết nội dung chương tại đây..." />
         </Field>
+        {canSetVip && (
+          <Field label="Giá mở khoá chương">
+            <div className="relative max-w-44">
+              <input
+                type="text" inputMode="numeric"
+                value={candyPrice}
+                onChange={(e) => setCandyPrice(e.target.value.replace(/\D/g, ''))}
+                className={INPUT + ' pr-12'}
+                placeholder="0"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 text-xs">🍬</span>
+            </div>
+            <p className="text-stone-600 text-xs mt-1">Để 0 nếu chương này miễn phí</p>
+          </Field>
+        )}
         {err && <p className="text-red-400 text-xs">{err}</p>}
         <ModalFooter onClose={onClose} submitLabel={submitting ? 'Đang đăng...' : 'Đăng chương'} disabled={submitting} />
       </form>
@@ -293,12 +309,78 @@ function StatCard({ icon, label, value, color }) {
 }
 
 /* ── Chapter row ─────────────────────────────────────────────── */
-function ChapterRow({ chapter, onDelete }) {
+function ChapterRow({ chapter, user, canSetVip, onDelete, onPriceChanged }) {
+  const [editing, setEditing] = useState(false)
+  const [priceVal, setPriceVal] = useState(String(chapter.candyPrice ?? 0))
+  const [saving, setSaving] = useState(false)
+
+  async function savePrice() {
+    const p = Math.max(0, parseInt(priceVal) || 0)
+    setSaving(true)
+    try {
+      const res = await fetch('/api/mock/my-chapter-price', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, storyId: chapter.storyId, chapterId: chapter.id, candyPrice: p }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      onPriceChanged(chapter.id, data.candyPrice)
+      setEditing(false)
+    } catch { /* silently ignore */ }
+    finally { setSaving(false) }
+  }
+
   return (
-    <div className="group flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-stone-800/50 transition-colors">
+    <div className="group flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-stone-800/50 transition-colors">
       <span className="w-16 text-stone-600 text-xs font-mono shrink-0">Ch.{String(chapter.number).padStart(3,'0')}</span>
       <p className="flex-1 text-stone-200 text-sm truncate">{chapter.title}</p>
+
+      {/* Price badge */}
+      {(chapter.candyPrice ?? 0) > 0 && (
+        <span className="shrink-0 flex items-center gap-1 text-xs px-2 py-0.5 bg-amber-500/15 text-amber-400 rounded-full border border-amber-500/25">
+          🔒 {chapter.candyPrice} 🍬
+        </span>
+      )}
+
       <span className="text-stone-600 text-xs shrink-0">{chapter.publishedAt}</span>
+
+      {/* Inline price editor — visible on hover for VIP-eligible authors */}
+      {canSetVip && (
+        <div className="shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          {editing ? (
+            <>
+              <input
+                type="text" inputMode="numeric"
+                value={priceVal}
+                onChange={(e) => setPriceVal(e.target.value.replace(/\D/g, ''))}
+                onKeyDown={(e) => { if (e.key === 'Enter') savePrice(); if (e.key === 'Escape') setEditing(false) }}
+                className="w-14 bg-stone-700 border border-stone-600 focus:border-amber-500 text-stone-100 text-xs rounded-lg px-2 py-1 outline-none"
+                placeholder="0"
+                autoFocus
+              />
+              <span className="text-stone-500 text-xs">🍬</span>
+              <button onClick={savePrice} disabled={saving}
+                className="text-emerald-400 hover:text-emerald-300 text-xs px-1 transition-colors font-bold">
+                {saving ? '…' : '✓'}
+              </button>
+              <button onClick={() => setEditing(false)}
+                className="text-stone-500 hover:text-stone-300 text-xs px-1 transition-colors">✕</button>
+            </>
+          ) : (
+            <button
+              onClick={() => { setPriceVal(String(chapter.candyPrice ?? 0)); setEditing(true) }}
+              className="p-1 text-stone-600 hover:text-amber-400 rounded-lg hover:bg-amber-500/10 transition-colors"
+              title="Đặt giá kẹo cho chương"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
+        </div>
+      )}
+
       <button
         onClick={() => onDelete(chapter.id)}
         className="shrink-0 opacity-0 group-hover:opacity-100 text-stone-600 hover:text-red-400 transition-all p-1 rounded-lg hover:bg-red-500/10"
@@ -413,7 +495,12 @@ export default function MyStoryDetailPage() {
       setChapters(chaptersData.chapters ?? [])
       setGenres(genresData.genres ?? [])
     }).finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, user?.email])
+
+  function handlePriceChanged(chapterId, candyPrice) {
+    setChapters((prev) => prev.map((c) => c.id === chapterId ? { ...c, candyPrice } : c))
+  }
 
   async function handleDeleteChapter(chapterId) {
     await fetch(`/api/mock/my-story-chapters?email=${encodeURIComponent(user.email)}&storyId=${id}&chapterId=${chapterId}`, { method: 'DELETE' })
@@ -532,6 +619,16 @@ export default function MyStoryDetailPage() {
             {story.description && (
               <p className="text-stone-400 text-sm leading-relaxed line-clamp-4">{story.description}</p>
             )}
+
+            {/* VIP chapter info — shown only when user has >= 1000 followers */}
+            {(user?.followers ?? 0) >= 1000 && (
+              <div className="mt-4 flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/25 rounded-xl">
+                <span className="text-amber-400 text-sm shrink-0">👑</span>
+                <p className="text-amber-400/80 text-xs leading-relaxed">
+                  Bạn có thể đặt giá kẹo cho từng chương riêng lẻ. Hover vào chương trong danh sách bên dưới để chỉnh giá.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -597,7 +694,14 @@ export default function MyStoryDetailPage() {
           ) : (
             <div className="divide-y divide-stone-800/60">
               {chapters.map((c) => (
-                <ChapterRow key={c.id} chapter={c} onDelete={handleDeleteChapter} />
+                <ChapterRow
+                  key={c.id}
+                  chapter={c}
+                  user={user}
+                  canSetVip={(user?.followers ?? 0) >= 1000}
+                  onDelete={handleDeleteChapter}
+                  onPriceChanged={handlePriceChanged}
+                />
               ))}
             </div>
           )}
@@ -619,6 +723,7 @@ export default function MyStoryDetailPage() {
           story={story}
           nextNumber={(story.chaptersCount ?? 0) + 1}
           userEmail={user.email}
+          canSetVip={(user?.followers ?? 0) >= 1000}
           onClose={() => setModal(null)}
           onAdded={handleChapterAdded}
         />

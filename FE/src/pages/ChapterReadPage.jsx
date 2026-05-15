@@ -4,6 +4,68 @@ import Navbar from '../components/layout/Navbar'
 import { fetchChapterContent, fetchStoryDetail, fetchChapterComments, postChapterComment } from '../mocks/story'
 import { useAuth } from '../context/AuthContext'
 
+/* ── Lock wall ── */
+function LockWall({ storyId, chapter, user, onUnlocked }) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const canAfford = (user?.candy ?? 0) >= chapter.candyPrice
+
+  async function handleUnlock() {
+    if (!user) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/mock/purchase-chapter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, storyId, chapterNum: chapter.num }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message)
+      onUnlocked(data.candy)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
+      <div className="w-16 h-16 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-3xl mb-5">🔒</div>
+      <h2 className="text-white text-lg font-bold mb-2">Chương trả phí</h2>
+      <p className="text-stone-400 text-sm mb-6 max-w-sm leading-relaxed">
+        Cần <span className="text-amber-400 font-bold">{chapter.candyPrice} 🍬</span> để mở khoá chương này.
+        {!user && <> <a href="/login" className="text-amber-400 underline hover:text-amber-300">Đăng nhập</a> để tiếp tục.</>}
+      </p>
+      {user && (
+        <div className="w-full max-w-xs space-y-4">
+          <div className="bg-stone-900 border border-stone-800 rounded-xl px-4 py-3 flex items-center justify-between text-sm">
+            <span className="text-stone-500">Kẹo hiện có</span>
+            <span className={`font-bold ${canAfford ? 'text-amber-400' : 'text-red-400'}`}>{(user.candy ?? 0).toLocaleString()} 🍬</span>
+          </div>
+          {error && <p className="text-red-400 text-xs">{error}</p>}
+          {!canAfford && !error && (
+            <p className="text-red-400 text-xs">
+              Không đủ kẹo.{' '}
+              <a href="/profile?tab=topup" className="underline hover:text-red-300">Nạp thêm</a>
+            </p>
+          )}
+          <button
+            onClick={handleUnlock}
+            disabled={loading || !canAfford}
+            className="w-full py-3 bg-amber-500 hover:bg-amber-400 disabled:bg-stone-800 disabled:text-stone-500 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+          >
+            {loading
+              ? <><svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>Đang mở...</>
+              : `Mở khoá ${chapter.candyPrice} 🍬`}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 function NavButtons({ bottom, num, storyId, isFirst, isLast, onGoTo }) {
   return (
     <div className={`flex items-center gap-3 ${bottom ? 'justify-between' : ''}`}>
@@ -164,13 +226,15 @@ function ChapterComments({ storyId, chapterNum, user }) {
 export default function ChapterReadPage() {
   const { id: storyId, chapterNum } = useParams()
   const navigate = useNavigate()
-  const { user, updateReadHistory } = useAuth()
+  const { user, updateReadHistory, unlockChapter } = useAuth()
   const num = parseInt(chapterNum)
 
   const [content, setContent] = useState(null)
   const [story, setStory] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [candyPrice, setCandyPrice] = useState(0)
+  const [ownerEmail, setOwnerEmail] = useState('')
   const [fontSize, setFontSize] = useState(
     () => localStorage.getItem('readFontSize') || 'text-base'
   )
@@ -194,9 +258,14 @@ export default function ChapterReadPage() {
       fetchChapterContent(storyId, num)
         .then((data) => {
           if (cancelled) return
-          if (data?.content) {
+          if (data?.content !== undefined) {
+            const price = data.candyPrice ?? 0
+            const owner = data.ownerEmail ?? ''
+            setCandyPrice(price)
+            setOwnerEmail(owner)
             setContent(data.content)
-            if (user) updateReadHistory(storyId, num)
+            const locked = price > 0 && user?.email !== owner && !user?.unlockedChapters?.[`${storyId}_${num}`]
+            if (user && !locked) updateReadHistory(storyId, num)
           } else setError(true)
         })
         .catch(() => { if (!cancelled) setError(true) })
@@ -231,6 +300,14 @@ export default function ChapterReadPage() {
 
   const isFirst = num <= 1
   const isLast = !!story?.totalChapters && num >= story.totalChapters
+  const isOwner = !!ownerEmail && user?.email === ownerEmail
+  const isUnlocked = !!(user?.unlockedChapters?.[`${storyId}_${num}`])
+  const isLocked = !loading && !error && candyPrice > 0 && !isOwner && !isUnlocked
+
+  function handleUnlocked(newCandy) {
+    unlockChapter(storyId, num, newCandy)
+    updateReadHistory(storyId, num)
+  }
 
   return (
     <div className="min-h-screen bg-stone-950" ref={topRef}>
@@ -311,6 +388,13 @@ export default function ChapterReadPage() {
               Quay lại thông tin truyện
             </Link>
           </div>
+        ) : isLocked ? (
+          <LockWall
+            storyId={storyId}
+            chapter={{ num, candyPrice }}
+            user={user}
+            onUnlocked={handleUnlocked}
+          />
         ) : (
           <>
             <h1 className="text-white text-xl sm:text-2xl font-bold text-center mb-10 leading-snug">
@@ -326,14 +410,14 @@ export default function ChapterReadPage() {
       </main>
 
       {/* Bottom navigation */}
-      {!loading && !error && (
+      {!loading && !error && !isLocked && (
         <div className="max-w-3xl mx-auto px-6 sm:px-8 pb-8 border-t border-stone-800 pt-8">
           <NavButtons bottom num={num} storyId={storyId} isFirst={isFirst} isLast={isLast} onGoTo={goTo} />
         </div>
       )}
 
       {/* Chapter comments */}
-      {!loading && !error && (
+      {!loading && !error && !isLocked && (
         <ChapterComments storyId={storyId} chapterNum={num} user={user} />
       )}
     </div>
