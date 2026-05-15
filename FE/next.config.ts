@@ -1,10 +1,11 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // Allow serving images from mock-assets
   images: {
     unoptimized: true,
   },
+  // Enable instrumentation hook (warms up mock DB on server start)
+  instrumentationHook: true,
 }
 
 export default nextConfig
