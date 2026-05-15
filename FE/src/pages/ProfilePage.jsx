@@ -100,7 +100,7 @@ function ProfileTab() {
 
   // Avatar stored per-user in localStorage
   const avatarKey = `avatar_${user?.email}`
-  const [avatar, setAvatar] = useState(() => localStorage.getItem(avatarKey) || null)
+  const [avatar, setAvatar] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem(avatarKey) : null) || null)
 
   const [name, setName] = useState(user?.name || '')
   const [gender, setGender] = useState(user?.gender || '')

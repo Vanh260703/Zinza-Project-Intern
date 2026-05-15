@@ -15,7 +15,7 @@ function getVisible(width) {
 }
 
 export default function StoryCarousel({ stories = [], loading = false }) {
-  const [visible, setVisible] = useState(() => getVisible(window.innerWidth))
+  const [visible, setVisible] = useState(4) // default SSR-safe, corrected in useEffect
   const [cardWidth, setCardWidth] = useState(0)
   // trackIdx points into cloned array: [CLONE_COUNT clones] + [real items] + [CLONE_COUNT clones]
   // Start at CLONE_COUNT = first real item

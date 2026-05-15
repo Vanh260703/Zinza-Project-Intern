@@ -238,7 +238,7 @@ export default function ChapterReadPage() {
   const [candyPrice, setCandyPrice] = useState(0)
   const [ownerEmail, setOwnerEmail] = useState('')
   const [fontSize, setFontSize] = useState(
-    () => localStorage.getItem('readFontSize') || 'text-base'
+    () => (typeof window !== 'undefined' ? localStorage.getItem('readFontSize') : null) || 'text-base'
   )
   const [jumpInput, setJumpInput] = useState('')
   const topRef = useRef()
