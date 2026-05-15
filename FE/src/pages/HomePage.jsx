@@ -1,5 +1,7 @@
+'use client'
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
 import StoryCarousel from '../components/home/StoryCarousel'
 import { useAuth } from '../context/AuthContext'
@@ -38,7 +40,7 @@ function FilterBar({ genres, onSearch, onReset, hasFilter, defaultValues }) {
       className="mt-8 relative z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 bg-stone-900/80 backdrop-blur-sm border border-stone-700/60 rounded-2xl px-4 py-3"
     >
       {/* Search text — full width on mobile */}
-      <div className="relative w-full sm:flex-[2] sm:min-w-44">
+      <div className="relative w-full sm:flex-2 sm:min-w-44">
         <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -165,14 +167,14 @@ function FilteredResults({ stories, loading, total, hasFilter }) {
 }
 
 function VipStoryCard({ story, user }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [imgError, setImgError] = useState(false)
   const [from, to] = GRADIENTS[(story.gradient ?? 0) % GRADIENTS.length]
   const showImg = story.poster && !imgError
   const isOwner = user?.email === story.postedBy
 
   return (
-    <div className="group flex-shrink-0 w-full cursor-pointer" onClick={() => navigate('/story/' + story.id)}>
+    <div className="group shrink-0 w-full cursor-pointer" onClick={() => router.push('/story/' + story.id)}>
       {/* Cover */}
       <div className="relative rounded-xl overflow-hidden aspect-3/4 mb-3 ring-1 ring-amber-500/30 hover:ring-amber-400/60 transition-all">
         <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
@@ -256,7 +258,7 @@ function TopStoriesPanel() {
   ]
 
   return (
-    <div className="sticky top-24 bg-stone-900 border border-stone-700/80 rounded-2xl overflow-hidden">
+    <div className="bg-stone-900 border border-stone-700/80 rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-stone-800">
         <span className="text-base">🏆</span>
@@ -314,7 +316,7 @@ function TopStoriesPanel() {
 }
 
 function RandomStorySection() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [pool, setPool] = useState([])
   const [loading, setLoading] = useState(true)
   const [picked, setPicked] = useState(null)
@@ -389,7 +391,7 @@ function RandomStorySection() {
             <div
               className={`relative w-full sm:w-36 shrink-0 rounded-xl overflow-hidden cursor-pointer transition-opacity duration-300 ${spinning ? 'opacity-0' : 'opacity-100'}`}
               style={{ aspectRatio: '3/4' }}
-              onClick={() => navigate('/story/' + picked.id)}
+              onClick={() => router.push('/story/' + picked.id)}
             >
               <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
               {picked.poster && (
@@ -419,7 +421,7 @@ function RandomStorySection() {
               <div>
                 <h3
                   className="text-white text-xl font-bold leading-tight line-clamp-2 cursor-pointer hover:text-amber-400 transition-colors mb-1"
-                  onClick={() => navigate('/story/' + picked.id)}
+                  onClick={() => router.push('/story/' + picked.id)}
                 >
                   {picked.title}
                 </h3>
@@ -460,7 +462,7 @@ function RandomStorySection() {
               {/* Actions */}
               <div className="flex items-center gap-3 pt-1">
                 <button
-                  onClick={() => navigate('/story/' + picked.id)}
+                  onClick={() => router.push('/story/' + picked.id)}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white shadow-lg transition-all hover:scale-105 active:scale-95"
                   style={{ background: `linear-gradient(135deg,${from},${to})` }}
                 >
@@ -483,6 +485,110 @@ function RandomStorySection() {
         </div>
       )}
     </section>
+  )
+}
+
+function RecentlyReadPanel({ user }) {
+  const router = useRouter()
+  const [allStories, setAllStories] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  const readHistory = user?.readHistory ?? {}
+  // Object.keys preserves insertion order → reverse = most recent first
+  const recentIds = Object.keys(readHistory).reverse().slice(0, 5)
+
+  useEffect(() => {
+    if (!user) return
+    fetch('/api/mock/stories?limit=60')
+      .then((r) => r.json())
+      .then((d) => setAllStories(d.stories ?? []))
+      .finally(() => setLoading(false))
+  }, [user?.email]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!user) return null
+
+  const storyMap = Object.fromEntries(allStories.map((s) => [s.id, s]))
+  const recentStories = recentIds.map((id) => storyMap[id]).filter(Boolean)
+
+  return (
+    <div className="bg-stone-900 border border-stone-700/80 rounded-2xl overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-stone-800">
+        <span className="text-base">📖</span>
+        <h3 className="text-white text-sm font-bold flex-1">Đọc gần đây</h3>
+        <Link href="/tu-truyen" className="text-xs text-stone-500 hover:text-amber-400 transition-colors">
+          Xem tất cả
+        </Link>
+      </div>
+
+      <div className="p-2">
+        {loading ? (
+          <div className="space-y-0.5">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex gap-2.5 px-2 py-2.5 animate-pulse">
+                <div className="w-8 shrink-0 rounded-lg bg-stone-800" style={{ aspectRatio: '3/4' }} />
+                <div className="flex-1 space-y-1.5 py-0.5">
+                  <div className="h-3 bg-stone-800 rounded w-4/5" />
+                  <div className="h-2.5 bg-stone-800 rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : recentStories.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 gap-2 text-center px-3">
+            <span className="text-2xl">📚</span>
+            <p className="text-stone-500 text-xs leading-relaxed">
+              Chưa có lịch sử đọc.
+              <br />Hãy khám phá truyện nhé!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-0.5">
+            {recentStories.map((story) => {
+              const [from, to] = GRADIENTS[(story.gradient ?? 0) % GRADIENTS.length]
+              const lastChapter = readHistory[story.id]
+              return (
+                <div
+                  key={story.id}
+                  className="flex gap-2.5 px-2 py-2 rounded-xl hover:bg-stone-800/60 transition-colors group cursor-pointer"
+                  onClick={() => router.push(`/story/${story.id}/read/${lastChapter}`)}
+                >
+                  {/* Mini cover */}
+                  <div
+                    className="relative w-8 shrink-0 rounded-lg overflow-hidden"
+                    style={{ aspectRatio: '3/4', background: `linear-gradient(135deg,${from},${to})` }}
+                  >
+                    {story.poster && (
+                      <img
+                        src={story.poster}
+                        alt={story.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = 'none' }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+                    <p className="text-stone-300 text-xs font-medium line-clamp-1 group-hover:text-amber-400 transition-colors">
+                      {story.title}
+                    </p>
+                    <p className="text-stone-600 text-xs">Chương {lastChapter}</p>
+                  </div>
+
+                  {/* Arrow */}
+                  <div className="shrink-0 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -511,7 +617,7 @@ function EmptyRecommended() {
       <p className="text-stone-400 text-sm font-medium mb-1">Chưa có dữ liệu</p>
       <p className="text-stone-600 text-xs mb-5">Đăng nhập để xem truyện được đề cử dành riêng cho bạn</p>
       <Link
-        to="/login"
+        href="/login"
         className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors"
       >
         Đăng nhập ngay
@@ -522,7 +628,8 @@ function EmptyRecommended() {
 
 export default function HomePage() {
   const { user } = useAuth()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [hot, setHot] = useState([])
   const [recommended, setRecommended] = useState([])
   const [loadingHot, setLoadingHot] = useState(true)
@@ -534,13 +641,17 @@ export default function HomePage() {
   const [genres, setGenres] = useState([])
   const [filtered, setFiltered] = useState([])
   const [filteredTotal, setFilteredTotal] = useState(0)
-  const [loadingFiltered, setLoadingFiltered] = useState(false)
+  // Track which param string was last successfully fetched — used to derive loading state
+  const [fetchedKey, setFetchedKey] = useState(null)
 
   const pQ      = searchParams.get('q')      ?? ''
   const pGenre  = searchParams.get('genre')  ?? ''
   const pStatus = searchParams.get('status') ?? ''
   const pSort   = searchParams.get('sort')   ?? 'latest'
   const hasFilter = searchParams.has('searched')
+  const currentKey = hasFilter ? `${pQ}|${pGenre}|${pStatus}|${pSort}` : null
+  // loadingFiltered is derived — no setState needed inside effect
+  const loadingFiltered = hasFilter && currentKey !== fetchedKey
 
   useEffect(() => {
     getHotStories().then((data) => { setHot(data); setLoadingHot(false) })
@@ -552,30 +663,30 @@ export default function HomePage() {
   useEffect(() => {
     if (!hasFilter) return
     let cancelled = false
-    setLoadingFiltered(true)
     fetchFilteredStories({ q: pQ, genre: pGenre, status: pStatus, sort: pSort, limit: 40 })
       .then(({ stories, total }) => {
         if (cancelled) return
         setFiltered(stories)
         setFilteredTotal(total)
+        setFetchedKey(`${pQ}|${pGenre}|${pStatus}|${pSort}`)
       })
-      .finally(() => { if (!cancelled) setLoadingFiltered(false) })
     return () => { cancelled = true }
   }, [hasFilter, pQ, pGenre, pStatus, pSort])
 
   function handleSearch(q, genre, status, sort) {
-    const params = { searched: '1' }
-    if (q)      params.q      = q
-    if (genre)  params.genre  = genre
-    if (status) params.status = status
-    if (sort && sort !== 'latest') params.sort = sort
-    setSearchParams(params)
+    const params = new URLSearchParams({ searched: '1' })
+    if (q)      params.set('q', q)
+    if (genre)  params.set('genre', genre)
+    if (status) params.set('status', status)
+    if (sort && sort !== 'latest') params.set('sort', sort)
+    router.push('/home?' + params.toString())
   }
 
   function handleReset() {
-    setSearchParams({})
+    router.push('/home')
     setFiltered([])
     setFilteredTotal(0)
+    setFetchedKey(null)
   }
 
   useEffect(() => {
@@ -608,14 +719,14 @@ export default function HomePage() {
             </p>
             <div className="flex items-center gap-3">
               <Link
-                to="/the-loai"
+                href="/home"
                 className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-amber-500/20"
               >
                 Khám phá ngay
               </Link>
               {!user && (
                 <Link
-                  to="/register"
+                  href="/register"
                   className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-white font-semibold rounded-xl text-sm transition-colors"
                 >
                   Đăng ký miễn phí
@@ -714,9 +825,10 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Right col — ranking panel */}
-          <div className="lg:col-span-1">
+          {/* Right col — ranking + recently read */}
+          <div className="lg:col-span-1 sticky top-24 space-y-4">
             <TopStoriesPanel />
+            <RecentlyReadPanel user={user} />
           </div>
 
         </div>

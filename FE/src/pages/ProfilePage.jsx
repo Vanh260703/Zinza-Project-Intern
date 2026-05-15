@@ -1,5 +1,6 @@
+'use client'
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 
@@ -402,7 +403,7 @@ const GRADIENTS = [
 
 function BookshelfTab() {
   const { user, toggleBookmark } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [stories, setStories] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -449,7 +450,7 @@ function BookshelfTab() {
         <h3 className="text-white font-semibold mb-2">Tủ truyện trống</h3>
         <p className="text-stone-500 text-sm mb-5">Theo dõi truyện để lưu vào tủ của bạn</p>
         <button
-          onClick={() => navigate('/home')}
+          onClick={() => router.push('/home')}
           className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors"
         >
           Khám phá truyện
@@ -477,7 +478,7 @@ function BookshelfTab() {
               <div
                 className="w-14 shrink-0 rounded-lg overflow-hidden cursor-pointer relative"
                 style={{ aspectRatio: '3/4' }}
-                onClick={() => navigate('/story/' + s.id)}
+                onClick={() => router.push('/story/' + s.id)}
               >
                 <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
                 {s.poster && (
@@ -495,7 +496,7 @@ function BookshelfTab() {
                 <div>
                   <p
                     className="text-stone-100 text-sm font-semibold line-clamp-1 cursor-pointer group-hover:text-amber-400 transition-colors"
-                    onClick={() => navigate('/story/' + s.id)}
+                    onClick={() => router.push('/story/' + s.id)}
                   >
                     {s.title}
                   </p>
@@ -839,13 +840,13 @@ function PlaceholderTab({ icon, title, description }) {
 /* ─── Main ────────────────────────────────────────────────────────────── */
 export default function ProfilePage() {
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const tabFromUrl = new URLSearchParams(location.search).get('tab')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const tabFromUrl = searchParams.get('tab')
   const [activeTab, setActiveTab] = useState(tabFromUrl || 'profile')
 
   if (!user) {
-    navigate('/login')
+    router.push('/login')
     return null
   }
 

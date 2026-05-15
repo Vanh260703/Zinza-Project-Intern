@@ -1,5 +1,7 @@
+'use client'
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 
@@ -47,17 +49,17 @@ function EmptySection({ message }) {
 }
 
 function ReadingCard({ story, lastChapter, onRemove }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   return (
     <div className="flex gap-4 p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-stone-700 transition-all">
-      <div className="cursor-pointer shrink-0" onClick={() => navigate('/story/' + story.id)}>
+      <div className="cursor-pointer shrink-0" onClick={() => router.push('/story/' + story.id)}>
         <StoryCover story={story} />
       </div>
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
           <p
             className="text-stone-100 text-sm font-semibold line-clamp-1 cursor-pointer hover:text-amber-400 transition-colors"
-            onClick={() => navigate('/story/' + story.id)}
+            onClick={() => router.push('/story/' + story.id)}
           >
             {story.title}
           </p>
@@ -72,7 +74,7 @@ function ReadingCard({ story, lastChapter, onRemove }) {
         </div>
         <div className="flex items-center justify-between mt-2">
           <button
-            onClick={() => navigate(`/story/${story.id}/read/${lastChapter}`)}
+            onClick={() => router.push(`/story/${story.id}/read/${lastChapter}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold rounded-lg transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -90,17 +92,17 @@ function ReadingCard({ story, lastChapter, onRemove }) {
 }
 
 function BookmarkCard({ story, lastChapter, onRemove }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   return (
     <div className="flex gap-4 p-3 rounded-xl bg-stone-900 border border-stone-800 hover:border-stone-700 transition-all">
-      <div className="cursor-pointer shrink-0" onClick={() => navigate('/story/' + story.id)}>
+      <div className="cursor-pointer shrink-0" onClick={() => router.push('/story/' + story.id)}>
         <StoryCover story={story} />
       </div>
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
           <p
             className="text-stone-100 text-sm font-semibold line-clamp-1 cursor-pointer hover:text-amber-400 transition-colors"
-            onClick={() => navigate('/story/' + story.id)}
+            onClick={() => router.push('/story/' + story.id)}
           >
             {story.title}
           </p>
@@ -115,7 +117,7 @@ function BookmarkCard({ story, lastChapter, onRemove }) {
         </div>
         <div className="flex items-center justify-between mt-2">
           <button
-            onClick={() => navigate(lastChapter ? `/story/${story.id}/read/${lastChapter}` : `/story/${story.id}`)}
+            onClick={() => router.push(lastChapter ? `/story/${story.id}/read/${lastChapter}` : `/story/${story.id}`)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-300 text-xs font-medium rounded-lg transition-colors"
           >
             {lastChapter ? 'Đọc tiếp' : 'Xem truyện'}
@@ -131,13 +133,13 @@ function BookmarkCard({ story, lastChapter, onRemove }) {
 
 export default function LibraryPage() {
   const { user, toggleBookmark, removeFromRead } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [allStories, setAllStories] = useState([])
   const [loading, setLoading] = useState(true)
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!user) navigate('/login')
+    if (!user) router.push('/login')
   }, [user, navigate])
 
   // Fetch story list once on mount
@@ -228,7 +230,7 @@ export default function LibraryPage() {
 
         {!readingStories.length && !bookmarkStories.length && (
           <div className="text-center mt-8">
-            <Link to="/home" className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors">
+            <Link href="/home" className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors">
               Khám phá truyện
             </Link>
           </div>

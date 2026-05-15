@@ -1,5 +1,7 @@
+'use client'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 const BookOpenIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -21,7 +23,7 @@ function validate(email) {
 }
 
 export default function ForgotPasswordPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,101 +37,92 @@ export default function ForgotPasswordPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const validationError = validate(email)
-    if (validationError) {
-      setError(validationError)
-      return
-    }
+    if (validationError) { setError(validationError); return }
     setLoading(true)
     await new Promise((r) => setTimeout(r, 1200))
     setLoading(false)
     setSuccess(true)
-    setTimeout(() => navigate('/login'), 3000)
+    setTimeout(() => router.push('/login'), 3000)
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-rose-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg shadow-amber-500/20 mb-4">
             <span className="text-white"><BookOpenIcon /></span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">TruyệnHay</h1>
-          <p className="text-gray-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
+          <h1 className="text-2xl font-bold text-white">TruyệnHay</h1>
+          <p className="text-stone-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl px-8 py-8 border border-gray-100">
+        <div className="bg-stone-900 rounded-2xl border border-stone-800 px-8 py-8 shadow-2xl">
           {!success ? (
             <>
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-gray-800">Quên mật khẩu</h2>
-                <p className="text-sm text-gray-500 mt-1">
+                <h2 className="text-xl font-semibold text-white">Quên mật khẩu</h2>
+                <p className="text-sm text-stone-500 mt-1">
                   Nhập email của bạn, chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} noValidate>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+                  <label className="block text-sm font-medium text-stone-300 mb-1.5">Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={handleChange}
                     placeholder="example@email.com"
                     disabled={loading}
-                    className={`w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-all
+                    className={`w-full px-4 py-2.5 rounded-xl border bg-stone-800 text-stone-200 text-sm outline-none transition-all placeholder:text-stone-500
                       ${error
-                        ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
-                        : 'border-gray-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
+                        ? 'border-red-500/70 focus:border-red-400 focus:ring-2 focus:ring-red-500/20'
+                        : 'border-stone-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
                       }
-                      disabled:bg-gray-50 disabled:cursor-not-allowed`}
+                      disabled:opacity-50 disabled:cursor-not-allowed`}
                   />
-                  {error && <p className="text-red-500 text-xs mt-1.5">{error}</p>}
+                  {error && <p className="text-red-400 text-xs mt-1.5">{error}</p>}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-amber-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
-                >
-                  {loading ? (
-                    <>
-                      <Spinner />
-                      <span>Đang gửi...</span>
-                    </>
-                  ) : (
-                    'Gửi hướng dẫn'
-                  )}
+                <button type="submit" disabled={loading}
+                  className="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:bg-amber-500/50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                  {loading ? <><Spinner /><span>Đang gửi...</span></> : 'Gửi hướng dẫn'}
                 </button>
               </form>
             </>
           ) : (
             <div className="text-center py-4">
-              <div className="inline-flex items-center justify-center w-14 h-14 bg-green-100 rounded-full mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-500/10 border border-emerald-500/30 rounded-full mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Đã gửi email!</h3>
-              <p className="text-sm text-gray-500 mb-1">
+              <h3 className="text-lg font-semibold text-white mb-2">Đã gửi email!</h3>
+              <p className="text-sm text-stone-500 mb-1">
                 Hướng dẫn đặt lại mật khẩu đã được gửi đến
               </p>
-              <p className="text-sm font-medium text-amber-600 mb-4">{email}</p>
-              <p className="text-xs text-gray-400">Đang chuyển về trang đăng nhập...</p>
+              <p className="text-sm font-medium text-amber-400 mb-4">{email}</p>
+              <p className="text-xs text-stone-600">Đang chuyển về trang đăng nhập...</p>
             </div>
           )}
 
           {!success && (
             <>
               <div className="flex items-center gap-3 my-6">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400">hoặc</span>
-                <div className="flex-1 h-px bg-gray-200" />
+                <div className="flex-1 h-px bg-stone-800" />
+                <span className="text-xs text-stone-600">hoặc</span>
+                <div className="flex-1 h-px bg-stone-800" />
               </div>
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-stone-500">
                 Nhớ mật khẩu rồi?{' '}
-                <Link to="/login" className="text-amber-600 font-medium hover:text-amber-700 hover:underline transition-colors">
+                <Link href="/login" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
                   Đăng nhập
                 </Link>
               </p>
@@ -137,7 +130,7 @@ export default function ForgotPasswordPage() {
           )}
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-stone-700 mt-6">
           © 2025 TruyệnHay. Tất cả quyền được bảo lưu.
         </p>
       </div>

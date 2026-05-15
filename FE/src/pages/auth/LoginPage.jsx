@@ -1,5 +1,7 @@
+'use client'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { mockLogin } from '../../mocks/auth'
 import { useAuth } from '../../context/AuthContext'
 
@@ -43,8 +45,16 @@ function validate(email, password) {
   return errors
 }
 
+const inputCls = (hasError) =>
+  `w-full px-4 py-2.5 rounded-xl border bg-stone-800 text-stone-200 text-sm outline-none transition-all placeholder:text-stone-500
+  ${hasError
+    ? 'border-red-500/70 focus:border-red-400 focus:ring-2 focus:ring-red-500/20'
+    : 'border-stone-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
+  }
+  disabled:opacity-50 disabled:cursor-not-allowed`
+
 export default function LoginPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
@@ -62,16 +72,13 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const validationErrors = validate(form.email, form.password)
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      return
-    }
+    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
     setLoading(true)
     setServerError('')
     try {
       const data = await mockLogin(form.email, form.password)
       login(data.user)
-      navigate('/home')
+      router.push('/home')
     } catch (err) {
       setServerError(err.message)
     } finally {
@@ -80,24 +87,28 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-rose-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4">
+      {/* Subtle background glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg shadow-amber-500/20 mb-4">
             <span className="text-white"><BookOpenIcon /></span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">TruyệnHay</h1>
-          <p className="text-gray-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
+          <h1 className="text-2xl font-bold text-white">TruyệnHay</h1>
+          <p className="text-stone-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl px-8 py-8 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Đăng nhập</h2>
+        <div className="bg-stone-900 rounded-2xl border border-stone-800 px-8 py-8 shadow-2xl">
+          <h2 className="text-xl font-semibold text-white mb-6">Đăng nhập</h2>
 
-          {/* Server error */}
           {serverError && (
-            <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5">
+            <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3 mb-5">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               </svg>
@@ -106,11 +117,8 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {/* Email */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Email
-              </label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Email</label>
               <input
                 type="email"
                 name="email"
@@ -118,23 +126,13 @@ export default function LoginPage() {
                 onChange={handleChange}
                 placeholder="example@email.com"
                 disabled={loading}
-                className={`w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-all
-                  ${errors.email
-                    ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
-                    : 'border-gray-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
-                  }
-                  disabled:bg-gray-50 disabled:cursor-not-allowed`}
+                className={inputCls(!!errors.email)}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1.5">{errors.email}</p>
-              )}
+              {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
             </div>
 
-            {/* Password */}
             <div className="mb-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Mật khẩu
-              </label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Mật khẩu</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -143,74 +141,50 @@ export default function LoginPage() {
                   onChange={handleChange}
                   placeholder="Nhập mật khẩu"
                   disabled={loading}
-                  className={`w-full px-4 py-2.5 pr-11 rounded-lg border text-sm outline-none transition-all
-                    ${errors.password
-                      ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
-                      : 'border-gray-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
-                    }
-                    disabled:bg-gray-50 disabled:cursor-not-allowed`}
+                  className={`${inputCls(!!errors.password)} pr-11`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 transition-colors"
                   tabIndex={-1}
                 >
                   <EyeIcon open={showPassword} />
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1.5">{errors.password}</p>
-              )}
+              {errors.password && <p className="text-red-400 text-xs mt-1.5">{errors.password}</p>}
             </div>
 
-            {/* Forgot password */}
             <div className="text-right mb-6">
-              <Link
-                to="/forgot-password"
-                className="text-xs text-amber-600 hover:text-amber-700 hover:underline transition-colors"
-              >
+              <Link href="/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
                 Quên mật khẩu?
               </Link>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-amber-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
+              className="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:bg-amber-500/50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
             >
-              {loading ? (
-                <>
-                  <Spinner />
-                  <span>Đang đăng nhập...</span>
-                </>
-              ) : (
-                'Đăng nhập'
-              )}
+              {loading ? <><Spinner /><span>Đang đăng nhập...</span></> : 'Đăng nhập'}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">hoặc</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-stone-800" />
+            <span className="text-xs text-stone-600">hoặc</span>
+            <div className="flex-1 h-px bg-stone-800" />
           </div>
 
-          {/* Register link */}
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-stone-500">
             Chưa có tài khoản?{' '}
-            <Link
-              to="/register"
-              className="text-amber-600 font-medium hover:text-amber-700 hover:underline transition-colors"
-            >
+            <Link href="/register" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
               Đăng ký ngay
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-stone-700 mt-6">
           © 2025 TruyệnHay. Tất cả quyền được bảo lưu.
         </p>
       </div>

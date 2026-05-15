@@ -1,5 +1,6 @@
+'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 
@@ -327,12 +328,12 @@ function AddStoryModal({ onClose, onAdded, genres, userEmail }) {
 
 /* ── Story card ──────────────────────────────────────────────── */
 function MyStoryCard({ story, index, onDelete }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [from, to] = GRADIENTS[index % GRADIENTS.length]
   const [imgErr, setImgErr] = useState(false)
 
   return (
-    <div className="group bg-stone-900 border border-stone-800 hover:border-stone-700 rounded-xl overflow-hidden transition-all cursor-pointer" onClick={() => navigate('/truyen-cua-toi/' + story.id)}>
+    <div className="group bg-stone-900 border border-stone-800 hover:border-stone-700 rounded-xl overflow-hidden transition-all cursor-pointer" onClick={() => router.push('/truyen-cua-toi/' + story.id)}>
       {/* Cover */}
       <div className="relative w-full overflow-hidden" style={{ aspectRatio: '3/4' }}>
         <div className="absolute inset-0" style={{ background: `linear-gradient(135deg,${from},${to})` }} />
@@ -391,14 +392,14 @@ function MyStoryCard({ story, index, onDelete }) {
 /* ── Main page ───────────────────────────────────────────────── */
 export default function MyStoriesPage() {
   const { user } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const [stories, setStories] = useState([])
   const [genres, setGenres] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    if (!user) navigate('/login')
+    if (!user) router.push('/login')
   }, [user, navigate])
 
   useEffect(() => {

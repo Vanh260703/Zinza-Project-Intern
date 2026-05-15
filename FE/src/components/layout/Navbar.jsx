@@ -1,5 +1,7 @@
+'use client'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuth } from '../../context/AuthContext'
 
 const GRADIENTS = [
@@ -126,7 +128,7 @@ const MOCK_NOTIFICATIONS = [
   { id: 4, icon: '⭐', title: 'Truyện của bạn được đề cử', desc: '"Vũ Động Càn Khôn" vừa được thêm vào đề cử.', time: '2 ngày trước', unread: false },
 ]
 
-function NotificationBell({ navigate }) {
+function NotificationBell({ router }) {
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS)
   const ref = useRef(null)
@@ -143,7 +145,7 @@ function NotificationBell({ navigate }) {
   function handleClickNotif(notif) {
     setNotifications((prev) => prev.map((n) => n.id === notif.id ? { ...n, unread: false } : n))
     setOpen(false)
-    navigate('/profile?tab=notifications')
+    router.push('/profile?tab=notifications')
   }
 
   function markAllRead() {
@@ -204,7 +206,7 @@ function NotificationBell({ navigate }) {
           {/* Footer */}
           <div className="border-t border-stone-700/60">
             <button
-              onClick={() => { setOpen(false); navigate('/profile?tab=notifications') }}
+              onClick={() => { setOpen(false); router.push('/profile?tab=notifications') }}
               className="w-full py-3 text-amber-400 hover:text-amber-300 text-xs font-medium transition-colors hover:bg-stone-700/30"
             >
               Xem tất cả thông báo →
@@ -223,14 +225,14 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const router = useRouter()
+  const pathname = usePathname()
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   function handleSearchNavigate(storyId) {
-    navigate('/story/' + storyId)
+    router.push('/story/' + storyId)
   }
 
   useEffect(() => {
@@ -246,7 +248,7 @@ export default function Navbar() {
   function handleLogout() {
     logout()
     setDropdownOpen(false)
-    navigate('/login')
+    router.push('/home')
   }
 
   const avatarLetter = user?.name?.charAt(0).toUpperCase() || '?'
@@ -256,7 +258,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/home" className="flex items-center gap-2.5 group">
+          <Link href="/home" className="flex items-center gap-2.5 group">
             <div className="flex items-center justify-center w-9 h-9 bg-amber-500 rounded-xl group-hover:bg-amber-400 transition-colors">
               <span className="text-white"><BookIcon /></span>
             </div>
@@ -268,9 +270,9 @@ export default function Navbar() {
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.to}
-                to={link.to}
+                href={link.to}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${location.pathname === link.to
+                  ${pathname === link.to
                     ? 'text-amber-400 bg-amber-500/10'
                     : 'text-stone-300 hover:text-white hover:bg-stone-700/60'
                   }`}
@@ -283,7 +285,7 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center gap-3">
             <SearchBox onNavigate={handleSearchNavigate} />
-            {user && <NotificationBell navigate={navigate} />}
+            {user && <NotificationBell router={router} />}
             {user ? (
               <div
                 className="relative"
@@ -327,7 +329,7 @@ export default function Navbar() {
 
                     <div className="py-1">
                       <Link
-                        to="/profile"
+                        href="/profile"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
                       >
@@ -337,7 +339,7 @@ export default function Navbar() {
                         Trang cá nhân
                       </Link>
                       <Link
-                        to="/tu-truyen"
+                        href="/tu-truyen"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
                       >
@@ -347,7 +349,7 @@ export default function Navbar() {
                         Tủ truyện
                       </Link>
                       <Link
-                        to="/truyen-cua-toi"
+                        href="/truyen-cua-toi"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-stone-300 hover:text-white hover:bg-stone-700/50 text-sm transition-colors duration-150"
                       >
@@ -375,13 +377,13 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-2">
                 <Link
-                  to="/login"
+                  href="/login"
                   className="px-4 py-2 text-stone-300 hover:text-white text-sm font-medium transition-colors rounded-lg hover:bg-stone-700/60"
                 >
                   Đăng nhập
                 </Link>
                 <Link
-                  to="/register"
+                  href="/register"
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
                 >
                   Đăng ký
@@ -410,10 +412,10 @@ export default function Navbar() {
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.to}
-                to={link.to}
+                href={link.to}
                 onClick={() => setMobileOpen(false)}
                 className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  ${location.pathname === link.to
+                  ${pathname === link.to
                     ? 'text-amber-400 bg-amber-500/10'
                     : 'text-stone-300 hover:text-white hover:bg-stone-700/60'
                   }`}

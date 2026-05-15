@@ -1,5 +1,6 @@
+'use client'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 
 const GRADIENTS = [
   ['#f59e0b', '#ef4444'],
@@ -17,13 +18,13 @@ const GRADIENTS = [
 ]
 
 export default function StoryCard({ story }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [imgError, setImgError] = useState(false)
   const [from, to] = GRADIENTS[story.gradient % GRADIENTS.length]
   const showImg = story.poster && !imgError
 
   return (
-    <div onClick={() => navigate('/story/' + story.id)} className="group flex-shrink-0 w-full cursor-pointer">
+    <div onClick={() => router.push('/story/' + story.id)} className="group flex-shrink-0 w-full cursor-pointer">
       {/* Cover */}
       <div className="relative rounded-xl overflow-hidden aspect-[3/4] mb-3">
         {/* Gradient background (always rendered as fallback) */}

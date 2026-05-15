@@ -1,5 +1,7 @@
+'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 
@@ -467,7 +469,7 @@ function ManageDropdown({ onEdit, onAddChapter, onDelete }) {
 export default function MyStoryDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { toasts, push } = useToast()
 
   const [story, setStory] = useState(null)
@@ -479,7 +481,7 @@ export default function MyStoryDetailPage() {
   const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
-    if (!user) { navigate('/login'); return }
+    if (!user) { router.push('/login'); return }
   }, [user, navigate])
 
   useEffect(() => {
@@ -490,7 +492,7 @@ export default function MyStoryDetailPage() {
       fetch('/api/mock/genres').then((r) => r.json()),
     ]).then(([storiesData, chaptersData, genresData]) => {
       const found = (storiesData.stories ?? []).find((s) => s.id === id)
-      if (!found) { navigate('/truyen-cua-toi'); return }
+      if (!found) { router.push('/truyen-cua-toi'); return }
       setStory(found)
       setChapters(chaptersData.chapters ?? [])
       setGenres(genresData.genres ?? [])
@@ -516,7 +518,7 @@ export default function MyStoryDetailPage() {
   async function handleDeleteStory() {
     setDeleting(true)
     await fetch(`/api/mock/my-stories?email=${encodeURIComponent(user.email)}&id=${id}`, { method: 'DELETE' })
-    navigate('/truyen-cua-toi')
+    router.push('/truyen-cua-toi')
   }
 
   function handleSaved(updated) {
@@ -566,7 +568,7 @@ export default function MyStoryDetailPage() {
         {/* Breadcrumb + actions */}
         <div className="flex items-center justify-between mb-8 gap-3">
           <div className="flex items-center gap-2 text-sm min-w-0">
-            <Link to="/truyen-cua-toi" className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors shrink-0">
+            <Link href="/truyen-cua-toi" className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors shrink-0">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>

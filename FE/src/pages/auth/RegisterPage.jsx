@@ -1,5 +1,7 @@
+'use client'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { mockRegister } from '../../mocks/auth'
 
 const BookOpenIcon = () => (
@@ -35,35 +37,15 @@ const CheckIcon = () => (
 
 function validate(form) {
   const errors = {}
-
-  if (!form.email) {
-    errors.email = 'Vui lòng nhập email.'
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = 'Email không đúng định dạng.'
-  }
-
-  if (!form.name.trim()) {
-    errors.name = 'Vui lòng nhập tên hiển thị.'
-  } else if (form.name.trim().length < 2) {
-    errors.name = 'Tên hiển thị phải có ít nhất 2 ký tự.'
-  }
-
-  if (!form.gender) {
-    errors.gender = 'Vui lòng chọn giới tính.'
-  }
-
-  if (!form.password) {
-    errors.password = 'Vui lòng nhập mật khẩu.'
-  } else if (form.password.length < 6) {
-    errors.password = 'Mật khẩu phải có ít nhất 6 ký tự.'
-  }
-
-  if (!form.confirmPassword) {
-    errors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
-  } else if (form.confirmPassword !== form.password) {
-    errors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
-  }
-
+  if (!form.email) errors.email = 'Vui lòng nhập email.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Email không đúng định dạng.'
+  if (!form.name.trim()) errors.name = 'Vui lòng nhập tên hiển thị.'
+  else if (form.name.trim().length < 2) errors.name = 'Tên hiển thị phải có ít nhất 2 ký tự.'
+  if (!form.gender) errors.gender = 'Vui lòng chọn giới tính.'
+  if (!form.password) errors.password = 'Vui lòng nhập mật khẩu.'
+  else if (form.password.length < 6) errors.password = 'Mật khẩu phải có ít nhất 6 ký tự.'
+  if (!form.confirmPassword) errors.confirmPassword = 'Vui lòng xác nhận mật khẩu.'
+  else if (form.confirmPassword !== form.password) errors.confirmPassword = 'Mật khẩu xác nhận không khớp.'
   return errors
 }
 
@@ -73,8 +55,16 @@ const GENDERS = [
   { value: 'other', label: 'Khác' },
 ]
 
+const inputCls = (hasError) =>
+  `w-full px-4 py-2.5 rounded-xl border bg-stone-800 text-stone-200 text-sm outline-none transition-all placeholder:text-stone-500
+  ${hasError
+    ? 'border-red-500/70 focus:border-red-400 focus:ring-2 focus:ring-red-500/20'
+    : 'border-stone-700 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20'
+  }
+  disabled:opacity-50 disabled:cursor-not-allowed`
+
 export default function RegisterPage() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const [form, setForm] = useState({ email: '', name: '', gender: '', password: '', confirmPassword: '' })
   const [errors, setErrors] = useState({})
   const [serverError, setServerError] = useState('')
@@ -93,16 +83,13 @@ export default function RegisterPage() {
   async function handleSubmit(e) {
     e.preventDefault()
     const validationErrors = validate(form)
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors)
-      return
-    }
+    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return }
     setLoading(true)
     setServerError('')
     try {
       await mockRegister({ email: form.email, name: form.name, gender: form.gender, password: form.password })
       setSuccess(true)
-      setTimeout(() => navigate('/login'), 2000)
+      setTimeout(() => router.push('/login'), 2000)
     } catch (err) {
       setServerError(err.message)
     } finally {
@@ -110,41 +97,35 @@ export default function RegisterPage() {
     }
   }
 
-  const inputClass = (field) =>
-    `w-full px-4 py-2.5 rounded-lg border text-sm outline-none transition-all
-    ${errors[field]
-      ? 'border-red-400 bg-red-50 focus:ring-2 focus:ring-red-200'
-      : 'border-gray-300 focus:border-amber-400 focus:ring-2 focus:ring-amber-100'
-    }
-    disabled:bg-gray-50 disabled:cursor-not-allowed`
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-amber-50 via-orange-50 to-rose-50 flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4 py-10">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-2xl shadow-lg shadow-amber-500/20 mb-4">
             <span className="text-white"><BookOpenIcon /></span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">TruyệnHay</h1>
-          <p className="text-gray-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
+          <h1 className="text-2xl font-bold text-white">TruyệnHay</h1>
+          <p className="text-stone-500 text-sm mt-1">Kho truyện chữ hàng đầu Việt Nam</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl px-8 py-8 border border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">Tạo tài khoản</h2>
+        <div className="bg-stone-900 rounded-2xl border border-stone-800 px-8 py-8 shadow-2xl">
+          <h2 className="text-xl font-semibold text-white mb-6">Tạo tài khoản</h2>
 
-          {/* Success */}
           {success && (
-            <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg px-4 py-3 mb-5">
+            <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm rounded-xl px-4 py-3 mb-5">
               <CheckIcon />
               Đăng ký thành công! Đang chuyển hướng về trang đăng nhập...
             </div>
           )}
 
-          {/* Server error */}
           {serverError && (
-            <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5">
+            <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3 mb-5">
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
               </svg>
@@ -155,148 +136,96 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} noValidate>
             {/* Email */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="example@email.com"
-                disabled={loading || success}
-                className={inputClass('email')}
-              />
-              {errors.email && <p className="text-red-500 text-xs mt-1.5">{errors.email}</p>}
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Email</label>
+              <input type="email" name="email" value={form.email} onChange={handleChange}
+                placeholder="example@email.com" disabled={loading || success}
+                className={inputCls(!!errors.email)} />
+              {errors.email && <p className="text-red-400 text-xs mt-1.5">{errors.email}</p>}
             </div>
 
             {/* Display name */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Tên hiển thị</label>
-              <input
-                type="text"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Nhập tên hiển thị"
-                disabled={loading || success}
-                className={inputClass('name')}
-              />
-              {errors.name && <p className="text-red-500 text-xs mt-1.5">{errors.name}</p>}
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Tên hiển thị</label>
+              <input type="text" name="name" value={form.name} onChange={handleChange}
+                placeholder="Nhập tên hiển thị" disabled={loading || success}
+                className={inputCls(!!errors.name)} />
+              {errors.name && <p className="text-red-400 text-xs mt-1.5">{errors.name}</p>}
             </div>
 
             {/* Gender */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Giới tính</label>
-              <div className="flex gap-3">
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Giới tính</label>
+              <div className="flex gap-2">
                 {GENDERS.map((g) => (
-                  <label
-                    key={g.value}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg border text-sm cursor-pointer transition-all select-none
+                  <label key={g.value}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border text-sm cursor-pointer transition-all select-none
                       ${form.gender === g.value
-                        ? 'border-amber-400 bg-amber-50 text-amber-700 font-medium'
-                        : 'border-gray-300 text-gray-600 hover:border-amber-300 hover:bg-amber-50/50'
+                        ? 'border-amber-500 bg-amber-500/10 text-amber-400 font-medium'
+                        : 'border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300'
                       }
                       ${(loading || success) ? 'opacity-50 cursor-not-allowed' : ''}
                     `}
                   >
-                    <input
-                      type="radio"
-                      name="gender"
-                      value={g.value}
-                      checked={form.gender === g.value}
-                      onChange={handleChange}
-                      disabled={loading || success}
-                      className="sr-only"
-                    />
+                    <input type="radio" name="gender" value={g.value} checked={form.gender === g.value}
+                      onChange={handleChange} disabled={loading || success} className="sr-only" />
                     {g.label}
                   </label>
                 ))}
               </div>
-              {errors.gender && <p className="text-red-500 text-xs mt-1.5">{errors.gender}</p>}
+              {errors.gender && <p className="text-red-400 text-xs mt-1.5">{errors.gender}</p>}
             </div>
 
             {/* Password */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Mật khẩu</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Mật khẩu</label>
               <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  placeholder="Tối thiểu 6 ký tự"
-                  disabled={loading || success}
-                  className={`${inputClass('password')} pr-11`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                >
+                <input type={showPassword ? 'text' : 'password'} name="password" value={form.password}
+                  onChange={handleChange} placeholder="Tối thiểu 6 ký tự" disabled={loading || success}
+                  className={`${inputCls(!!errors.password)} pr-11`} />
+                <button type="button" onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 transition-colors" tabIndex={-1}>
                   <EyeIcon open={showPassword} />
                 </button>
               </div>
-              {errors.password && <p className="text-red-500 text-xs mt-1.5">{errors.password}</p>}
+              {errors.password && <p className="text-red-400 text-xs mt-1.5">{errors.password}</p>}
             </div>
 
             {/* Confirm password */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Xác nhận mật khẩu</label>
+              <label className="block text-sm font-medium text-stone-300 mb-1.5">Xác nhận mật khẩu</label>
               <div className="relative">
-                <input
-                  type={showConfirm ? 'text' : 'password'}
-                  name="confirmPassword"
-                  value={form.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="Nhập lại mật khẩu"
-                  disabled={loading || success}
-                  className={`${inputClass('confirmPassword')} pr-11`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                >
+                <input type={showConfirm ? 'text' : 'password'} name="confirmPassword" value={form.confirmPassword}
+                  onChange={handleChange} placeholder="Nhập lại mật khẩu" disabled={loading || success}
+                  className={`${inputCls(!!errors.confirmPassword)} pr-11`} />
+                <button type="button" onClick={() => setShowConfirm((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 transition-colors" tabIndex={-1}>
                   <EyeIcon open={showConfirm} />
                 </button>
               </div>
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1.5">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="text-red-400 text-xs mt-1.5">{errors.confirmPassword}</p>}
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="w-full bg-amber-500 hover:bg-amber-600 active:bg-amber-700 disabled:bg-amber-300 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
-            >
-              {loading ? (
-                <>
-                  <Spinner />
-                  <span>Đang đăng ký...</span>
-                </>
-              ) : (
-                'Đăng ký'
-              )}
+            <button type="submit" disabled={loading || success}
+              className="w-full bg-amber-500 hover:bg-amber-400 active:bg-amber-600 disabled:bg-amber-500/50 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+              {loading ? <><Spinner /><span>Đang đăng ký...</span></> : 'Đăng ký'}
             </button>
           </form>
 
-          {/* Divider */}
           <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400">hoặc</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-stone-800" />
+            <span className="text-xs text-stone-600">hoặc</span>
+            <div className="flex-1 h-px bg-stone-800" />
           </div>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-stone-500">
             Đã có tài khoản?{' '}
-            <Link to="/login" className="text-amber-600 font-medium hover:text-amber-700 hover:underline transition-colors">
+            <Link href="/login" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
               Đăng nhập
             </Link>
           </p>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-stone-700 mt-6">
           © 2025 TruyệnHay. Tất cả quyền được bảo lưu.
         </p>
       </div>

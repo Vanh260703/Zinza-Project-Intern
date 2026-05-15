@@ -1,5 +1,6 @@
+'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useRouter, useParams } from 'next/navigation'
 import Navbar from '../components/layout/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { fetchStoryDetail, fetchChapters, fetchReviews, fetchComments, giftCandy } from '../mocks/story'
@@ -271,7 +272,7 @@ function UnlockChapterModal({ chapter, storyId, user, onClose, onUnlocked }) {
 
 /* ── Chapters tab ── */
 function ChaptersTab({ storyId, totalChapters, storyPostedBy }) {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user, unlockChapter } = useAuth()
   const [data, setData] = useState(null)
   const [page, setPage] = useState(1)
@@ -300,17 +301,17 @@ function ChaptersTab({ storyId, totalChapters, storyPostedBy }) {
 
   function handleChapterClick(ch) {
     if ((ch.candyPrice ?? 0) > 0 && !isUnlocked(ch.number)) {
-      if (!user) { navigate('/login'); return }
+      if (!user) { router.push('/login'); return }
       setUnlockModal(ch)
     } else {
-      navigate(`/story/${storyId}/read/${ch.number}`)
+      router.push(`/story/${storyId}/read/${ch.number}`)
     }
   }
 
   function handleUnlocked(chapterNum, newCandy) {
     unlockChapter(storyId, chapterNum, newCandy)
     setUnlockModal(null)
-    navigate(`/story/${storyId}/read/${chapterNum}`)
+    router.push(`/story/${storyId}/read/${chapterNum}`)
   }
 
   return (
@@ -557,7 +558,7 @@ const TABS = [
 export default function StoryDetailPage() {
   const { id: storyId } = useParams()
   const { user, toggleBookmark } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { toasts, push: pushToast } = useToast()
   const [story, setStory] = useState(null)
   const [reviews, setReviews] = useState(null)
@@ -662,14 +663,14 @@ export default function StoryDetailPage() {
                 {/* Action buttons */}
                 <div className="flex items-center gap-3 flex-wrap">
                   <button
-                    onClick={() => navigate(`/story/${storyId}/read/1`)}
+                    onClick={() => router.push(`/story/${storyId}/read/1`)}
                     className="flex items-center gap-2 px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-amber-500/20"
                   >
                     <Icon d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" className="w-4 h-4" />
                     Đọc ngay
                   </button>
                   <button
-                    onClick={() => user ? toggleBookmark(storyId) : navigate('/login')}
+                    onClick={() => user ? toggleBookmark(storyId) : router.push('/login')}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all border
                       ${followed
                         ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
@@ -679,7 +680,7 @@ export default function StoryDetailPage() {
                     {followed ? 'Đang theo dõi' : 'Theo dõi'}
                   </button>
                   <button
-                    onClick={() => user ? setShowGift(true) : navigate('/login')}
+                    onClick={() => user ? setShowGift(true) : router.push('/login')}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-stone-700 text-stone-300 hover:border-amber-500/40 hover:text-amber-400 text-sm font-semibold transition-all"
                   >
                     🍬 Tặng kẹo

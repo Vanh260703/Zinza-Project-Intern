@@ -1,5 +1,7 @@
+'use client'
 import { useState, useEffect, useRef } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '../components/layout/Navbar'
 import { fetchChapterContent, fetchStoryDetail, fetchChapterComments, postChapterComment } from '../mocks/story'
 import { useAuth } from '../context/AuthContext'
@@ -82,7 +84,7 @@ function NavButtons({ bottom, num, storyId, isFirst, isLast, onGoTo }) {
 
       {bottom && (
         <Link
-          to={`/story/${storyId}`}
+          href={`/story/${storyId}`}
           className="flex items-center gap-1.5 px-4 py-2 border border-stone-700 hover:border-stone-500 text-stone-400 hover:text-stone-200 text-sm rounded-xl transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -225,7 +227,7 @@ function ChapterComments({ storyId, chapterNum, user }) {
 
 export default function ChapterReadPage() {
   const { id: storyId, chapterNum } = useParams()
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user, updateReadHistory, unlockChapter } = useAuth()
   const num = parseInt(chapterNum)
 
@@ -283,7 +285,7 @@ export default function ChapterReadPage() {
   function goTo(n) {
     const total = story?.totalChapters ?? Infinity
     if (n < 1 || n > total) return
-    navigate(`/story/${storyId}/read/${n}`)
+    router.push(`/story/${storyId}/read/${n}`)
   }
 
   function handleJump(e) {
@@ -319,9 +321,9 @@ export default function ChapterReadPage() {
 
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 text-xs text-stone-500 flex-1 min-w-0 overflow-hidden">
-            <Link to="/home" className="hover:text-stone-300 transition-colors shrink-0">Trang chủ</Link>
+            <Link href="/home" className="hover:text-stone-300 transition-colors shrink-0">Trang chủ</Link>
             <span className="shrink-0">/</span>
-            <Link to={`/story/${storyId}`} className="hover:text-stone-300 transition-colors truncate">
+            <Link href={`/story/${storyId}`} className="hover:text-stone-300 transition-colors truncate">
               {story?.title ?? '...'}
             </Link>
             <span className="shrink-0">/</span>
@@ -384,7 +386,7 @@ export default function ChapterReadPage() {
         ) : error ? (
           <div className="text-center py-24">
             <p className="text-stone-400 text-base mb-2">Không tìm thấy chương này.</p>
-            <Link to={`/story/${storyId}`} className="text-amber-400 hover:text-amber-300 text-sm underline">
+            <Link href={`/story/${storyId}`} className="text-amber-400 hover:text-amber-300 text-sm underline">
               Quay lại thông tin truyện
             </Link>
           </div>
