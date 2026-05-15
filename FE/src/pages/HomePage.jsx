@@ -292,7 +292,7 @@ function TopStoriesPanel() {
           stories.map((s, i) => (
             <Link
               key={s.id}
-              to={`/story/${s.id}`}
+              href={`/story/${s.id}`}
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-stone-800/60 transition-colors group"
             >
               <span className={`w-5 shrink-0 text-center ${RANK_STYLES[i]}`}>{i + 1}</span>
