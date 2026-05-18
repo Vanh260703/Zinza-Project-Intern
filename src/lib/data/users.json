@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "name": "Demo User",
+    "email": "demo@example.com",
+    "password": "123456",
+    "gender": "male",
+    "role": "admin"
+  },
+  {
+    "id": "2153d5c8-5fb9-42fa-8d40-43abf339a40c",
+    "name": "Việt Anh Nguyễn",
+    "email": "vanh260703@gmail.com",
+    "password": "123456",
+    "gender": "male",
+    "role": "user",
+    "candy": 0,
+    "chaptersRead": 0,
+    "isRead": [],
+    "storiesMark": []
+  }
+]

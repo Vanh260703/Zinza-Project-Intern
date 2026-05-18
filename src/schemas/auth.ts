@@ -1,0 +1,35 @@
+import { z } from "zod";
+
+// Login 
+
+export const loginSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
+});
+
+export type LoginFormData = z.infer<typeof loginSchema>;
+
+// Register 
+
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, "Tên ít nhất 2 ký tự"),
+    email: z.string().email("Email không hợp lệ"),
+    gender: z.enum(["male", "female", "other"], { message: "Vui lòng chọn giới tính" }),
+    password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu không khớp",
+    path: ["confirmPassword"],
+  });
+
+export type RegisterFormData = z.infer<typeof registerSchema>;
+
+// Forgot password
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+});
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
