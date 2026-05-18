@@ -10,9 +10,11 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import CountdownToast from "@/components/ui/CountdownToast";
 import { useState } from "react";
+import { useUserStore } from "@/stores/userStore";
 
 export default function LoginForm() {
   const router = useRouter();
+  const setUser = useUserStore((state) => state.setUser);
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -45,8 +47,7 @@ export default function LoginForm() {
     }
 
     const { token, user } = await res.json();
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("token", token);
+    setUser(user, token);
 
     toast.custom(() => (
       <CountdownToast
@@ -57,7 +58,7 @@ export default function LoginForm() {
       />
     ), { duration: DURATION });
 
-    router.push("/dashboard");
+    router.push("/home");
   };
 
   return (

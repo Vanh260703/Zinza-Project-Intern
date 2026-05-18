@@ -5,7 +5,8 @@
     "email": "demo@example.com",
     "password": "123456",
     "gender": "male",
-    "role": "admin"
+    "role": "admin",
+    "candy": 999999
   },
   {
     "id": "2153d5c8-5fb9-42fa-8d40-43abf339a40c",

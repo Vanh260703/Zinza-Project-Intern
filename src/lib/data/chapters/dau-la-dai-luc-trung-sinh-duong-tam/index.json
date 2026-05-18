@@ -1,0 +1,7100 @@
+[
+  {
+    "id": "1",
+    "number": 1,
+    "title": "Chương 01: Lạnh, muốn bị ăn?",
+    "filename": "00001_13542964.txt"
+  },
+  {
+    "id": "2",
+    "number": 2,
+    "title": "Chương 02: Bị chăn nuôi nhân loại",
+    "filename": "00002_13644597.txt"
+  },
+  {
+    "id": "3",
+    "number": 3,
+    "title": "Chương 03: Phong Lang trấn",
+    "filename": "00003_13646263.txt"
+  },
+  {
+    "id": "4",
+    "number": 4,
+    "title": "Chương 04: Trưởng thành",
+    "filename": "00004_13647755.txt"
+  },
+  {
+    "id": "5",
+    "number": 5,
+    "title": "Chương 05: Biến thân năng lực",
+    "filename": "00005_13649091.txt"
+  },
+  {
+    "id": "6",
+    "number": 6,
+    "title": "Chương 06: Trận chiến mở màn",
+    "filename": "00006_13650567.txt"
+  },
+  {
+    "id": "7",
+    "number": 7,
+    "title": "Chương 07: Thôn phệ hấp thu",
+    "filename": "00007_13651627.txt"
+  },
+  {
+    "id": "8",
+    "number": 8,
+    "title": "Chương 08: Kỹ năng",
+    "filename": "00008_13653109.txt"
+  },
+  {
+    "id": "9",
+    "number": 9,
+    "title": "Chương 09: Bình cảnh",
+    "filename": "00009_13654915.txt"
+  },
+  {
+    "id": "10",
+    "number": 10,
+    "title": "Chương 10: Nghi thức thức tỉnh",
+    "filename": "00010_13656122.txt"
+  },
+  {
+    "id": "11",
+    "number": 11,
+    "title": "Chương 11: Sát ý",
+    "filename": "00011_13657129.txt"
+  },
+  {
+    "id": "12",
+    "number": 12,
+    "title": "Chương 12: Khảo hạch",
+    "filename": "00012_13658277.txt"
+  },
+  {
+    "id": "13",
+    "number": 13,
+    "title": "Chương 13: Tàn nhẫn",
+    "filename": "00013_13659479.txt"
+  },
+  {
+    "id": "14",
+    "number": 14,
+    "title": "Chương 14: Tế phẩm là mụ mụ",
+    "filename": "00014_13659523.txt"
+  },
+  {
+    "id": "15",
+    "number": 15,
+    "title": "Chương 15: Dạy bảo",
+    "filename": "00015_13659524.txt"
+  },
+  {
+    "id": "16",
+    "number": 16,
+    "title": "Chương 16: Yêu Thần Biến phương pháp tu luyện",
+    "filename": "00016_13659525.txt"
+  },
+  {
+    "id": "17",
+    "number": 17,
+    "title": "Chương 17: Lại thôn phệ",
+    "filename": "00017_13659581.txt"
+  },
+  {
+    "id": "18",
+    "number": 18,
+    "title": "Chương 18: Thí nghiệm cùng phán đoán",
+    "filename": "00018_13659582.txt"
+  },
+  {
+    "id": "19",
+    "number": 19,
+    "title": "Chương 19: Thực chiến dạy học",
+    "filename": "00019_13659583.txt"
+  },
+  {
+    "id": "20",
+    "number": 20,
+    "title": "Chương 20: Đường Tam vs Vương Diên Phong",
+    "filename": "00020_13659584.txt"
+  },
+  {
+    "id": "21",
+    "number": 21,
+    "title": "Chương 21: Kể chuyện xưa",
+    "filename": "00021_13659632.txt"
+  },
+  {
+    "id": "22",
+    "number": 22,
+    "title": "Chương 22: Ngài hẳn là đánh không lại",
+    "filename": "00022_13659633.txt"
+  },
+  {
+    "id": "23",
+    "number": 23,
+    "title": "Chương 23: Huyền Thiên Công đệ tứ trọng",
+    "filename": "00023_13659634.txt"
+  },
+  {
+    "id": "24",
+    "number": 24,
+    "title": "Chương 24: Căn dặn",
+    "filename": "00024_13659689.txt"
+  },
+  {
+    "id": "25",
+    "number": 25,
+    "title": "Chương 25: Một năm biến hóa",
+    "filename": "00025_13659690.txt"
+  },
+  {
+    "id": "26",
+    "number": 26,
+    "title": "Chương 26: Thành thị",
+    "filename": "00026_13659838.txt"
+  },
+  {
+    "id": "27",
+    "number": 27,
+    "title": "Chương 27: Tượng yêu",
+    "filename": "00027_13659839.txt"
+  },
+  {
+    "id": "28",
+    "number": 28,
+    "title": "Chương 28: Quỷ Quỷ",
+    "filename": "00028_13659840.txt"
+  },
+  {
+    "id": "29",
+    "number": 29,
+    "title": "Chương 29: Cửa hàng trà sữa Mỹ Công Tử",
+    "filename": "00029_13660064.txt"
+  },
+  {
+    "id": "30",
+    "number": 30,
+    "title": "Chương 30: Ta không phải Tiểu Vũ, ta là Mỹ Công Tử",
+    "filename": "00030_13660065.txt"
+  },
+  {
+    "id": "31",
+    "number": 31,
+    "title": "Chương 31: Không có cái gì so đây càng mỹ hảo",
+    "filename": "00031_13660066.txt"
+  },
+  {
+    "id": "32",
+    "number": 32,
+    "title": "Chương 32: Giải thi đấu va chạm",
+    "filename": "00032_13660080.txt"
+  },
+  {
+    "id": "33",
+    "number": 33,
+    "title": "Chương 33: Ta muốn dự thi",
+    "filename": "00033_13660081.txt"
+  },
+  {
+    "id": "34",
+    "number": 34,
+    "title": "Chương 34: Giải thi đấu bắt đầu",
+    "filename": "00034_13660082.txt"
+  },
+  {
+    "id": "35",
+    "number": 35,
+    "title": "Chương 35: Đường Tam ra sân",
+    "filename": "00035_13660122.txt"
+  },
+  {
+    "id": "36",
+    "number": 36,
+    "title": "Chương 36: Miểu sát! Báo Thiểm tiến giai",
+    "filename": "00036_13660123.txt"
+  },
+  {
+    "id": "37",
+    "number": 37,
+    "title": "Chương 37: Trọng Giáp Thuật",
+    "filename": "00037_13660124.txt"
+  },
+  {
+    "id": "38",
+    "number": 38,
+    "title": "Chương 38: Bạch Đầu Chuẩn Yêu",
+    "filename": "00038_13660204.txt"
+  },
+  {
+    "id": "39",
+    "number": 39,
+    "title": "Chương 39: Thoát chiến bỏ chạy",
+    "filename": "00039_13660205.txt"
+  },
+  {
+    "id": "40",
+    "number": 40,
+    "title": "Chương 40: Huyết mạch lạc ấn biến hóa",
+    "filename": "00040_13660206.txt"
+  },
+  {
+    "id": "41",
+    "number": 41,
+    "title": "Chương 41: Dung hợp lạc ấn mới",
+    "filename": "00041_13660448.txt"
+  },
+  {
+    "id": "42",
+    "number": 42,
+    "title": "Chương 42: Thôn phệ, sát nhập",
+    "filename": "00042_13660449.txt"
+  },
+  {
+    "id": "43",
+    "number": 43,
+    "title": "Chương 43: Linh Tê Chi Nhãn",
+    "filename": "00043_13660450.txt"
+  },
+  {
+    "id": "44",
+    "number": 44,
+    "title": "Chương 44: Về nhà",
+    "filename": "00044_13660489.txt"
+  },
+  {
+    "id": "45",
+    "number": 45,
+    "title": "Chương 45: Thời gian không đợi ta",
+    "filename": "00045_13660490.txt"
+  },
+  {
+    "id": "46",
+    "number": 46,
+    "title": "Chương 46: Dã ngoại tu luyện",
+    "filename": "00046_13660491.txt"
+  },
+  {
+    "id": "47",
+    "number": 47,
+    "title": "Chương 47: Cứu Thục, người mặt hổ",
+    "filename": "00047_13660510.txt"
+  },
+  {
+    "id": "48",
+    "number": 48,
+    "title": "Chương 48: Đường Tam điều kiện",
+    "filename": "00048_13660511.txt"
+  },
+  {
+    "id": "49",
+    "number": 49,
+    "title": "Chương 49: Bách Điểu Đầu Lâm",
+    "filename": "00049_13660537.txt"
+  },
+  {
+    "id": "50",
+    "number": 50,
+    "title": "Chương 50: Ta dạy",
+    "filename": "00050_13660538.txt"
+  },
+  {
+    "id": "51",
+    "number": 51,
+    "title": "Chương 51: Ăn cơm, tu luyện, nghĩ Mỹ Công Tử",
+    "filename": "00051_13660539.txt"
+  },
+  {
+    "id": "52",
+    "number": 52,
+    "title": "Chương 52: Trịnh Mạnh Kỳ",
+    "filename": "00052_13660587.txt"
+  },
+  {
+    "id": "53",
+    "number": 53,
+    "title": "Chương 53: Giết",
+    "filename": "00053_13660588.txt"
+  },
+  {
+    "id": "54",
+    "number": 54,
+    "title": "Chương 54: Thất giai Thiểm Báo",
+    "filename": "00054_13660589.txt"
+  },
+  {
+    "id": "55",
+    "number": 55,
+    "title": "Chương 55: Giết chóc cơ hội",
+    "filename": "00055_13660639.txt"
+  },
+  {
+    "id": "56",
+    "number": 56,
+    "title": "Chương 56: Trộm săn",
+    "filename": "00056_13660640.txt"
+  },
+  {
+    "id": "57",
+    "number": 57,
+    "title": "Chương 57: Phong Lang Chi Tâm",
+    "filename": "00057_13660666.txt"
+  },
+  {
+    "id": "58",
+    "number": 58,
+    "title": "Chương 58: Thôn phệ Phong Hùng",
+    "filename": "00058_13660667.txt"
+  },
+  {
+    "id": "59",
+    "number": 59,
+    "title": "Chương 59: Phong Lang Vương huyết mạch",
+    "filename": "00059_13660695.txt"
+  },
+  {
+    "id": "60",
+    "number": 60,
+    "title": "Chương 60: Mỹ Công Tử, ta tới",
+    "filename": "00060_13660696.txt"
+  },
+  {
+    "id": "61",
+    "number": 61,
+    "title": "Chương 61: Lại vào Gia Lý thành",
+    "filename": "00061_13732925.txt"
+  },
+  {
+    "id": "62",
+    "number": 62,
+    "title": "Chương 62: Gia Lý học viện",
+    "filename": "00062_13732926.txt"
+  },
+  {
+    "id": "63",
+    "number": 63,
+    "title": "Chương 63: Bại lộ",
+    "filename": "00063_13732927.txt"
+  },
+  {
+    "id": "64",
+    "number": 64,
+    "title": "Chương 64: Trưởng trấn phản ứng",
+    "filename": "00064_13732928.txt"
+  },
+  {
+    "id": "65",
+    "number": 65,
+    "title": "Chương 65: Bái sư",
+    "filename": "00065_13733386.txt"
+  },
+  {
+    "id": "66",
+    "number": 66,
+    "title": "Chương 66: Xích cấp",
+    "filename": "00066_13733387.txt"
+  },
+  {
+    "id": "67",
+    "number": 67,
+    "title": "Chương 67: Độc Bạch",
+    "filename": "00067_13733388.txt"
+  },
+  {
+    "id": "68",
+    "number": 68,
+    "title": "Chương 68: Thiên Hồ Chi Nhãn",
+    "filename": "00068_13733389.txt"
+  },
+  {
+    "id": "69",
+    "number": 69,
+    "title": "Chương 69: Ba đoàn",
+    "filename": "00069_13733390.txt"
+  },
+  {
+    "id": "70",
+    "number": 70,
+    "title": "Chương 70: Thịt yêu thú",
+    "filename": "00070_13733391.txt"
+  },
+  {
+    "id": "71",
+    "number": 71,
+    "title": "Chương 71: Xem xét thu hoạch",
+    "filename": "00071_13733392.txt"
+  },
+  {
+    "id": "72",
+    "number": 72,
+    "title": "Chương 72: Phát tài",
+    "filename": "00072_13733393.txt"
+  },
+  {
+    "id": "73",
+    "number": 73,
+    "title": "Chương 73: Sư huynh sư tỷ",
+    "filename": "00073_13733403.txt"
+  },
+  {
+    "id": "74",
+    "number": 74,
+    "title": "Chương 74: Rèn luyện thể năng",
+    "filename": "00074_13733404.txt"
+  },
+  {
+    "id": "75",
+    "number": 75,
+    "title": "Chương 75: Bay mất?",
+    "filename": "00075_13733405.txt"
+  },
+  {
+    "id": "76",
+    "number": 76,
+    "title": "Chương 76: Kim Bằng Biến",
+    "filename": "00076_13733446.txt"
+  },
+  {
+    "id": "77",
+    "number": 77,
+    "title": "Chương 77: Thực chiến đối kháng",
+    "filename": "00077_13733447.txt"
+  },
+  {
+    "id": "78",
+    "number": 78,
+    "title": "Chương 78: Sư tỷ đã nhường",
+    "filename": "00078_13733448.txt"
+  },
+  {
+    "id": "79",
+    "number": 79,
+    "title": "Chương 79: Xích Giao Biến, Thời Quang Biến",
+    "filename": "00079_13733449.txt"
+  },
+  {
+    "id": "80",
+    "number": 80,
+    "title": "Chương 80: Băng Tinh Biến",
+    "filename": "00080_13733450.txt"
+  },
+  {
+    "id": "81",
+    "number": 81,
+    "title": "Chương 81: Bại?",
+    "filename": "00081_13733460.txt"
+  },
+  {
+    "id": "82",
+    "number": 82,
+    "title": "Chương 82: Tán thưởng",
+    "filename": "00082_13733461.txt"
+  },
+  {
+    "id": "83",
+    "number": 83,
+    "title": "Chương 83: Lam cấp Thánh Mẫu",
+    "filename": "00083_13733508.txt"
+  },
+  {
+    "id": "84",
+    "number": 84,
+    "title": "Chương 84: Tụ như một đám lửa, tán như sao đầy trời",
+    "filename": "00084_13733509.txt"
+  },
+  {
+    "id": "85",
+    "number": 85,
+    "title": "Chương 85: Các nàng đều ưa thích hắn",
+    "filename": "00085_13733510.txt"
+  },
+  {
+    "id": "86",
+    "number": 86,
+    "title": "Chương 86: \"Phố hàng rong \"",
+    "filename": "00086_13733539.txt"
+  },
+  {
+    "id": "87",
+    "number": 87,
+    "title": "Chương 87: Chỉ điểm",
+    "filename": "00087_13733540.txt"
+  },
+  {
+    "id": "88",
+    "number": 88,
+    "title": "Chương 88: Thứ năm lạc ấn, Kim Bằng Song Dực",
+    "filename": "00088_13733541.txt"
+  },
+  {
+    "id": "89",
+    "number": 89,
+    "title": "Chương 89: Phong Thần Trảm?",
+    "filename": "00089_13733549.txt"
+  },
+  {
+    "id": "90",
+    "number": 90,
+    "title": "Chương 90: Đại Yêu cùng Thiên Yêu",
+    "filename": "00090_13733550.txt"
+  },
+  {
+    "id": "91",
+    "number": 91,
+    "title": "Chương 91: Năm cái lạc ấn tầng cấp",
+    "filename": "00091_13733558.txt"
+  },
+  {
+    "id": "92",
+    "number": 92,
+    "title": "Chương 92: Có thể đi nhìn Mỹ Công Tử",
+    "filename": "00092_13733559.txt"
+  },
+  {
+    "id": "93",
+    "number": 93,
+    "title": "Chương 93: Mỹ Công Tử ở đây",
+    "filename": "00093_13733560.txt"
+  },
+  {
+    "id": "94",
+    "number": 94,
+    "title": "Chương 94: Vì cái gì bán trà sữa?",
+    "filename": "00094_13733616.txt"
+  },
+  {
+    "id": "95",
+    "number": 95,
+    "title": "Chương 95: Nhận nhiệm vụ",
+    "filename": "00095_13733617.txt"
+  },
+  {
+    "id": "96",
+    "number": 96,
+    "title": "Chương 96: Cự tuyệt",
+    "filename": "00096_13733618.txt"
+  },
+  {
+    "id": "97",
+    "number": 97,
+    "title": "Chương 97: Tái chiến Võ Băng Kỷ",
+    "filename": "00097_13733624.txt"
+  },
+  {
+    "id": "98",
+    "number": 98,
+    "title": "Chương 98: Khiêu chiến mới",
+    "filename": "00098_13733625.txt"
+  },
+  {
+    "id": "99",
+    "number": 99,
+    "title": "Chương 99: Đối chiến Thời Quang Biến",
+    "filename": "00099_13733626.txt"
+  },
+  {
+    "id": "100",
+    "number": 100,
+    "title": "Chương 100: Thắng!",
+    "filename": "00100_13733628.txt"
+  },
+  {
+    "id": "101",
+    "number": 101,
+    "title": "Chương 101: Thuyết phục lão sư",
+    "filename": "00101_13733629.txt"
+  },
+  {
+    "id": "102",
+    "number": 102,
+    "title": "Chương 102: Thời gian gột rửa",
+    "filename": "00102_13733630.txt"
+  },
+  {
+    "id": "103",
+    "number": 103,
+    "title": "Chương 103: Tổ đội!",
+    "filename": "00103_13733632.txt"
+  },
+  {
+    "id": "104",
+    "number": 104,
+    "title": "Chương 104: Các ngươi có phải hay không điên rồi?",
+    "filename": "00104_13733657.txt"
+  },
+  {
+    "id": "105",
+    "number": 105,
+    "title": "Chương 105: An bài đứng lên",
+    "filename": "00105_13733658.txt"
+  },
+  {
+    "id": "106",
+    "number": 106,
+    "title": "Chương 106: Vào núi",
+    "filename": "00106_13733659.txt"
+  },
+  {
+    "id": "107",
+    "number": 107,
+    "title": "Chương 107: Phối hợp!",
+    "filename": "00107_13733660.txt"
+  },
+  {
+    "id": "108",
+    "number": 108,
+    "title": "Chương 108: Đoàn đội hạch tâm Tiểu Đường",
+    "filename": "00108_13733669.txt"
+  },
+  {
+    "id": "109",
+    "number": 109,
+    "title": "Chương 109: Súy Thủ Tiễn",
+    "filename": "00109_13733670.txt"
+  },
+  {
+    "id": "110",
+    "number": 110,
+    "title": "Chương 110: Chỉ điểm Cố Lý",
+    "filename": "00110_13733671.txt"
+  },
+  {
+    "id": "111",
+    "number": 111,
+    "title": "Chương 111: Lại hiện thế, Loạn Phi Phong",
+    "filename": "00111_13733672.txt"
+  },
+  {
+    "id": "112",
+    "number": 112,
+    "title": "Chương 112: Kim Sí Phi Phong Trảm",
+    "filename": "00112_13733673.txt"
+  },
+  {
+    "id": "113",
+    "number": 113,
+    "title": "Chương 113: Dung hợp, Thiên Hồ Biến",
+    "filename": "00113_13733674.txt"
+  },
+  {
+    "id": "114",
+    "number": 114,
+    "title": "Chương 114: Thiên Hồ Biến chi ta là lão đại",
+    "filename": "00114_13733675.txt"
+  },
+  {
+    "id": "115",
+    "number": 115,
+    "title": "Chương 115: Rốt cục dung hợp",
+    "filename": "00115_13733689.txt"
+  },
+  {
+    "id": "116",
+    "number": 116,
+    "title": "Chương 116: Biến hóa, thu hoạch",
+    "filename": "00116_13733690.txt"
+  },
+  {
+    "id": "117",
+    "number": 117,
+    "title": "Chương 117: Tới gần khu vực nhiệm vụ",
+    "filename": "00117_13733691.txt"
+  },
+  {
+    "id": "118",
+    "number": 118,
+    "title": "Chương 118: Gió theo hổ, chắp cánh đến",
+    "filename": "00118_13733692.txt"
+  },
+  {
+    "id": "119",
+    "number": 119,
+    "title": "Chương 119: Chiến Sáp Sí Hổ",
+    "filename": "00119_13733693.txt"
+  },
+  {
+    "id": "120",
+    "number": 120,
+    "title": "Chương 120: Giết nhỏ, tới già. . .",
+    "filename": "00120_13733694.txt"
+  },
+  {
+    "id": "121",
+    "number": 121,
+    "title": "Chương 121: Cửu giai Sáp Sí Hổ Vương",
+    "filename": "00121_13789562.txt"
+  },
+  {
+    "id": "122",
+    "number": 122,
+    "title": "Chương 122: Cọp cái tới",
+    "filename": "00122_13789565.txt"
+  },
+  {
+    "id": "123",
+    "number": 123,
+    "title": "Chương 123: Liều chết một trận chiến",
+    "filename": "00123_13789586.txt"
+  },
+  {
+    "id": "124",
+    "number": 124,
+    "title": "Chương 124: May mắn",
+    "filename": "00124_13789604.txt"
+  },
+  {
+    "id": "125",
+    "number": 125,
+    "title": "Chương 125: Vận khí tốt",
+    "filename": "00125_13789947.txt"
+  },
+  {
+    "id": "126",
+    "number": 126,
+    "title": "Chương 127: Phục bàn",
+    "filename": "00126_13789948.txt"
+  },
+  {
+    "id": "127",
+    "number": 127,
+    "title": "Chương 127: Phát tài, phát tài",
+    "filename": "00127_13789949.txt"
+  },
+  {
+    "id": "128",
+    "number": 128,
+    "title": "Chương 128: Còn có lần sau?",
+    "filename": "00128_13789950.txt"
+  },
+  {
+    "id": "129",
+    "number": 129,
+    "title": "Chương 129: Dung hợp Phong Hổ Biến",
+    "filename": "00129_13789951.txt"
+  },
+  {
+    "id": "130",
+    "number": 130,
+    "title": "Chương 130: Tứ giai Thiên Hồ Biến",
+    "filename": "00130_13789952.txt"
+  },
+  {
+    "id": "131",
+    "number": 131,
+    "title": "Chương 131: Độc Bạch cảm thấy không thơm",
+    "filename": "00131_13789953.txt"
+  },
+  {
+    "id": "132",
+    "number": 132,
+    "title": "Chương 132: Khen ngợi",
+    "filename": "00132_13789954.txt"
+  },
+  {
+    "id": "133",
+    "number": 133,
+    "title": "Chương 133: Không cần nội đan",
+    "filename": "00133_13789955.txt"
+  },
+  {
+    "id": "134",
+    "number": 134,
+    "title": "Chương 134: Chia tiền, phát tài!",
+    "filename": "00134_13790495.txt"
+  },
+  {
+    "id": "135",
+    "number": 135,
+    "title": "Chương 135: Quầy bán quà vặt đi lên",
+    "filename": "00135_13790496.txt"
+  },
+  {
+    "id": "136",
+    "number": 136,
+    "title": "Chương 136: Mua sắm hoàn tất",
+    "filename": "00136_13790497.txt"
+  },
+  {
+    "id": "137",
+    "number": 137,
+    "title": "Chương 137: Thanh Ngọc Đằng",
+    "filename": "00137_13790498.txt"
+  },
+  {
+    "id": "138",
+    "number": 138,
+    "title": "Chương 138: Nàng không tại",
+    "filename": "00138_13790501.txt"
+  },
+  {
+    "id": "139",
+    "number": 139,
+    "title": "Chương 139: Ta muốn làm cái chùy",
+    "filename": "00139_13790502.txt"
+  },
+  {
+    "id": "140",
+    "number": 140,
+    "title": "Chương 140: Phục dụng Long Cân Quả",
+    "filename": "00140_13790503.txt"
+  },
+  {
+    "id": "141",
+    "number": 141,
+    "title": "Chương 141: Rèn đúc",
+    "filename": "00141_13790504.txt"
+  },
+  {
+    "id": "142",
+    "number": 142,
+    "title": "Chương 142: Hắc Ô Thạch? Ô Kim!",
+    "filename": "00142_13790513.txt"
+  },
+  {
+    "id": "143",
+    "number": 143,
+    "title": "Chương 143: Ngồi chờ",
+    "filename": "00143_13790514.txt"
+  },
+  {
+    "id": "144",
+    "number": 144,
+    "title": "Chương 144: Không tìm được Mỹ Công Tử",
+    "filename": "00144_13790515.txt"
+  },
+  {
+    "id": "145",
+    "number": 145,
+    "title": "Chương 145: Trong chúng tìm nàng trăm ngàn độ",
+    "filename": "00145_13790542.txt"
+  },
+  {
+    "id": "146",
+    "number": 146,
+    "title": "Chương 146: Muốn đi làm bồi luyện",
+    "filename": "00146_13790543.txt"
+  },
+  {
+    "id": "147",
+    "number": 147,
+    "title": "Chương 147: Tử Mẫu Truy Hồn Đoạt Mệnh Đảm",
+    "filename": "00147_13790544.txt"
+  },
+  {
+    "id": "148",
+    "number": 148,
+    "title": "Chương 148: Hai lần gia tốc",
+    "filename": "00148_13790545.txt"
+  },
+  {
+    "id": "149",
+    "number": 149,
+    "title": "Chương 149: Giải quyết",
+    "filename": "00149_13790546.txt"
+  },
+  {
+    "id": "150",
+    "number": 150,
+    "title": "Chương 150: Quét rác Tiểu Đường",
+    "filename": "00150_13790547.txt"
+  },
+  {
+    "id": "151",
+    "number": 151,
+    "title": "Chương 151: Tu luyện như thế nào Thiên Hồ Chi Nhãn",
+    "filename": "00151_13790548.txt"
+  },
+  {
+    "id": "152",
+    "number": 152,
+    "title": "Chương 152: Giúp Độc Bạch tu luyện",
+    "filename": "00152_13790549.txt"
+  },
+  {
+    "id": "153",
+    "number": 153,
+    "title": "Chương 153: Vận may đến!",
+    "filename": "00153_13790550.txt"
+  },
+  {
+    "id": "154",
+    "number": 154,
+    "title": "Chương 154: Mỹ Công Tử, Khổng Tước Biến",
+    "filename": "00154_13790551.txt"
+  },
+  {
+    "id": "155",
+    "number": 155,
+    "title": "Chương 155: Mỹ Công Tử cảm giác thân thiết",
+    "filename": "00155_13790552.txt"
+  },
+  {
+    "id": "156",
+    "number": 156,
+    "title": "Chương 156: Chế định kế hoạch",
+    "filename": "00156_13790553.txt"
+  },
+  {
+    "id": "157",
+    "number": 157,
+    "title": "Chương 157: Chui vào",
+    "filename": "00157_13790554.txt"
+  },
+  {
+    "id": "158",
+    "number": 158,
+    "title": "Chương 158: Học viện cửa hàng",
+    "filename": "00158_13790555.txt"
+  },
+  {
+    "id": "159",
+    "number": 159,
+    "title": "Chương 159: Kế hoạch bắt đầu",
+    "filename": "00159_13790556.txt"
+  },
+  {
+    "id": "160",
+    "number": 160,
+    "title": "Chương 160: Tiến hóa, Linh Tê Thiên Nhãn",
+    "filename": "00160_13790557.txt"
+  },
+  {
+    "id": "161",
+    "number": 161,
+    "title": "Chương 161: Tứ giai biến hóa",
+    "filename": "00161_13790559.txt"
+  },
+  {
+    "id": "162",
+    "number": 162,
+    "title": "Chương 162: Quyết tâm",
+    "filename": "00162_13790560.txt"
+  },
+  {
+    "id": "163",
+    "number": 163,
+    "title": "Chương 163: Chuẩn bị",
+    "filename": "00163_13790561.txt"
+  },
+  {
+    "id": "164",
+    "number": 164,
+    "title": "Chương 164: Cảnh giác Mỹ Công Tử",
+    "filename": "00164_13790562.txt"
+  },
+  {
+    "id": "165",
+    "number": 165,
+    "title": "Chương 165: Không có khả năng tát ao bắt cá",
+    "filename": "00165_13790563.txt"
+  },
+  {
+    "id": "166",
+    "number": 166,
+    "title": "Chương 166: Thứ sáu lạc ấn, Lam Ngân Hoàng",
+    "filename": "00166_13790564.txt"
+  },
+  {
+    "id": "167",
+    "number": 167,
+    "title": "Chương 167: Hai lần lịch luyện, xuất phát",
+    "filename": "00167_13790565.txt"
+  },
+  {
+    "id": "168",
+    "number": 168,
+    "title": "Chương 168: Tiến hóa bản cơ quan loại ám khí",
+    "filename": "00168_13790566.txt"
+  },
+  {
+    "id": "169",
+    "number": 169,
+    "title": "Chương 169: Ám khí thêm Yêu Thần Biến",
+    "filename": "00169_13790579.txt"
+  },
+  {
+    "id": "170",
+    "number": 170,
+    "title": "Chương 170: Phát hiện Gia Lý đoàn đội",
+    "filename": "00170_13790580.txt"
+  },
+  {
+    "id": "171",
+    "number": 171,
+    "title": "Chương 171: Người đẹp và Quái vật tiểu đội",
+    "filename": "00171_13790581.txt"
+  },
+  {
+    "id": "172",
+    "number": 172,
+    "title": "Chương 172: Địch nhân đột đến",
+    "filename": "00172_13790582.txt"
+  },
+  {
+    "id": "173",
+    "number": 173,
+    "title": "Chương 173: Khổng Tước Yêu tộc",
+    "filename": "00173_13790583.txt"
+  },
+  {
+    "id": "174",
+    "number": 174,
+    "title": "Chương 174: Dắt tay của nàng",
+    "filename": "00174_13790584.txt"
+  },
+  {
+    "id": "175",
+    "number": 175,
+    "title": "Chương 175: Lam cấp Cứu Thục Mỹ Công Tử",
+    "filename": "00175_13790585.txt"
+  },
+  {
+    "id": "176",
+    "number": 176,
+    "title": "Chương 176: Mỹ Công Tử nghi hoặc",
+    "filename": "00176_13790586.txt"
+  },
+  {
+    "id": "177",
+    "number": 177,
+    "title": "Chương 177: Khổng Tước Đảm",
+    "filename": "00177_13790587.txt"
+  },
+  {
+    "id": "178",
+    "number": 178,
+    "title": "Chương 178: Kim quan vương trữ",
+    "filename": "00178_13790588.txt"
+  },
+  {
+    "id": "179",
+    "number": 179,
+    "title": "Chương 179: Tay có thừa hương",
+    "filename": "00179_13790589.txt"
+  },
+  {
+    "id": "180",
+    "number": 180,
+    "title": "Chương 180: Ta có cái ý nghĩ to gan",
+    "filename": "00180_13790590.txt"
+  },
+  {
+    "id": "181",
+    "number": 181,
+    "title": "Chương 181: Kế hoạch bắt đầu",
+    "filename": "00181_13898541.txt"
+  },
+  {
+    "id": "182",
+    "number": 182,
+    "title": "Chương 182: Chiến đấu bắt đầu!",
+    "filename": "00182_13899007.txt"
+  },
+  {
+    "id": "183",
+    "number": 183,
+    "title": "Chương 183: Kim Bằng tái hiện",
+    "filename": "00183_13901251.txt"
+  },
+  {
+    "id": "184",
+    "number": 184,
+    "title": "Chương 184: Thánh Hỏa Kim Cương",
+    "filename": "00184_13901953.txt"
+  },
+  {
+    "id": "185",
+    "number": 185,
+    "title": "Chương 185: Thờ ơ lạnh nhạt",
+    "filename": "00185_13902361.txt"
+  },
+  {
+    "id": "186",
+    "number": 186,
+    "title": "Chương 186: Hoàng Kim Thánh Hỏa uy năng",
+    "filename": "00186_13904341.txt"
+  },
+  {
+    "id": "187",
+    "number": 187,
+    "title": "Chương 187: Sáp Sí Hổ gói quà lớn",
+    "filename": "00187_13904998.txt"
+  },
+  {
+    "id": "188",
+    "number": 188,
+    "title": "Chương 189: Tiên tổ lên thân",
+    "filename": "00188_13905485.txt"
+  },
+  {
+    "id": "189",
+    "number": 189,
+    "title": "Chương 189: Mỹ Công Tử Không Gian Áo Nghĩa",
+    "filename": "00189_13907331.txt"
+  },
+  {
+    "id": "190",
+    "number": 190,
+    "title": "Chương 190: Đi mà quay lại",
+    "filename": "00190_13908212.txt"
+  },
+  {
+    "id": "191",
+    "number": 191,
+    "title": "Chương 191: Mưu sát thân phu?",
+    "filename": "00191_13908729.txt"
+  },
+  {
+    "id": "192",
+    "number": 192,
+    "title": "Chương 192: Mỹ tỷ",
+    "filename": "00192_13910579.txt"
+  },
+  {
+    "id": "193",
+    "number": 193,
+    "title": "Chương 193: Lúng túng Hoàng Kim Sư Tử Cẩu",
+    "filename": "00193_13911058.txt"
+  },
+  {
+    "id": "194",
+    "number": 194,
+    "title": "Chương 194: Tiếp tục làm quét rác Tiểu Đường",
+    "filename": "00194_13911626.txt"
+  },
+  {
+    "id": "195",
+    "number": 195,
+    "title": "Chương 195: Về sau gọi ta Mỹ tỷ",
+    "filename": "00195_13913113.txt"
+  },
+  {
+    "id": "196",
+    "number": 196,
+    "title": "Chương 196: Trưởng trấn trở về",
+    "filename": "00196_13913547.txt"
+  },
+  {
+    "id": "197",
+    "number": 197,
+    "title": "Chương 197: Buổi đấu giá lớn",
+    "filename": "00197_13914076.txt"
+  },
+  {
+    "id": "198",
+    "number": 198,
+    "title": "Chương 198: Trở thành quý tộc chỗ tốt",
+    "filename": "00198_13916012.txt"
+  },
+  {
+    "id": "199",
+    "number": 199,
+    "title": "Chương 199: Đấu thú",
+    "filename": "00199_13916490.txt"
+  },
+  {
+    "id": "200",
+    "number": 200,
+    "title": "Chương 200: Đường Tam ứng chiến",
+    "filename": "00200_13917147.txt"
+  },
+  {
+    "id": "201",
+    "number": 201,
+    "title": "Chương 201: Đánh giết Cự Ngao Ma Hạt",
+    "filename": "00201_13918825.txt"
+  },
+  {
+    "id": "202",
+    "number": 202,
+    "title": "Chương 202: Hỏa Hồ huyễn ảnh",
+    "filename": "00202_13919765.txt"
+  },
+  {
+    "id": "203",
+    "number": 203,
+    "title": "Chương 203: Nhân Hồ thiếu nữ",
+    "filename": "00203_13920428.txt"
+  },
+  {
+    "id": "204",
+    "number": 204,
+    "title": "Chương 204: Thiên Hỏa Tinh Thiết",
+    "filename": "00204_13922074.txt"
+  },
+  {
+    "id": "205",
+    "number": 205,
+    "title": "Chương 205: Hoàng Kim Mộc",
+    "filename": "00205_13922713.txt"
+  },
+  {
+    "id": "206",
+    "number": 206,
+    "title": "Chương 206: Hoàng Kim Cổ Thụ mặc sức tưởng tượng",
+    "filename": "00206_13923280.txt"
+  },
+  {
+    "id": "207",
+    "number": 207,
+    "title": "Chương 207: Đập xuống Tử Dương Quả",
+    "filename": "00207_13924732.txt"
+  },
+  {
+    "id": "208",
+    "number": 208,
+    "title": "Chương 208: Tộc ta không hoàng, tân hoàng không thành",
+    "filename": "00208_13925306.txt"
+  },
+  {
+    "id": "209",
+    "number": 209,
+    "title": "Chương 209: Tính toán?",
+    "filename": "00209_13925961.txt"
+  },
+  {
+    "id": "210",
+    "number": 210,
+    "title": "Chương 210: Thiên Hỏa Tinh Thiết Phá Thiên Chùy",
+    "filename": "00210_13927358.txt"
+  },
+  {
+    "id": "211",
+    "number": 211,
+    "title": "Chương 211: Thần khí mới có đặc tính",
+    "filename": "00211_13927913.txt"
+  },
+  {
+    "id": "212",
+    "number": 212,
+    "title": "Chương 212: Phân phối Tử Dương Quả",
+    "filename": "00212_13928255.txt"
+  },
+  {
+    "id": "213",
+    "number": 213,
+    "title": "Chương 213: Mỹ tỷ, ta sai rồi",
+    "filename": "00213_13929722.txt"
+  },
+  {
+    "id": "214",
+    "number": 214,
+    "title": "Chương 214: Thay đổi chủ ý Mỹ Công Tử",
+    "filename": "00214_13930121.txt"
+  },
+  {
+    "id": "215",
+    "number": 215,
+    "title": "Chương 215: Nàng muốn làm gì?",
+    "filename": "00215_13930772.txt"
+  },
+  {
+    "id": "216",
+    "number": 216,
+    "title": "Chương 216: Săn giết thời khắc",
+    "filename": "00216_13930776.txt"
+  },
+  {
+    "id": "217",
+    "number": 217,
+    "title": "Chương 217: Ước định",
+    "filename": "00217_13930777.txt"
+  },
+  {
+    "id": "218",
+    "number": 218,
+    "title": "Chương 218: Dàn xếp mười tám Hồng Hồ tộc phụ thuộc thiếu nữ",
+    "filename": "00218_13930778.txt"
+  },
+  {
+    "id": "219",
+    "number": 219,
+    "title": "Chương 219: Sau thác nước hang động",
+    "filename": "00219_13930779.txt"
+  },
+  {
+    "id": "220",
+    "number": 220,
+    "title": "Chương 220: Tụ Linh Trận",
+    "filename": "00220_13930780.txt"
+  },
+  {
+    "id": "221",
+    "number": 221,
+    "title": "Chương 221: Trồng Hoàng Kim Mộc",
+    "filename": "00221_13930781.txt"
+  },
+  {
+    "id": "222",
+    "number": 222,
+    "title": "Chương 222: Đồng bạn tiến bộ",
+    "filename": "00222_13930782.txt"
+  },
+  {
+    "id": "223",
+    "number": 223,
+    "title": "Chương 223: Cầm trong tay trà sữa Mỹ Công Tử",
+    "filename": "00223_13930783.txt"
+  },
+  {
+    "id": "224",
+    "number": 224,
+    "title": "Chương 224: Thương nghị kế hoạch",
+    "filename": "00224_13930784.txt"
+  },
+  {
+    "id": "225",
+    "number": 225,
+    "title": "Chương 225: Tiểu Mỹ rất kiên cường",
+    "filename": "00225_13930785.txt"
+  },
+  {
+    "id": "226",
+    "number": 226,
+    "title": "Chương 226: Hạ độc",
+    "filename": "00226_13930786.txt"
+  },
+  {
+    "id": "227",
+    "number": 227,
+    "title": "Chương 227: Báo thù",
+    "filename": "00227_13930787.txt"
+  },
+  {
+    "id": "228",
+    "number": 228,
+    "title": "Chương 228: Tu La là Thần cấp?",
+    "filename": "00228_13930788.txt"
+  },
+  {
+    "id": "229",
+    "number": 229,
+    "title": "Chương 229: Độc Bạch muốn tiến giai?",
+    "filename": "00229_13930789.txt"
+  },
+  {
+    "id": "230",
+    "number": 230,
+    "title": "Chương 230: Phụ trợ đột phá",
+    "filename": "00230_13930790.txt"
+  },
+  {
+    "id": "231",
+    "number": 231,
+    "title": "Chương 231: Lưỡng Vĩ Thiên Hồ",
+    "filename": "00231_13930791.txt"
+  },
+  {
+    "id": "232",
+    "number": 232,
+    "title": "Chương 232: Thông thiên triệt địa khí vận màu vàng",
+    "filename": "00232_13930792.txt"
+  },
+  {
+    "id": "233",
+    "number": 233,
+    "title": "Chương 233: Tiểu Đường ngươi thật tốt",
+    "filename": "00233_13930793.txt"
+  },
+  {
+    "id": "234",
+    "number": 234,
+    "title": "Chương 234: Vui sướng một ngày",
+    "filename": "00234_13930794.txt"
+  },
+  {
+    "id": "235",
+    "number": 235,
+    "title": "Chương 235: Xoay qua chỗ khác",
+    "filename": "00235_13930795.txt"
+  },
+  {
+    "id": "236",
+    "number": 236,
+    "title": "Chương 236: Học trộm Khổng Tước Biến",
+    "filename": "00236_13930796.txt"
+  },
+  {
+    "id": "237",
+    "number": 237,
+    "title": "Chương 237: Ngưng tụ hồn hạch",
+    "filename": "00237_13930797.txt"
+  },
+  {
+    "id": "238",
+    "number": 238,
+    "title": "Chương 238: Câu thông Thiên Địa Chi Kiều",
+    "filename": "00238_13930798.txt"
+  },
+  {
+    "id": "239",
+    "number": 239,
+    "title": "Chương 239: Dung hợp Khổng Tước Biến",
+    "filename": "00239_13930799.txt"
+  },
+  {
+    "id": "240",
+    "number": 240,
+    "title": "Chương 240: Tiến giai hoàn tất",
+    "filename": "00240_13954851.txt"
+  },
+  {
+    "id": "241",
+    "number": 241,
+    "title": "Chương 241: Bay lượn đội xe",
+    "filename": "00241_13955380.txt"
+  },
+  {
+    "id": "242",
+    "number": 242,
+    "title": "Chương 242: Mục tiêu mới",
+    "filename": "00242_13955992.txt"
+  },
+  {
+    "id": "243",
+    "number": 243,
+    "title": "Chương 243: Gia Lý thành hội nghị cấp cao",
+    "filename": "00243_13957595.txt"
+  },
+  {
+    "id": "244",
+    "number": 244,
+    "title": "Chương 244: Xếp hàng lựa chọn",
+    "filename": "00244_13958691.txt"
+  },
+  {
+    "id": "245",
+    "number": 245,
+    "title": "Chương 245: Hoàn mỹ ám sát",
+    "filename": "00245_13960442.txt"
+  },
+  {
+    "id": "246",
+    "number": 246,
+    "title": "Chương 246: Mỹ Công Tử nghi hoặc",
+    "filename": "00246_13961419.txt"
+  },
+  {
+    "id": "247",
+    "number": 247,
+    "title": "Chương 247: Rối loạn",
+    "filename": "00247_13963432.txt"
+  },
+  {
+    "id": "248",
+    "number": 248,
+    "title": "Chương 248: Khổng Tước huyết thệ",
+    "filename": "00248_13964419.txt"
+  },
+  {
+    "id": "249",
+    "number": 249,
+    "title": "Chương 249: Ta tới, chỉ vì ngươi",
+    "filename": "00249_13966520.txt"
+  },
+  {
+    "id": "250",
+    "number": 250,
+    "title": "Chương 250: Đại Yêu Hoàng đến",
+    "filename": "00250_13967460.txt"
+  },
+  {
+    "id": "251",
+    "number": 251,
+    "title": "Chương 251: Tinh Phượng Đại Yêu Hoàng Lâm Hề Mặc",
+    "filename": "00251_13969360.txt"
+  },
+  {
+    "id": "252",
+    "number": 252,
+    "title": "Chương 252: Chân Phượng Đại Yêu Vương",
+    "filename": "00252_13970292.txt"
+  },
+  {
+    "id": "253",
+    "number": 253,
+    "title": "Chương 253: Còn kém một cái",
+    "filename": "00253_13972015.txt"
+  },
+  {
+    "id": "254",
+    "number": 254,
+    "title": "Chương 254: Ai thắng ai thua?",
+    "filename": "00254_13972887.txt"
+  },
+  {
+    "id": "255",
+    "number": 255,
+    "title": "Chương 255: Mỹ Công Tử bị mang đi",
+    "filename": "00255_13972893.txt"
+  },
+  {
+    "id": "256",
+    "number": 256,
+    "title": "Chương 256: Tu La cứu viện",
+    "filename": "00256_13974272.txt"
+  },
+  {
+    "id": "257",
+    "number": 257,
+    "title": "Chương 257: Đỉnh phong chi chiến",
+    "filename": "00257_13975112.txt"
+  },
+  {
+    "id": "258",
+    "number": 258,
+    "title": "Chương 258: Đấu Chuyển Tinh Di không gian đảo ngược",
+    "filename": "00258_13976791.txt"
+  },
+  {
+    "id": "259",
+    "number": 259,
+    "title": "Chương 259: Bạch Hổ Đại Yêu Hoàng huyết mạch",
+    "filename": "00259_13977118.txt"
+  },
+  {
+    "id": "260",
+    "number": 260,
+    "title": "Chương 260: Ta là Hải Thần",
+    "filename": "00260_13977562.txt"
+  },
+  {
+    "id": "261",
+    "number": 261,
+    "title": "Chương 261: Mỹ Công Tử tỉnh",
+    "filename": "00261_13979321.txt"
+  },
+  {
+    "id": "262",
+    "number": 262,
+    "title": "Chương 262: Vì nàng cái gì đều đáng giá",
+    "filename": "00262_13980182.txt"
+  },
+  {
+    "id": "263",
+    "number": 263,
+    "title": "Chương 263: Cứu Thục học viện phong bế",
+    "filename": "00263_13981895.txt"
+  },
+  {
+    "id": "264",
+    "number": 264,
+    "title": "Chương 264: Khổng Tước Đại Yêu Vương cùng Tô Cầm",
+    "filename": "00264_13982853.txt"
+  },
+  {
+    "id": "265",
+    "number": 265,
+    "title": "Chương 265: Ta có thể muốn chết",
+    "filename": "00265_13984742.txt"
+  },
+  {
+    "id": "266",
+    "number": 266,
+    "title": "Chương 266: Cáo biệt",
+    "filename": "00266_13986095.txt"
+  },
+  {
+    "id": "267",
+    "number": 267,
+    "title": "Chương 267: Đường Tam ánh nắng",
+    "filename": "00267_13987897.txt"
+  },
+  {
+    "id": "268",
+    "number": 268,
+    "title": "Chương 268: Ngươi chính là của ta người thừa kế",
+    "filename": "00268_13989470.txt"
+  },
+  {
+    "id": "269",
+    "number": 269,
+    "title": "Chương 269: Tu luyện",
+    "filename": "00269_13991419.txt"
+  },
+  {
+    "id": "270",
+    "number": 270,
+    "title": "Chương 270: Liên hoàn trận",
+    "filename": "00270_13992413.txt"
+  },
+  {
+    "id": "271",
+    "number": 271,
+    "title": "Chương 271: Vì Hồng Hồ thiếu nữ quy hoạch",
+    "filename": "00271_13994163.txt"
+  },
+  {
+    "id": "272",
+    "number": 272,
+    "title": "Chương 272: Trận pháp khởi động",
+    "filename": "00272_13995299.txt"
+  },
+  {
+    "id": "273",
+    "number": 273,
+    "title": "Chương 273: Thôn Thiên Huyễn Địa Liên Hoàn Trận",
+    "filename": "00273_13995769.txt"
+  },
+  {
+    "id": "274",
+    "number": 274,
+    "title": "Chương 274: Một năm",
+    "filename": "00274_13995770.txt"
+  },
+  {
+    "id": "275",
+    "number": 275,
+    "title": "Chương 275: Đường Tam đề nghị",
+    "filename": "00275_13995771.txt"
+  },
+  {
+    "id": "276",
+    "number": 276,
+    "title": "Chương 276: Vô Tận Lam Hải thành thần?",
+    "filename": "00276_13995772.txt"
+  },
+  {
+    "id": "277",
+    "number": 277,
+    "title": "Chương 277: Tàn khốc đoàn chiến",
+    "filename": "00277_13995844.txt"
+  },
+  {
+    "id": "278",
+    "number": 278,
+    "title": "Chương 278: Cái vòi phun máu chó",
+    "filename": "00278_13995845.txt"
+  },
+  {
+    "id": "279",
+    "number": 279,
+    "title": "Chương 279: Khiêu chiến lão sư",
+    "filename": "00279_13995846.txt"
+  },
+  {
+    "id": "280",
+    "number": 280,
+    "title": "Chương 280: Thủy Linh Biến, Lực Viên Biến cùng Thanh Loan Biến",
+    "filename": "00280_13995847.txt"
+  },
+  {
+    "id": "281",
+    "number": 281,
+    "title": "Chương 281: Ai bị xã hội quật rồi?",
+    "filename": "00281_13995848.txt"
+  },
+  {
+    "id": "282",
+    "number": 282,
+    "title": "Chương 282: Xúc động",
+    "filename": "00282_13995849.txt"
+  },
+  {
+    "id": "283",
+    "number": 283,
+    "title": "Chương 283: Đấu thú đoàn chiến",
+    "filename": "00283_13995850.txt"
+  },
+  {
+    "id": "284",
+    "number": 284,
+    "title": "Chương 284: Vô địch chiến đội",
+    "filename": "00284_13995851.txt"
+  },
+  {
+    "id": "285",
+    "number": 285,
+    "title": "Chương 285: Trào phúng",
+    "filename": "00285_13995852.txt"
+  },
+  {
+    "id": "286",
+    "number": 286,
+    "title": "Chương 286: Tố chất tâm lý bồi dưỡng thất bại",
+    "filename": "00286_13995853.txt"
+  },
+  {
+    "id": "287",
+    "number": 287,
+    "title": "Chương 287: Trận chiến mở màn!",
+    "filename": "00287_13995854.txt"
+  },
+  {
+    "id": "288",
+    "number": 288,
+    "title": "Chương 288: Chiến đấu bắt đầu",
+    "filename": "00288_13995855.txt"
+  },
+  {
+    "id": "289",
+    "number": 289,
+    "title": "Chương 289: Trận bàn thứ hai",
+    "filename": "00289_13995857.txt"
+  },
+  {
+    "id": "290",
+    "number": 290,
+    "title": "Chương 290: Chiến thắng",
+    "filename": "00290_13995858.txt"
+  },
+  {
+    "id": "291",
+    "number": 291,
+    "title": "Chương 291: Huyết Tinh Đồ Lục chiến đội",
+    "filename": "00291_13995859.txt"
+  },
+  {
+    "id": "292",
+    "number": 292,
+    "title": "Chương 292: Nguyên tố tước đoạt",
+    "filename": "00292_13995860.txt"
+  },
+  {
+    "id": "293",
+    "number": 293,
+    "title": "Chương 293: Bão táp tinh thần",
+    "filename": "00293_13995861.txt"
+  },
+  {
+    "id": "294",
+    "number": 294,
+    "title": "Chương 294: Bạo Đầu Cuồng Ma Võ Băng Kỷ",
+    "filename": "00294_13995862.txt"
+  },
+  {
+    "id": "295",
+    "number": 295,
+    "title": "Chương 295: Đối với truyền tống trận bàn ngấp nghé",
+    "filename": "00295_13995863.txt"
+  },
+  {
+    "id": "296",
+    "number": 296,
+    "title": "Chương 296: Huyết Sắc Lưu Quang",
+    "filename": "00296_13995864.txt"
+  },
+  {
+    "id": "297",
+    "number": 297,
+    "title": "Chương 297: Cường đại Kim Tiền Báo",
+    "filename": "00297_13995865.txt"
+  },
+  {
+    "id": "298",
+    "number": 298,
+    "title": "Chương 298: Bạo Phong Tuyết",
+    "filename": "00298_13995866.txt"
+  },
+  {
+    "id": "299",
+    "number": 299,
+    "title": "Chương 299: Tam liên thắng",
+    "filename": "00299_13995867.txt"
+  },
+  {
+    "id": "300",
+    "number": 300,
+    "title": "Chương 300: Hoan nghênh đi vào Hoàng Kim sơn cốc",
+    "filename": "00300_14036098.txt"
+  },
+  {
+    "id": "301",
+    "number": 301,
+    "title": "Chương 301: Đột phá",
+    "filename": "00301_14037687.txt"
+  },
+  {
+    "id": "302",
+    "number": 302,
+    "title": "Chương 302: Bát giai Đường Tam",
+    "filename": "00302_14038617.txt"
+  },
+  {
+    "id": "303",
+    "number": 303,
+    "title": "Chương 303: Hải Thần, biển cả",
+    "filename": "00303_14040263.txt"
+  },
+  {
+    "id": "304",
+    "number": 304,
+    "title": "Chương 304: Trương Hạo Hiên độ kiếp",
+    "filename": "00304_14041066.txt"
+  },
+  {
+    "id": "305",
+    "number": 305,
+    "title": "Chương 305: Lão sư ta có lỗi với ngươi a!",
+    "filename": "00305_14042543.txt"
+  },
+  {
+    "id": "306",
+    "number": 306,
+    "title": "Chương 306: Hoàng Kim Xích Viêm",
+    "filename": "00306_14043737.txt"
+  },
+  {
+    "id": "307",
+    "number": 307,
+    "title": "Chương 307: Lại vào đấu thú trường",
+    "filename": "00307_14045432.txt"
+  },
+  {
+    "id": "308",
+    "number": 308,
+    "title": "Chương 308: Mọi người đồng tâm hiệp lực, nhân loại ánh rạng đông",
+    "filename": "00308_14046558.txt"
+  },
+  {
+    "id": "309",
+    "number": 309,
+    "title": "Chương 309: Đại Địa Ma Ngưu cùng Đan Đỉnh Hạc Yêu",
+    "filename": "00309_14048187.txt"
+  },
+  {
+    "id": "310",
+    "number": 310,
+    "title": "Chương 310: Hợp thể",
+    "filename": "00310_14049127.txt"
+  },
+  {
+    "id": "311",
+    "number": 311,
+    "title": "Chương 311: Shrek chiến đội nguy cơ",
+    "filename": "00311_14050893.txt"
+  },
+  {
+    "id": "312",
+    "number": 312,
+    "title": "Chương 312: Huyết mạch thiêu đốt Băng Tinh Biến",
+    "filename": "00312_14051775.txt"
+  },
+  {
+    "id": "313",
+    "number": 313,
+    "title": "Chương 313: Thiết cầu đụng viên thịt",
+    "filename": "00313_14053593.txt"
+  },
+  {
+    "id": "314",
+    "number": 314,
+    "title": "Chương 314: Đây là thuộc về nhân loại thắng lợi",
+    "filename": "00314_14054473.txt"
+  },
+  {
+    "id": "315",
+    "number": 315,
+    "title": "Chương 315: Trở về chỉnh đốn",
+    "filename": "00315_14056321.txt"
+  },
+  {
+    "id": "316",
+    "number": 316,
+    "title": "Chương 316: Thất giai Thời Quang Biến",
+    "filename": "00316_14057371.txt"
+  },
+  {
+    "id": "317",
+    "number": 317,
+    "title": "Chương 317: Khoảng cách tầm trung truyền tống trận",
+    "filename": "00317_14059992.txt"
+  },
+  {
+    "id": "318",
+    "number": 318,
+    "title": "Chương 318: Lục giai Thiên Hồ Biến",
+    "filename": "00318_14060934.txt"
+  },
+  {
+    "id": "319",
+    "number": 319,
+    "title": "Chương 319: Vận rủi uy năng",
+    "filename": "00319_14062964.txt"
+  },
+  {
+    "id": "320",
+    "number": 320,
+    "title": "Chương 320: Tưởng niệm nàng",
+    "filename": "00320_14064001.txt"
+  },
+  {
+    "id": "321",
+    "number": 321,
+    "title": "Chương 321: Mỹ Công Tử huyết mạch",
+    "filename": "00321_14066099.txt"
+  },
+  {
+    "id": "322",
+    "number": 322,
+    "title": "Chương 322: Ma Hổ chiến đội",
+    "filename": "00322_14067431.txt"
+  },
+  {
+    "id": "323",
+    "number": 323,
+    "title": "Chương 322: Dung Linh Trận",
+    "filename": "00323_14069612.txt"
+  },
+  {
+    "id": "324",
+    "number": 324,
+    "title": "Chương 324: Triệu hoán Ám Hắc Ma Hổ?",
+    "filename": "00324_14070810.txt"
+  },
+  {
+    "id": "325",
+    "number": 325,
+    "title": "Chương 325: Triệu hoán. . .  thất bại",
+    "filename": "00325_14072219.txt"
+  },
+  {
+    "id": "326",
+    "number": 326,
+    "title": "Chương 326: Đại đấu thú trường tràng chủ",
+    "filename": "00326_14072220.txt"
+  },
+  {
+    "id": "327",
+    "number": 327,
+    "title": "Chương 327: Trận pháp truyền tống",
+    "filename": "00327_14072221.txt"
+  },
+  {
+    "id": "328",
+    "number": 328,
+    "title": "Chương 328: Lần đầu truyền tống",
+    "filename": "00328_14072222.txt"
+  },
+  {
+    "id": "329",
+    "number": 329,
+    "title": "Chương 329: Nhẹ nhõm chiến thắng",
+    "filename": "00329_14072223.txt"
+  },
+  {
+    "id": "330",
+    "number": 330,
+    "title": "Chương 330: Khoản đãi",
+    "filename": "00330_14072224.txt"
+  },
+  {
+    "id": "331",
+    "number": 331,
+    "title": "Chương 331: Không chê vào đâu được hoang ngôn",
+    "filename": "00331_14072225.txt"
+  },
+  {
+    "id": "332",
+    "number": 332,
+    "title": "Chương 332: Riêng phần mình phương hướng",
+    "filename": "00332_14072226.txt"
+  },
+  {
+    "id": "333",
+    "number": 333,
+    "title": "Chương 333: Trận chiến cuối cùng",
+    "filename": "00333_14072227.txt"
+  },
+  {
+    "id": "334",
+    "number": 334,
+    "title": "Chương 334: Ôm",
+    "filename": "00334_14072228.txt"
+  },
+  {
+    "id": "335",
+    "number": 335,
+    "title": "Chương 335: Hôm nay, ta sẽ không giữ lại chút nào",
+    "filename": "00335_14072229.txt"
+  },
+  {
+    "id": "336",
+    "number": 336,
+    "title": "Chương 336: Sư Hổ Kiếm Thánh",
+    "filename": "00336_14072230.txt"
+  },
+  {
+    "id": "337",
+    "number": 337,
+    "title": "Chương 337: Phá Thiên Chùy ra",
+    "filename": "00337_14072231.txt"
+  },
+  {
+    "id": "338",
+    "number": 338,
+    "title": "Chương 338: Xảy ra chuyện gì?",
+    "filename": "00338_14072232.txt"
+  },
+  {
+    "id": "339",
+    "number": 339,
+    "title": "Chương 339: Phá Thiên chiến Kiếm Thánh",
+    "filename": "00339_14072233.txt"
+  },
+  {
+    "id": "340",
+    "number": 340,
+    "title": "Chương 340: Đại chiến",
+    "filename": "00340_14072234.txt"
+  },
+  {
+    "id": "341",
+    "number": 341,
+    "title": "Chương 341: Áp chế",
+    "filename": "00341_14072235.txt"
+  },
+  {
+    "id": "342",
+    "number": 342,
+    "title": "Chương 342: Ngươi muốn trở thành thần sao?",
+    "filename": "00342_14072236.txt"
+  },
+  {
+    "id": "343",
+    "number": 343,
+    "title": "Chương 343: Kết thúc, quý tộc",
+    "filename": "00343_14072237.txt"
+  },
+  {
+    "id": "344",
+    "number": 344,
+    "title": "Chương 344: Ngôn ngữ giao phong",
+    "filename": "00344_14072238.txt"
+  },
+  {
+    "id": "345",
+    "number": 345,
+    "title": "Chương 345: Sư Hổ Kiếm Thánh đến",
+    "filename": "00345_14072242.txt"
+  },
+  {
+    "id": "346",
+    "number": 346,
+    "title": "Chương 346: Ta có thể giải quyết",
+    "filename": "00346_14072243.txt"
+  },
+  {
+    "id": "347",
+    "number": 347,
+    "title": "Chương 347: Rong huyết",
+    "filename": "00347_14072244.txt"
+  },
+  {
+    "id": "348",
+    "number": 348,
+    "title": "Chương 348: Bạch Kim huyết mạch",
+    "filename": "00348_14072245.txt"
+  },
+  {
+    "id": "349",
+    "number": 349,
+    "title": "Chương 349: Minh hữu",
+    "filename": "00349_14072246.txt"
+  },
+  {
+    "id": "350",
+    "number": 350,
+    "title": "Chương 350: Huyết mạch ký kết",
+    "filename": "00350_14072247.txt"
+  },
+  {
+    "id": "351",
+    "number": 351,
+    "title": "Chương 351: Dung hợp lạc ấn mới",
+    "filename": "00351_14072248.txt"
+  },
+  {
+    "id": "352",
+    "number": 352,
+    "title": "Chương 352: Bá đạo Sư Hổ lạc ấn",
+    "filename": "00352_14072249.txt"
+  },
+  {
+    "id": "353",
+    "number": 353,
+    "title": "Chương 353: Xuất phát",
+    "filename": "00353_14072250.txt"
+  },
+  {
+    "id": "354",
+    "number": 354,
+    "title": "Chương 354: Thánh Sơn hoàng tọa",
+    "filename": "00354_14072251.txt"
+  },
+  {
+    "id": "355",
+    "number": 355,
+    "title": "Chương 355: Tiến vào tổ đình",
+    "filename": "00355_14072252.txt"
+  },
+  {
+    "id": "356",
+    "number": 356,
+    "title": "Chương 356: Cung điện",
+    "filename": "00356_14072253.txt"
+  },
+  {
+    "id": "357",
+    "number": 357,
+    "title": "Chương 357: Mướn phòng",
+    "filename": "00357_14072254.txt"
+  },
+  {
+    "id": "358",
+    "number": 358,
+    "title": "Chương 358: Đối ngoại mở ra cung điện",
+    "filename": "00358_14072255.txt"
+  },
+  {
+    "id": "359",
+    "number": 359,
+    "title": "Chương 359: Ba đại Yêu Hoàng",
+    "filename": "00359_14072256.txt"
+  },
+  {
+    "id": "360",
+    "number": 360,
+    "title": "Chương 360: Cửu đại Yêu Hoàng",
+    "filename": "00360_14128487.txt"
+  },
+  {
+    "id": "361",
+    "number": 361,
+    "title": "Chương 361: Bảy vị Thiên Tinh Hoàng",
+    "filename": "00361_14130466.txt"
+  },
+  {
+    "id": "362",
+    "number": 362,
+    "title": "Chương 362: Ôn dưỡng thần thức",
+    "filename": "00362_14131370.txt"
+  },
+  {
+    "id": "363",
+    "number": 363,
+    "title": "Chương 363: Mặc sức tưởng tượng Yêu Hoàng phòng xép",
+    "filename": "00363_14133190.txt"
+  },
+  {
+    "id": "364",
+    "number": 364,
+    "title": "Chương 364: Kiếm Thánh cung",
+    "filename": "00364_14134293.txt"
+  },
+  {
+    "id": "365",
+    "number": 365,
+    "title": "Chương 365: Vào cung",
+    "filename": "00365_14135944.txt"
+  },
+  {
+    "id": "366",
+    "number": 366,
+    "title": "Chương 366: Kiếm lệnh",
+    "filename": "00366_14137702.txt"
+  },
+  {
+    "id": "367",
+    "number": 367,
+    "title": "Chương 367: Khí Vận Chi Thạch",
+    "filename": "00367_14138947.txt"
+  },
+  {
+    "id": "368",
+    "number": 368,
+    "title": "Chương 368: Thiên Hồ cung",
+    "filename": "00368_14140104.txt"
+  },
+  {
+    "id": "369",
+    "number": 369,
+    "title": "Chương 369: Thiên Hồ Thánh Sơn mang tới linh cảm",
+    "filename": "00369_14142629.txt"
+  },
+  {
+    "id": "370",
+    "number": 370,
+    "title": "Chương 371: Đồng hóa vận rủi",
+    "filename": "00370_14143446.txt"
+  },
+  {
+    "id": "371",
+    "number": 371,
+    "title": "Chương 371: Kiện thứ hai tín vật tới tay",
+    "filename": "00371_14145393.txt"
+  },
+  {
+    "id": "372",
+    "number": 372,
+    "title": "Chương 372: Thủy Tinh cung kỳ dị",
+    "filename": "00372_14146803.txt"
+  },
+  {
+    "id": "373",
+    "number": 373,
+    "title": "Chương 373: Phục chế thể",
+    "filename": "00373_14148723.txt"
+  },
+  {
+    "id": "374",
+    "number": 374,
+    "title": "Chương 374: Tam liên thắng",
+    "filename": "00374_14150109.txt"
+  },
+  {
+    "id": "375",
+    "number": 375,
+    "title": "Chương 375: Ba cái phục chế thể",
+    "filename": "00375_14151814.txt"
+  },
+  {
+    "id": "376",
+    "number": 376,
+    "title": "Chương 376: Đường Tam thương kỹ!",
+    "filename": "00376_14152933.txt"
+  },
+  {
+    "id": "377",
+    "number": 377,
+    "title": "Chương 377: Chín cái Đường Tam",
+    "filename": "00377_14155069.txt"
+  },
+  {
+    "id": "378",
+    "number": 378,
+    "title": "Chương 378: Thủy Tinh Đại Yêu Hoàng thanh âm",
+    "filename": "00378_14156107.txt"
+  },
+  {
+    "id": "379",
+    "number": 379,
+    "title": "Chương 379: Lựa chọn",
+    "filename": "00379_14158148.txt"
+  },
+  {
+    "id": "380",
+    "number": 380,
+    "title": "Chương 380: Một phút đồng hồ đến",
+    "filename": "00380_14159374.txt"
+  },
+  {
+    "id": "381",
+    "number": 381,
+    "title": "Chương 381: Thủy Tinh Kính cùng trứng",
+    "filename": "00381_14161475.txt"
+  },
+  {
+    "id": "382",
+    "number": 382,
+    "title": "Chương 382: Trong trứng là cái gì?",
+    "filename": "00382_14162623.txt"
+  },
+  {
+    "id": "383",
+    "number": 383,
+    "title": "Chương 383: Tiếp tục lịch luyện",
+    "filename": "00383_14164631.txt"
+  },
+  {
+    "id": "384",
+    "number": 384,
+    "title": "Chương 384: Đại sư",
+    "filename": "00384_14165547.txt"
+  },
+  {
+    "id": "385",
+    "number": 385,
+    "title": "Chương 385: Đàm phán",
+    "filename": "00385_14167524.txt"
+  },
+  {
+    "id": "386",
+    "number": 386,
+    "title": "Chương 386: Hoàn toàn tán thành",
+    "filename": "00386_14168579.txt"
+  },
+  {
+    "id": "387",
+    "number": 387,
+    "title": "Chương 387: Săn giết thời khắc?",
+    "filename": "00387_14169631.txt"
+  },
+  {
+    "id": "388",
+    "number": 388,
+    "title": "Chương 388: Tiến vào",
+    "filename": "00388_14169632.txt"
+  },
+  {
+    "id": "389",
+    "number": 389,
+    "title": "Chương 389: Địa Ngục Hoa Viên",
+    "filename": "00389_14169633.txt"
+  },
+  {
+    "id": "390",
+    "number": 390,
+    "title": "Chương 390: Vận rủi gợn sóng",
+    "filename": "00390_14169670.txt"
+  },
+  {
+    "id": "391",
+    "number": 391,
+    "title": "Chương 391: Địa Ngục Thiên Đường đều là ở nhân gian",
+    "filename": "00391_14169671.txt"
+  },
+  {
+    "id": "392",
+    "number": 392,
+    "title": "Chương 392: Thủy Tinh Đại Yêu Hoàng tàn niệm",
+    "filename": "00392_14169672.txt"
+  },
+  {
+    "id": "393",
+    "number": 393,
+    "title": "Chương 393: Xâm nhập",
+    "filename": "00393_14169673.txt"
+  },
+  {
+    "id": "394",
+    "number": 394,
+    "title": "Chương 394: Vận rủi trung tâm",
+    "filename": "00394_14169674.txt"
+  },
+  {
+    "id": "395",
+    "number": 395,
+    "title": "Chương 395: Thiên Đường Hoa Viên",
+    "filename": "00395_14169710.txt"
+  },
+  {
+    "id": "396",
+    "number": 396,
+    "title": "Chương 396: Trứng thủy tinh ấp",
+    "filename": "00396_14169711.txt"
+  },
+  {
+    "id": "397",
+    "number": 397,
+    "title": "Chương 397: Ba ba! Tinh Tinh",
+    "filename": "00397_14169712.txt"
+  },
+  {
+    "id": "398",
+    "number": 398,
+    "title": "Chương 398: Lĩnh vực",
+    "filename": "00398_14169713.txt"
+  },
+  {
+    "id": "399",
+    "number": 399,
+    "title": "Chương 399: Độc Bạch tiến giai",
+    "filename": "00399_14169716.txt"
+  },
+  {
+    "id": "400",
+    "number": 400,
+    "title": "Chương 400: Lối ra",
+    "filename": "00400_14169717.txt"
+  },
+  {
+    "id": "401",
+    "number": 401,
+    "title": "Chương 401: Toàn diện tăng lên",
+    "filename": "00401_14169718.txt"
+  },
+  {
+    "id": "402",
+    "number": 402,
+    "title": "Chương 402: Thiên Thông quản lý",
+    "filename": "00402_14169719.txt"
+  },
+  {
+    "id": "403",
+    "number": 403,
+    "title": "Chương 403: Kinh thiên khí vận",
+    "filename": "00403_14169720.txt"
+  },
+  {
+    "id": "404",
+    "number": 404,
+    "title": "Chương 404: Thời Quang Ngạc tinh huyết",
+    "filename": "00404_14169721.txt"
+  },
+  {
+    "id": "405",
+    "number": 405,
+    "title": "Chương 405: Thiên Cơ Linh",
+    "filename": "00405_14169722.txt"
+  },
+  {
+    "id": "406",
+    "number": 406,
+    "title": "Chương 406: Chuẩn bị hoàn tất",
+    "filename": "00406_14169729.txt"
+  },
+  {
+    "id": "407",
+    "number": 407,
+    "title": "Chương 407: Đấu giá bắt đầu",
+    "filename": "00407_14169730.txt"
+  },
+  {
+    "id": "408",
+    "number": 408,
+    "title": "Chương 408: Mỹ Công Tử triệu hoán",
+    "filename": "00408_14169731.txt"
+  },
+  {
+    "id": "409",
+    "number": 409,
+    "title": "Chương 409: Thí Thần Kiếm",
+    "filename": "00409_14169732.txt"
+  },
+  {
+    "id": "410",
+    "number": 410,
+    "title": "Chương 410: Cầm xuống Thí Thần Kiếm",
+    "filename": "00410_14169741.txt"
+  },
+  {
+    "id": "411",
+    "number": 411,
+    "title": "Chương 411: Vận khí thật tốt",
+    "filename": "00411_14169742.txt"
+  },
+  {
+    "id": "412",
+    "number": 412,
+    "title": "Chương 412: Tinh huyết tới tay",
+    "filename": "00412_14169743.txt"
+  },
+  {
+    "id": "413",
+    "number": 413,
+    "title": "Chương 413: Tí Hộ Chi Thạch",
+    "filename": "00413_14169744.txt"
+  },
+  {
+    "id": "414",
+    "number": 414,
+    "title": "Chương 414: Thủy tinh ý chí",
+    "filename": "00414_14169746.txt"
+  },
+  {
+    "id": "415",
+    "number": 415,
+    "title": "Chương 415: Thiên Dương Địa Âm",
+    "filename": "00415_14169747.txt"
+  },
+  {
+    "id": "416",
+    "number": 416,
+    "title": "Chương 416: Thời Quang trận bàn",
+    "filename": "00416_14169748.txt"
+  },
+  {
+    "id": "417",
+    "number": 417,
+    "title": "Chương 417: Cố tình nâng giá",
+    "filename": "00417_14169749.txt"
+  },
+  {
+    "id": "418",
+    "number": 418,
+    "title": "Chương 418: 36,000",
+    "filename": "00418_14169751.txt"
+  },
+  {
+    "id": "419",
+    "number": 419,
+    "title": "Chương 419: Tinh Phượng tái hiện",
+    "filename": "00419_14169752.txt"
+  },
+  {
+    "id": "420",
+    "number": 420,
+    "title": "Chương 420: Kỳ vật tinh phách",
+    "filename": "00420_14213699.txt"
+  },
+  {
+    "id": "421",
+    "number": 421,
+    "title": "Chương 421: Cự hình Hắc Ô Thạch",
+    "filename": "00421_14214976.txt"
+  },
+  {
+    "id": "422",
+    "number": 422,
+    "title": "Chương 422: Hồ Vĩ Xá Lợi",
+    "filename": "00422_14215612.txt"
+  },
+  {
+    "id": "423",
+    "number": 423,
+    "title": "Chương 423: Trì Hoãn Chi Thạch",
+    "filename": "00423_14216822.txt"
+  },
+  {
+    "id": "424",
+    "number": 424,
+    "title": "Chương 424: Thời Không đạo tiêu",
+    "filename": "00424_14217548.txt"
+  },
+  {
+    "id": "425",
+    "number": 425,
+    "title": "Chương 425: Băng Phong vương tọa",
+    "filename": "00425_14218755.txt"
+  },
+  {
+    "id": "426",
+    "number": 426,
+    "title": "Chương 426: Tính tiền",
+    "filename": "00426_14219224.txt"
+  },
+  {
+    "id": "427",
+    "number": 427,
+    "title": "Chương 427: Hai phần ước định",
+    "filename": "00427_14220934.txt"
+  },
+  {
+    "id": "428",
+    "number": 428,
+    "title": "Chương 428: Trở về Gia Lý thành",
+    "filename": "00428_14222348.txt"
+  },
+  {
+    "id": "429",
+    "number": 429,
+    "title": "Chương 429: Tu La cùng Mỹ Công Tử",
+    "filename": "00429_14224623.txt"
+  },
+  {
+    "id": "430",
+    "number": 430,
+    "title": "Chương 430: Huyết thệ thủ hộ",
+    "filename": "00430_14226027.txt"
+  },
+  {
+    "id": "431",
+    "number": 431,
+    "title": "Chương 431: Tu La ghen ghét Đường Tam",
+    "filename": "00431_14228390.txt"
+  },
+  {
+    "id": "432",
+    "number": 432,
+    "title": "Chương 432: Hoàng Kim Thụ tinh phách",
+    "filename": "00432_14230005.txt"
+  },
+  {
+    "id": "433",
+    "number": 433,
+    "title": "Chương 433: Tinh phách dung hợp Hoàng Kim tiến hóa",
+    "filename": "00433_14232005.txt"
+  },
+  {
+    "id": "434",
+    "number": 434,
+    "title": "Chương 434: Sư Hổ Kiếm Thánh quyết đoán",
+    "filename": "00434_14232905.txt"
+  },
+  {
+    "id": "435",
+    "number": 435,
+    "title": "Chương 435: Hồ Vĩ Xá Lợi tác dụng (thượng)",
+    "filename": "00435_14235059.txt"
+  },
+  {
+    "id": "436",
+    "number": 436,
+    "title": "Chương 436: Hồ Vĩ Xá Lợi tác dụng (trung)",
+    "filename": "00436_14236200.txt"
+  },
+  {
+    "id": "437",
+    "number": 437,
+    "title": "Chương 437: Hồ Vĩ Xá Lợi tác dụng (hạ)",
+    "filename": "00437_14239557.txt"
+  },
+  {
+    "id": "438",
+    "number": 438,
+    "title": "Chương 438: Trở về tổ đình",
+    "filename": "00438_14241274.txt"
+  },
+  {
+    "id": "439",
+    "number": 439,
+    "title": "Chương 439: Hoàng Băng Băng",
+    "filename": "00439_14244031.txt"
+  },
+  {
+    "id": "440",
+    "number": 440,
+    "title": "Chương 440: Băng Nữ tộc vấn đề",
+    "filename": "00440_14245143.txt"
+  },
+  {
+    "id": "441",
+    "number": 441,
+    "title": "Chương 441: Truyền Tống Thần Khí?",
+    "filename": "00441_14247621.txt"
+  },
+  {
+    "id": "442",
+    "number": 442,
+    "title": "Chương 442: Nhân loại cùng Băng Nữ tộc",
+    "filename": "00442_14248948.txt"
+  },
+  {
+    "id": "443",
+    "number": 443,
+    "title": "Chương 443: Đều tại tiến bộ",
+    "filename": "00443_14251334.txt"
+  },
+  {
+    "id": "444",
+    "number": 444,
+    "title": "Chương 444: Tổ đình tinh anh thi đấu",
+    "filename": "00444_14252305.txt"
+  },
+  {
+    "id": "445",
+    "number": 445,
+    "title": "Chương 445: Hợp tung liên hoành",
+    "filename": "00445_14253541.txt"
+  },
+  {
+    "id": "446",
+    "number": 446,
+    "title": "Chương 446: Võ Băng Kỷ mẫu tộc",
+    "filename": "00446_14253542.txt"
+  },
+  {
+    "id": "447",
+    "number": 447,
+    "title": "Chương 447: Khiêu chiến Băng Nữ tộc tộc trưởng",
+    "filename": "00447_14253543.txt"
+  },
+  {
+    "id": "448",
+    "number": 448,
+    "title": "Chương 448: Cát Hung Lưỡng Cực lĩnh vực",
+    "filename": "00448_14253551.txt"
+  },
+  {
+    "id": "449",
+    "number": 449,
+    "title": "Chương 449: Áp chế Băng Nữ tộc tộc trưởng",
+    "filename": "00449_14253552.txt"
+  },
+  {
+    "id": "450",
+    "number": 450,
+    "title": "Chương 450: Đại Tu Di Chùy",
+    "filename": "00450_14253553.txt"
+  },
+  {
+    "id": "451",
+    "number": 451,
+    "title": "Chương 451: Võ Băng Kỷ tiến hóa",
+    "filename": "00451_14253554.txt"
+  },
+  {
+    "id": "452",
+    "number": 452,
+    "title": "Chương 452: Báo danh tinh anh thi đấu",
+    "filename": "00452_14253555.txt"
+  },
+  {
+    "id": "453",
+    "number": 453,
+    "title": "Chương 453: Đại Miêu khảo thí",
+    "filename": "00453_14253556.txt"
+  },
+  {
+    "id": "454",
+    "number": 454,
+    "title": "Chương 454: Tham gia hai người thi đấu?",
+    "filename": "00454_14253557.txt"
+  },
+  {
+    "id": "455",
+    "number": 455,
+    "title": "Chương 455: Nàng làm sao cũng tới báo danh?",
+    "filename": "00455_14253558.txt"
+  },
+  {
+    "id": "456",
+    "number": 456,
+    "title": "Chương 456: Mỹ Công Tử huyết mạch cường độ",
+    "filename": "00456_14253574.txt"
+  },
+  {
+    "id": "457",
+    "number": 457,
+    "title": "Chương 457: Tam Ngũ tổ hợp lại nối tiếp",
+    "filename": "00457_14253575.txt"
+  },
+  {
+    "id": "458",
+    "number": 458,
+    "title": "Chương 458: Thiên Dương Thánh Sơn",
+    "filename": "00458_14253576.txt"
+  },
+  {
+    "id": "459",
+    "number": 459,
+    "title": "Chương 459: Dương hỏa tôi thể",
+    "filename": "00459_14253577.txt"
+  },
+  {
+    "id": "460",
+    "number": 460,
+    "title": "Chương 460: Chí âm chí dương xung đột",
+    "filename": "00460_14253578.txt"
+  },
+  {
+    "id": "461",
+    "number": 461,
+    "title": "Chương 461: Âm Dương nhị khí",
+    "filename": "00461_14253585.txt"
+  },
+  {
+    "id": "462",
+    "number": 462,
+    "title": "Chương 462: Bắt đầu",
+    "filename": "00462_14253586.txt"
+  },
+  {
+    "id": "463",
+    "number": 463,
+    "title": "Chương 463: Quan chiến",
+    "filename": "00463_14253587.txt"
+  },
+  {
+    "id": "464",
+    "number": 464,
+    "title": "Chương 464: Hoàng Kim Mãnh Mã",
+    "filename": "00464_14253588.txt"
+  },
+  {
+    "id": "465",
+    "number": 465,
+    "title": "Chương 465: Cường hoành ma mút",
+    "filename": "00465_14253589.txt"
+  },
+  {
+    "id": "466",
+    "number": 466,
+    "title": "Chương 466: Khổng Tước Sư Hổ Âm Dương Chưởng",
+    "filename": "00466_14253591.txt"
+  },
+  {
+    "id": "467",
+    "number": 467,
+    "title": "Chương 467: Không thể trả lời",
+    "filename": "00467_14253592.txt"
+  },
+  {
+    "id": "468",
+    "number": 468,
+    "title": "Chương 468: Sư Hổ tộc tôn nghiêm",
+    "filename": "00468_14253593.txt"
+  },
+  {
+    "id": "469",
+    "number": 469,
+    "title": "Chương 469: Mỹ Công Tử đăng tràng",
+    "filename": "00469_14253594.txt"
+  },
+  {
+    "id": "470",
+    "number": 470,
+    "title": "Chương 470: Không gian cắt chém",
+    "filename": "00470_14253595.txt"
+  },
+  {
+    "id": "471",
+    "number": 471,
+    "title": "Chương 471: Truyền thừa khảo nghiệm",
+    "filename": "00471_14253596.txt"
+  },
+  {
+    "id": "472",
+    "number": 472,
+    "title": "Chương 472: Ba đạo thiên cơ",
+    "filename": "00472_14253597.txt"
+  },
+  {
+    "id": "473",
+    "number": 473,
+    "title": "Chương 473: Tăng lên Âm Dương",
+    "filename": "00473_14253598.txt"
+  },
+  {
+    "id": "474",
+    "number": 474,
+    "title": "Chương 474: Tam Ngũ tổ hợp tái xuất giang hồ",
+    "filename": "00474_14253599.txt"
+  },
+  {
+    "id": "475",
+    "number": 475,
+    "title": "Chương 475: Tổ 1 số 8",
+    "filename": "00475_14253600.txt"
+  },
+  {
+    "id": "476",
+    "number": 476,
+    "title": "Chương 476: Tri Chu Thụ Tinh cùng Thôn Thi Tinh",
+    "filename": "00476_14253601.txt"
+  },
+  {
+    "id": "477",
+    "number": 477,
+    "title": "Chương 477: Trời theo ý người",
+    "filename": "00477_14253602.txt"
+  },
+  {
+    "id": "478",
+    "number": 478,
+    "title": "Chương 478: Mang nàng trở về phòng",
+    "filename": "00478_14253603.txt"
+  },
+  {
+    "id": "479",
+    "number": 479,
+    "title": "Chương 479: Thiên Chi Huyền Viên",
+    "filename": "00479_14260986.txt"
+  },
+  {
+    "id": "480",
+    "number": 480,
+    "title": "Chương 480: Chỉ điểm Mỹ Công Tử",
+    "filename": "00480_14310205.txt"
+  },
+  {
+    "id": "481",
+    "number": 481,
+    "title": "Chương 481: Khoanh tròn",
+    "filename": "00481_14312344.txt"
+  },
+  {
+    "id": "482",
+    "number": 482,
+    "title": "Chương 482: Sư phụ hay là ca ca?",
+    "filename": "00482_14313807.txt"
+  },
+  {
+    "id": "483",
+    "number": 483,
+    "title": "Chương 483: Tấn thăng Lam Ngân Hoàng",
+    "filename": "00483_14317214.txt"
+  },
+  {
+    "id": "484",
+    "number": 484,
+    "title": "Chương 484: Phản Xích lĩnh vực?",
+    "filename": "00484_14318224.txt"
+  },
+  {
+    "id": "485",
+    "number": 485,
+    "title": "Chương 485: Vòng thứ hai chuẩn bị",
+    "filename": "00485_14320416.txt"
+  },
+  {
+    "id": "486",
+    "number": 486,
+    "title": "Chương 486: Đây là cái vận khí gì?",
+    "filename": "00486_14321819.txt"
+  },
+  {
+    "id": "487",
+    "number": 487,
+    "title": "Chương 487: Kinh khủng Liệt Dương Hoa",
+    "filename": "00487_14324304.txt"
+  },
+  {
+    "id": "488",
+    "number": 488,
+    "title": "Chương 488: Lưu Tinh Chùy",
+    "filename": "00488_14325785.txt"
+  },
+  {
+    "id": "489",
+    "number": 489,
+    "title": "Chương 489: Thủy tinh chiếu rọi",
+    "filename": "00489_14328340.txt"
+  },
+  {
+    "id": "490",
+    "number": 490,
+    "title": "Chương 490: Không cần miệng quạ đen",
+    "filename": "00490_14329657.txt"
+  },
+  {
+    "id": "491",
+    "number": 491,
+    "title": "Chương 491: Sư Hổ chiến ma mút",
+    "filename": "00491_14332266.txt"
+  },
+  {
+    "id": "492",
+    "number": 492,
+    "title": "Chương 492: Cường hãn, liều mạng",
+    "filename": "00492_14333472.txt"
+  },
+  {
+    "id": "493",
+    "number": 493,
+    "title": "Chương 493: Giảo hoạt Đại Miêu",
+    "filename": "00493_14336663.txt"
+  },
+  {
+    "id": "494",
+    "number": 494,
+    "title": "Chương 494: Tiếp tục tăng lên",
+    "filename": "00494_14338534.txt"
+  },
+  {
+    "id": "495",
+    "number": 495,
+    "title": "Chương 495: Thời Quang Ngạc thêm Đan Đỉnh Hạc Yêu",
+    "filename": "00495_14341603.txt"
+  },
+  {
+    "id": "496",
+    "number": 496,
+    "title": "Chương 496: Âm Dương Chưởng tái hiện",
+    "filename": "00496_14342924.txt"
+  },
+  {
+    "id": "497",
+    "number": 497,
+    "title": "Chương 497: Lão cha ngươi thấy không?",
+    "filename": "00497_14345279.txt"
+  },
+  {
+    "id": "498",
+    "number": 498,
+    "title": "Chương 498: Hứa Tự Nhiên đề nghị",
+    "filename": "00498_14346521.txt"
+  },
+  {
+    "id": "499",
+    "number": 499,
+    "title": "Chương 499: Siêu cấp một huyết mạch khả năng",
+    "filename": "00499_14348721.txt"
+  },
+  {
+    "id": "500",
+    "number": 500,
+    "title": "Chương 500: Tiếp tục tranh tài",
+    "filename": "00500_14349697.txt"
+  },
+  {
+    "id": "501",
+    "number": 501,
+    "title": "Chương 501: Lục địa vô địch, Behemoth Cự Thú",
+    "filename": "00501_14351425.txt"
+  },
+  {
+    "id": "502",
+    "number": 502,
+    "title": "Chương 502: Kinh khủng đối thủ",
+    "filename": "00502_14351426.txt"
+  },
+  {
+    "id": "503",
+    "number": 503,
+    "title": "Chương 503: Sư Hổ Kim Bằng Biến",
+    "filename": "00503_14351427.txt"
+  },
+  {
+    "id": "504",
+    "number": 504,
+    "title": "Chương 504: Trảo Nhận Phong Bạo",
+    "filename": "00504_14351428.txt"
+  },
+  {
+    "id": "505",
+    "number": 505,
+    "title": "Chương 505: Lên như diều gặp gió",
+    "filename": "00505_14351429.txt"
+  },
+  {
+    "id": "506",
+    "number": 506,
+    "title": "Chương 506: Cha vợ ước đàm",
+    "filename": "00506_14351430.txt"
+  },
+  {
+    "id": "507",
+    "number": 507,
+    "title": "Chương 507: Thật có lỗi, ta không năng thần phục ngươi",
+    "filename": "00507_14351431.txt"
+  },
+  {
+    "id": "508",
+    "number": 508,
+    "title": "Chương 508: Tu La huyết thệ",
+    "filename": "00508_14351432.txt"
+  },
+  {
+    "id": "509",
+    "number": 509,
+    "title": "Chương 509: Siêu cấp một huyết mạch quy hoạch",
+    "filename": "00509_14351433.txt"
+  },
+  {
+    "id": "510",
+    "number": 510,
+    "title": "Chương 510: Có chút phức tạp",
+    "filename": "00510_14351434.txt"
+  },
+  {
+    "id": "511",
+    "number": 511,
+    "title": "Chương 511: Đối thủ cường đại",
+    "filename": "00511_14351435.txt"
+  },
+  {
+    "id": "512",
+    "number": 512,
+    "title": "Chương 512: Long Phượng phối",
+    "filename": "00512_14351436.txt"
+  },
+  {
+    "id": "513",
+    "number": 513,
+    "title": "Chương 513: Xá Thân Kích",
+    "filename": "00513_14351437.txt"
+  },
+  {
+    "id": "514",
+    "number": 514,
+    "title": "Chương 514: Dần dần xuất hiện ăn ý",
+    "filename": "00514_14351438.txt"
+  },
+  {
+    "id": "515",
+    "number": 515,
+    "title": "Chương 515: Đối thủ nhận thua",
+    "filename": "00515_14351439.txt"
+  },
+  {
+    "id": "516",
+    "number": 516,
+    "title": "Chương 516: Chữa thương",
+    "filename": "00516_14351440.txt"
+  },
+  {
+    "id": "517",
+    "number": 517,
+    "title": "Chương 517: Hiếm thấy linh đan",
+    "filename": "00517_14351441.txt"
+  },
+  {
+    "id": "518",
+    "number": 518,
+    "title": "Chương 518: Đi nơi nào?",
+    "filename": "00518_14351442.txt"
+  },
+  {
+    "id": "519",
+    "number": 519,
+    "title": "Chương 519: Ám Ma Quân Chủ",
+    "filename": "00519_14351443.txt"
+  },
+  {
+    "id": "520",
+    "number": 520,
+    "title": "Chương 520: Ma",
+    "filename": "00520_14351444.txt"
+  },
+  {
+    "id": "521",
+    "number": 521,
+    "title": "Chương 521: Huyết Tinh lĩnh vực",
+    "filename": "00521_14351446.txt"
+  },
+  {
+    "id": "522",
+    "number": 522,
+    "title": "Chương 522: Diệt Huyết Nguyệt",
+    "filename": "00522_14351447.txt"
+  },
+  {
+    "id": "523",
+    "number": 523,
+    "title": "Chương 523: Sát Thần lĩnh vực",
+    "filename": "00523_14351448.txt"
+  },
+  {
+    "id": "524",
+    "number": 524,
+    "title": "Chương 524: Không độ băng phong",
+    "filename": "00524_14351449.txt"
+  },
+  {
+    "id": "525",
+    "number": 525,
+    "title": "Chương 525: Mỹ Công Tử Thiên Chi Huyền Viên",
+    "filename": "00525_14351450.txt"
+  },
+  {
+    "id": "526",
+    "number": 526,
+    "title": "Chương 526: Ngươi bỏ qua đặc sắc",
+    "filename": "00526_14351451.txt"
+  },
+  {
+    "id": "527",
+    "number": 527,
+    "title": "Chương 527: Âm Dương gặp lại bình cảnh",
+    "filename": "00527_14351452.txt"
+  },
+  {
+    "id": "528",
+    "number": 528,
+    "title": "Chương 528: Hôm nay ngươi cưỡi ta",
+    "filename": "00528_14351453.txt"
+  },
+  {
+    "id": "529",
+    "number": 529,
+    "title": "Chương 529: Long Chi Hoa tổ hợp",
+    "filename": "00529_14351454.txt"
+  },
+  {
+    "id": "530",
+    "number": 530,
+    "title": "Chương 530: Trói buộc Long Chi Hoa",
+    "filename": "00530_14351456.txt"
+  },
+  {
+    "id": "531",
+    "number": 531,
+    "title": "Chương 531: Đó là thời không lực lượng",
+    "filename": "00531_14351457.txt"
+  },
+  {
+    "id": "532",
+    "number": 532,
+    "title": "Chương 532: Tu La quá thần bí",
+    "filename": "00532_14351458.txt"
+  },
+  {
+    "id": "533",
+    "number": 533,
+    "title": "Chương 533: Kim Bằng Phong Long Biến",
+    "filename": "00533_14351459.txt"
+  },
+  {
+    "id": "534",
+    "number": 534,
+    "title": "Chương 534: Đường Tam xuất quan",
+    "filename": "00534_14351460.txt"
+  },
+  {
+    "id": "535",
+    "number": 535,
+    "title": "Chương 535: Thủy Tinh tán thành",
+    "filename": "00535_14351461.txt"
+  },
+  {
+    "id": "536",
+    "number": 536,
+    "title": "Chương 536: 16 tiến 8 bắt đầu",
+    "filename": "00536_14351462.txt"
+  },
+  {
+    "id": "537",
+    "number": 537,
+    "title": "Chương 537: Điện Thần Chi Nhãn",
+    "filename": "00537_14351463.txt"
+  },
+  {
+    "id": "538",
+    "number": 538,
+    "title": "Chương 538: Ẩn nhẫn",
+    "filename": "00538_14351464.txt"
+  },
+  {
+    "id": "539",
+    "number": 539,
+    "title": "Chương 539: Tấn cấp đi Đại Miêu",
+    "filename": "00539_14351465.txt"
+  },
+  {
+    "id": "540",
+    "number": 540,
+    "title": "Chương 540: Hoàng Kim Sư Vương",
+    "filename": "00540_14409936.txt"
+  },
+  {
+    "id": "541",
+    "number": 541,
+    "title": "Chương 541: Trận chung kết đăng tràng",
+    "filename": "00541_14411650.txt"
+  },
+  {
+    "id": "542",
+    "number": 542,
+    "title": "Chương 542: Cơ Quan Lâm",
+    "filename": "00542_14412579.txt"
+  },
+  {
+    "id": "543",
+    "number": 543,
+    "title": "Chương 543: Phượng Hoàng Hỏa Vũ",
+    "filename": "00543_14414414.txt"
+  },
+  {
+    "id": "544",
+    "number": 544,
+    "title": "Chương 544: Hay là Xá Thân Kích",
+    "filename": "00544_14415490.txt"
+  },
+  {
+    "id": "545",
+    "number": 545,
+    "title": "Chương 545: Bất Tử Đại Yêu Hoàng",
+    "filename": "00545_14417344.txt"
+  },
+  {
+    "id": "546",
+    "number": 546,
+    "title": "Chương 546: Thứ nhất lôi cuốn đăng tràng",
+    "filename": "00546_14418867.txt"
+  },
+  {
+    "id": "547",
+    "number": 547,
+    "title": "Chương 547: Ám Hắc lĩnh vực",
+    "filename": "00547_14421341.txt"
+  },
+  {
+    "id": "548",
+    "number": 548,
+    "title": "Chương 548: Song trọng lĩnh vực",
+    "filename": "00548_14421345.txt"
+  },
+  {
+    "id": "549",
+    "number": 549,
+    "title": "Chương 549: Minh Nguyệt Hoa Tinh tộc",
+    "filename": "00549_14422669.txt"
+  },
+  {
+    "id": "550",
+    "number": 550,
+    "title": "Chương 550: Chiến Minh Nguyệt",
+    "filename": "00550_14423609.txt"
+  },
+  {
+    "id": "551",
+    "number": 551,
+    "title": "Chương 551: Bạch Hổ Biến",
+    "filename": "00551_14424979.txt"
+  },
+  {
+    "id": "552",
+    "number": 552,
+    "title": "Chương 552: Mỹ Công Tử tiến Top 8",
+    "filename": "00552_14424980.txt"
+  },
+  {
+    "id": "553",
+    "number": 553,
+    "title": "Chương 553: Đối thủ cường đại",
+    "filename": "00553_14425569.txt"
+  },
+  {
+    "id": "554",
+    "number": 554,
+    "title": "Chương 554: Lẫn nhau giao hòa",
+    "filename": "00554_14426874.txt"
+  },
+  {
+    "id": "555",
+    "number": 555,
+    "title": "Chương 555: Quán chú",
+    "filename": "00555_14427571.txt"
+  },
+  {
+    "id": "556",
+    "number": 556,
+    "title": "Chương 556: Lần thứ nhất qua đêm",
+    "filename": "00556_14429357.txt"
+  },
+  {
+    "id": "557",
+    "number": 557,
+    "title": "Chương 557: Bạch Hổ Đại Yêu Hoàng",
+    "filename": "00557_14430022.txt"
+  },
+  {
+    "id": "558",
+    "number": 558,
+    "title": "Chương 558: Mạnh nhất quyết đấu",
+    "filename": "00558_14431036.txt"
+  },
+  {
+    "id": "559",
+    "number": 559,
+    "title": "Chương 559: Phụ trợ thăng hoa",
+    "filename": "00559_14431878.txt"
+  },
+  {
+    "id": "560",
+    "number": 560,
+    "title": "Chương 560: Đấu Chuyển Tinh Di",
+    "filename": "00560_14433547.txt"
+  },
+  {
+    "id": "561",
+    "number": 561,
+    "title": "Chương 561: Độc Giác Hắc Long Vương",
+    "filename": "00561_14434070.txt"
+  },
+  {
+    "id": "562",
+    "number": 562,
+    "title": "Chương 562: Huyết Đồ Ma Thương",
+    "filename": "00562_14435462.txt"
+  },
+  {
+    "id": "563",
+    "number": 563,
+    "title": "Chương 563: Tu La Huyết Kiếm",
+    "filename": "00563_14436164.txt"
+  },
+  {
+    "id": "564",
+    "number": 564,
+    "title": "Chương 564: Cha vợ mời",
+    "filename": "00564_14437767.txt"
+  },
+  {
+    "id": "565",
+    "number": 565,
+    "title": "Chương 565: Ba kiện lễ vật (thượng)",
+    "filename": "00565_14438406.txt"
+  },
+  {
+    "id": "566",
+    "number": 566,
+    "title": "Chương 566: Ba kiện lễ vật (hạ)",
+    "filename": "00566_14440638.txt"
+  },
+  {
+    "id": "567",
+    "number": 567,
+    "title": "Chương 567: Nam nhân ánh mắt không lừa được người",
+    "filename": "00567_14441366.txt"
+  },
+  {
+    "id": "568",
+    "number": 568,
+    "title": "Chương 568: Nhập tứ cường",
+    "filename": "00568_14443186.txt"
+  },
+  {
+    "id": "569",
+    "number": 569,
+    "title": "Chương 569: Người đều là của ngươi, huống chi Thần khí",
+    "filename": "00569_14443902.txt"
+  },
+  {
+    "id": "570",
+    "number": 570,
+    "title": "Chương 570: Kim Cương Tinh",
+    "filename": "00570_14445879.txt"
+  },
+  {
+    "id": "571",
+    "number": 571,
+    "title": "Chương 571: Cùng vui",
+    "filename": "00571_14446779.txt"
+  },
+  {
+    "id": "572",
+    "number": 572,
+    "title": "Chương 572: Bốn chiếm thứ ba",
+    "filename": "00572_14448811.txt"
+  },
+  {
+    "id": "573",
+    "number": 573,
+    "title": "Chương 573: Đường Tam nhận thua",
+    "filename": "00573_14449699.txt"
+  },
+  {
+    "id": "574",
+    "number": 574,
+    "title": "Chương 574: Sớm một chút đột phá",
+    "filename": "00574_14452649.txt"
+  },
+  {
+    "id": "575",
+    "number": 575,
+    "title": "Chương 575: Trận chung kết",
+    "filename": "00575_14453660.txt"
+  },
+  {
+    "id": "576",
+    "number": 576,
+    "title": "Chương 576: Đoạt giải quán quân",
+    "filename": "00576_14455722.txt"
+  },
+  {
+    "id": "577",
+    "number": 577,
+    "title": "Chương 577: Quán quân vinh quang: Mỹ Công Tử",
+    "filename": "00577_14456990.txt"
+  },
+  {
+    "id": "578",
+    "number": 578,
+    "title": "Chương 578: Không thể dòm thiên cơ",
+    "filename": "00578_14459542.txt"
+  },
+  {
+    "id": "579",
+    "number": 579,
+    "title": "Chương 579: Trận chung kết sau vì ngươi hiển chân dung",
+    "filename": "00579_14460519.txt"
+  },
+  {
+    "id": "580",
+    "number": 580,
+    "title": "Chương 580: Cuối cùng chủ tài: Vận Mệnh Chúa Tể",
+    "filename": "00580_14462606.txt"
+  },
+  {
+    "id": "581",
+    "number": 581,
+    "title": "Chương 581: Cửu Dương Kiếm",
+    "filename": "00581_14463603.txt"
+  },
+  {
+    "id": "582",
+    "number": 582,
+    "title": "Chương 582: Khiên Thủ Chi Huyền Viên",
+    "filename": "00582_14464441.txt"
+  },
+  {
+    "id": "583",
+    "number": 583,
+    "title": "Chương 583: Hai lớp quán quân",
+    "filename": "00583_14464442.txt"
+  },
+  {
+    "id": "584",
+    "number": 584,
+    "title": "Chương 584: Trong số mệnh có kiếp",
+    "filename": "00584_14464443.txt"
+  },
+  {
+    "id": "585",
+    "number": 585,
+    "title": "Chương 585: Hoàn tất, trao giải",
+    "filename": "00585_14464444.txt"
+  },
+  {
+    "id": "586",
+    "number": 586,
+    "title": "Chương 586: Thập đại Thần Khí (thượng)",
+    "filename": "00586_14464445.txt"
+  },
+  {
+    "id": "587",
+    "number": 587,
+    "title": "Chương 587: Thập đại Thần Khí (hạ)",
+    "filename": "00587_14464446.txt"
+  },
+  {
+    "id": "588",
+    "number": 588,
+    "title": "Chương 588: Tuyển Thần khí",
+    "filename": "00588_14464447.txt"
+  },
+  {
+    "id": "589",
+    "number": 589,
+    "title": "Chương 589: Không đổi chỉ đưa",
+    "filename": "00589_14464448.txt"
+  },
+  {
+    "id": "590",
+    "number": 590,
+    "title": "Chương 590: Dung hợp Thánh Diễm Đao",
+    "filename": "00590_14464449.txt"
+  },
+  {
+    "id": "591",
+    "number": 591,
+    "title": "Chương 591: Tử tinh tệ tác dụng",
+    "filename": "00591_14464450.txt"
+  },
+  {
+    "id": "592",
+    "number": 592,
+    "title": "Chương 592: Pháp trận",
+    "filename": "00592_14464451.txt"
+  },
+  {
+    "id": "593",
+    "number": 593,
+    "title": "Chương 593: Tổ đình kinh",
+    "filename": "00593_14464452.txt"
+  },
+  {
+    "id": "594",
+    "number": 594,
+    "title": "Chương 594: Cực xa truyền tống",
+    "filename": "00594_14464453.txt"
+  },
+  {
+    "id": "595",
+    "number": 595,
+    "title": "Chương 595: Vĩnh Dạ Quân Vương truy sát",
+    "filename": "00595_14464454.txt"
+  },
+  {
+    "id": "596",
+    "number": 596,
+    "title": "Chương 596: Ngươi phải thật tốt",
+    "filename": "00596_14464455.txt"
+  },
+  {
+    "id": "597",
+    "number": 597,
+    "title": "Chương 597: Hải Thần giáng lâm",
+    "filename": "00597_14464456.txt"
+  },
+  {
+    "id": "598",
+    "number": 598,
+    "title": "Chương 598: Trong thần bí đến, trong trong thần bí đi",
+    "filename": "00598_14464460.txt"
+  },
+  {
+    "id": "599",
+    "number": 599,
+    "title": "Chương 599: Ngươi còn không có vì ta tháo mặt nạ xuống",
+    "filename": "00599_14464461.txt"
+  },
+  {
+    "id": "600",
+    "number": 600,
+    "title": "Chương 600: Khôi phục",
+    "filename": "00600_14496448.txt"
+  },
+  {
+    "id": "601",
+    "number": 601,
+    "title": "Chương 601: Trở về Hoàng Kim sơn cốc",
+    "filename": "00601_14497082.txt"
+  },
+  {
+    "id": "602",
+    "number": 602,
+    "title": "Chương 602: Thất Thải Thiên Hỏa Dịch",
+    "filename": "00602_14499230.txt"
+  },
+  {
+    "id": "603",
+    "number": 603,
+    "title": "Chương 604: Liệp Thần Nỗ",
+    "filename": "00603_14500391.txt"
+  },
+  {
+    "id": "604",
+    "number": 604,
+    "title": "Chương 604: Tên Hồng các thiếu nữ Thần khí",
+    "filename": "00604_14502771.txt"
+  },
+  {
+    "id": "605",
+    "number": 605,
+    "title": "Chương 605: Ôn hòa cùng bá đạo",
+    "filename": "00605_14503930.txt"
+  },
+  {
+    "id": "606",
+    "number": 606,
+    "title": "Chương 606: Trời muốn sập rồi?",
+    "filename": "00606_14506785.txt"
+  },
+  {
+    "id": "607",
+    "number": 607,
+    "title": "Chương 607: Kim Mông Biến",
+    "filename": "00607_14507421.txt"
+  },
+  {
+    "id": "608",
+    "number": 608,
+    "title": "Chương 608: Gia Lý học viện chờ đợi",
+    "filename": "00608_14510008.txt"
+  },
+  {
+    "id": "609",
+    "number": 609,
+    "title": "Chương 609: Tu La đi, Đường Tam tới",
+    "filename": "00609_14511138.txt"
+  },
+  {
+    "id": "610",
+    "number": 610,
+    "title": "Chương 610: Tu La chính là Đường Tam, Đường Tam chính là Tu La",
+    "filename": "00610_14513289.txt"
+  },
+  {
+    "id": "611",
+    "number": 611,
+    "title": "Chương 611: Túc thế nhân duyên",
+    "filename": "00611_14515125.txt"
+  },
+  {
+    "id": "612",
+    "number": 612,
+    "title": "Chương 612: Đại tướng chi phong?",
+    "filename": "00612_14517941.txt"
+  },
+  {
+    "id": "613",
+    "number": 613,
+    "title": "Chương 613: Sơ bộ tiếp nhận",
+    "filename": "00613_14519120.txt"
+  },
+  {
+    "id": "614",
+    "number": 614,
+    "title": "Chương 614: Siêu cấp huyết mạch mang tới biến hóa",
+    "filename": "00614_14521906.txt"
+  },
+  {
+    "id": "615",
+    "number": 615,
+    "title": "Chương 615: Gặp lại Khổng Tước Đại Yêu Vương",
+    "filename": "00615_14523107.txt"
+  },
+  {
+    "id": "616",
+    "number": 616,
+    "title": "Chương 616: Yêu cầu Dung Nham Thiết",
+    "filename": "00616_14526178.txt"
+  },
+  {
+    "id": "617",
+    "number": 617,
+    "title": "Chương 617: Ra biển",
+    "filename": "00617_14527081.txt"
+  },
+  {
+    "id": "618",
+    "number": 618,
+    "title": "Chương 618: Hải đảo",
+    "filename": "00618_14529411.txt"
+  },
+  {
+    "id": "619",
+    "number": 619,
+    "title": "Chương 619: Chuẩn bị",
+    "filename": "00619_14530578.txt"
+  },
+  {
+    "id": "620",
+    "number": 620,
+    "title": "Chương 620: Lục Hợp Bát Hoang Kim Sát Kiếp",
+    "filename": "00620_14533126.txt"
+  },
+  {
+    "id": "621",
+    "number": 621,
+    "title": "Chương 621: Mỹ Công Tử độ kiếp",
+    "filename": "00621_14534531.txt"
+  },
+  {
+    "id": "622",
+    "number": 622,
+    "title": "Chương 622: Thánh Diễm Đao ra",
+    "filename": "00622_14536739.txt"
+  },
+  {
+    "id": "623",
+    "number": 623,
+    "title": "Chương 623: Chín hợp một lôi đình",
+    "filename": "00623_14537926.txt"
+  },
+  {
+    "id": "624",
+    "number": 624,
+    "title": "Chương 624: Hải Thần chúc phúc",
+    "filename": "00624_14540448.txt"
+  },
+  {
+    "id": "625",
+    "number": 625,
+    "title": "Chương 625: Thần cấp Mỹ Công Tử",
+    "filename": "00625_14541659.txt"
+  },
+  {
+    "id": "626",
+    "number": 626,
+    "title": "Chương 626: Thiên địa vĩ lực",
+    "filename": "00626_14542802.txt"
+  },
+  {
+    "id": "627",
+    "number": 627,
+    "title": "Chương 627: Lần nữa tổ hợp",
+    "filename": "00627_14542803.txt"
+  },
+  {
+    "id": "628",
+    "number": 628,
+    "title": "Chương 628: Một khối than cốc",
+    "filename": "00628_14542804.txt"
+  },
+  {
+    "id": "629",
+    "number": 629,
+    "title": "Chương 629: Giữ lời nói a",
+    "filename": "00629_14542805.txt"
+  },
+  {
+    "id": "630",
+    "number": 630,
+    "title": "Chương 630: Mỹ Công Tử thuế biến",
+    "filename": "00630_14542806.txt"
+  },
+  {
+    "id": "631",
+    "number": 631,
+    "title": "Chương 631: Kim Mông Biến cường đại",
+    "filename": "00631_14542807.txt"
+  },
+  {
+    "id": "632",
+    "number": 632,
+    "title": "Chương 632: Tinh thần lẫn nhau",
+    "filename": "00632_14542808.txt"
+  },
+  {
+    "id": "633",
+    "number": 633,
+    "title": "Chương 633: Điển lễ bắt đầu",
+    "filename": "00633_14542809.txt"
+  },
+  {
+    "id": "634",
+    "number": 634,
+    "title": "Chương 634: Vương phi",
+    "filename": "00634_14542810.txt"
+  },
+  {
+    "id": "635",
+    "number": 635,
+    "title": "Chương 635: Các trưởng lão lựa chọn",
+    "filename": "00635_14542811.txt"
+  },
+  {
+    "id": "636",
+    "number": 636,
+    "title": "Chương 636: Bách Điểu Triều Dương",
+    "filename": "00636_14543118.txt"
+  },
+  {
+    "id": "637",
+    "number": 637,
+    "title": "Chương 637: Bạch kim mũ miện",
+    "filename": "00637_14543119.txt"
+  },
+  {
+    "id": "638",
+    "number": 638,
+    "title": "Chương 638: Thuấn miểu",
+    "filename": "00638_14543120.txt"
+  },
+  {
+    "id": "639",
+    "number": 639,
+    "title": "Chương 639: Không Gian Nguyên Tố Sứ",
+    "filename": "00639_14543121.txt"
+  },
+  {
+    "id": "640",
+    "number": 640,
+    "title": "Chương 640: Cá chậu chim lồng",
+    "filename": "00640_14543122.txt"
+  },
+  {
+    "id": "641",
+    "number": 641,
+    "title": "Chương 641: Tinh Phượng giáng lâm",
+    "filename": "00641_14543123.txt"
+  },
+  {
+    "id": "642",
+    "number": 642,
+    "title": "Chương 642: Ngươi mới là hèn nhát",
+    "filename": "00642_14543124.txt"
+  },
+  {
+    "id": "643",
+    "number": 643,
+    "title": "Chương 643: Thê tử của ta vĩnh viễn là ngươi",
+    "filename": "00643_14543125.txt"
+  },
+  {
+    "id": "644",
+    "number": 644,
+    "title": "Chương 644: Nàng là ai nữ nhi?",
+    "filename": "00644_14543126.txt"
+  },
+  {
+    "id": "645",
+    "number": 645,
+    "title": "Chương 645: Người nào thắng?",
+    "filename": "00645_14543127.txt"
+  },
+  {
+    "id": "646",
+    "number": 646,
+    "title": "Chương 646: Ngươi thắng",
+    "filename": "00646_14543128.txt"
+  },
+  {
+    "id": "647",
+    "number": 647,
+    "title": "Chương 647: Gia Lý thành thành chủ Mỹ Công Tử",
+    "filename": "00647_14543129.txt"
+  },
+  {
+    "id": "648",
+    "number": 648,
+    "title": "Chương 648: Quản lý",
+    "filename": "00648_14543130.txt"
+  },
+  {
+    "id": "649",
+    "number": 649,
+    "title": "Chương 649: Ổn định",
+    "filename": "00649_14543131.txt"
+  },
+  {
+    "id": "650",
+    "number": 650,
+    "title": "Chương 650: Đường Tam muốn đi",
+    "filename": "00650_14543200.txt"
+  },
+  {
+    "id": "651",
+    "number": 651,
+    "title": "Chương 651: Cùng ngươi bế quan",
+    "filename": "00651_14543201.txt"
+  },
+  {
+    "id": "652",
+    "number": 652,
+    "title": "Chương 652: Như cách ba thu",
+    "filename": "00652_14543202.txt"
+  },
+  {
+    "id": "653",
+    "number": 653,
+    "title": "Chương 653: Được bao nuôi cảm giác thực tốt",
+    "filename": "00653_14543203.txt"
+  },
+  {
+    "id": "654",
+    "number": 654,
+    "title": "Chương 654: Mười tám cái. . .",
+    "filename": "00654_14543204.txt"
+  },
+  {
+    "id": "655",
+    "number": 655,
+    "title": "Chương 655: Xâm nhập nghiên cứu",
+    "filename": "00655_14543205.txt"
+  },
+  {
+    "id": "656",
+    "number": 656,
+    "title": "Chương 656: Lại đến tổ đình",
+    "filename": "00656_14543206.txt"
+  },
+  {
+    "id": "657",
+    "number": 657,
+    "title": "Chương 657: Truyền tống trận hoàn thành",
+    "filename": "00657_14543207.txt"
+  },
+  {
+    "id": "658",
+    "number": 658,
+    "title": "Chương 658: Siêu viễn cự ly truyền tống",
+    "filename": "00658_14543208.txt"
+  },
+  {
+    "id": "659",
+    "number": 659,
+    "title": "Chương 659: Kim Mông Biến!",
+    "filename": "00659_14543209.txt"
+  },
+  {
+    "id": "660",
+    "number": 660,
+    "title": "Chương 660: Kim giáp Đường Tam",
+    "filename": "00660_14600487.txt"
+  },
+  {
+    "id": "661",
+    "number": 661,
+    "title": "Chương 661: Lại vào tổ đình",
+    "filename": "00661_14600995.txt"
+  },
+  {
+    "id": "662",
+    "number": 662,
+    "title": "Chương 662: Bạch Hổ Đại Yêu Hoàng",
+    "filename": "00662_14604992.txt"
+  },
+  {
+    "id": "663",
+    "number": 663,
+    "title": "Chương 663: Giao dịch đâu?",
+    "filename": "00663_14605768.txt"
+  },
+  {
+    "id": "664",
+    "number": 664,
+    "title": "Chương 664: Thần giới?",
+    "filename": "00664_14608421.txt"
+  },
+  {
+    "id": "665",
+    "number": 665,
+    "title": "Chương 665: Tiến hóa cuối cùng là hủy diệt?",
+    "filename": "00665_14609669.txt"
+  },
+  {
+    "id": "666",
+    "number": 666,
+    "title": "Chương 666: Xa hoa tầng cao nhất",
+    "filename": "00666_14611478.txt"
+  },
+  {
+    "id": "667",
+    "number": 667,
+    "title": "Chương 667: Tình thương của cha như núi",
+    "filename": "00667_14612434.txt"
+  },
+  {
+    "id": "668",
+    "number": 668,
+    "title": "Chương 668: Lại đến Kiếm Thánh cung",
+    "filename": "00668_14614040.txt"
+  },
+  {
+    "id": "669",
+    "number": 669,
+    "title": "Chương 669: Luận kiếm",
+    "filename": "00669_14614906.txt"
+  },
+  {
+    "id": "670",
+    "number": 670,
+    "title": "Chương 670: Tâm kiếm",
+    "filename": "00670_14617463.txt"
+  },
+  {
+    "id": "671",
+    "number": 671,
+    "title": "Chương 671: Kim Tinh Thánh Sơn",
+    "filename": "00671_14617464.txt"
+  },
+  {
+    "id": "672",
+    "number": 672,
+    "title": "Chương 672: Kim Cương Tinh huyết mạch tới tay",
+    "filename": "00672_14619621.txt"
+  },
+  {
+    "id": "673",
+    "number": 673,
+    "title": "Chương 673: Dung hợp Kim Cương Tinh",
+    "filename": "00673_14620851.txt"
+  },
+  {
+    "id": "674",
+    "number": 674,
+    "title": "Chương 674: Cấp một Lam Ngân Hoàng",
+    "filename": "00674_14623346.txt"
+  },
+  {
+    "id": "675",
+    "number": 675,
+    "title": "Chương 675: Vào biển",
+    "filename": "00675_14624570.txt"
+  },
+  {
+    "id": "676",
+    "number": 676,
+    "title": "Chương 676: Chấp chưởng biển cả quyền hành",
+    "filename": "00676_14628646.txt"
+  },
+  {
+    "id": "677",
+    "number": 677,
+    "title": "Chương 677: Triệu tập Hải tộc",
+    "filename": "00677_14630461.txt"
+  },
+  {
+    "id": "678",
+    "number": 678,
+    "title": "Chương 678: Hải Thần truyền thừa",
+    "filename": "00678_14633223.txt"
+  },
+  {
+    "id": "679",
+    "number": 679,
+    "title": "Chương 679: Chiến Song Vương",
+    "filename": "00679_14634407.txt"
+  },
+  {
+    "id": "680",
+    "number": 680,
+    "title": "Chương 680: Tín ngưỡng lực",
+    "filename": "00680_14636783.txt"
+  },
+  {
+    "id": "681",
+    "number": 681,
+    "title": "Chương 681: Hải ôn (thượng)",
+    "filename": "00681_14637686.txt"
+  },
+  {
+    "id": "682",
+    "number": 682,
+    "title": "Chương 682: Hải ôn (hạ)",
+    "filename": "00682_14640074.txt"
+  },
+  {
+    "id": "683",
+    "number": 683,
+    "title": "Chương 683: Nguyệt Nha đảo",
+    "filename": "00683_14641466.txt"
+  },
+  {
+    "id": "684",
+    "number": 684,
+    "title": "Chương 684: Di chuyển bắt đầu",
+    "filename": "00684_14643630.txt"
+  },
+  {
+    "id": "685",
+    "number": 685,
+    "title": "Chương 685: Hải Sa Vương",
+    "filename": "00685_14644558.txt"
+  },
+  {
+    "id": "686",
+    "number": 686,
+    "title": "Chương 686: Tịnh hóa Lam Hải, mọi người đồng tâm hiệp lực",
+    "filename": "00686_14646870.txt"
+  },
+  {
+    "id": "687",
+    "number": 687,
+    "title": "Chương 687: Thần Sứ Louis",
+    "filename": "00687_14648047.txt"
+  },
+  {
+    "id": "688",
+    "number": 688,
+    "title": "Chương 688: Ôm đùi",
+    "filename": "00688_14650391.txt"
+  },
+  {
+    "id": "689",
+    "number": 689,
+    "title": "Chương 689: Hải Vương đều tới",
+    "filename": "00689_14651495.txt"
+  },
+  {
+    "id": "690",
+    "number": 690,
+    "title": "Chương 690: Kiểm nghiệm?",
+    "filename": "00690_14654103.txt"
+  },
+  {
+    "id": "691",
+    "number": 691,
+    "title": "Chương 691: Chứng minh?",
+    "filename": "00691_14655221.txt"
+  },
+  {
+    "id": "692",
+    "number": 692,
+    "title": "Chương 692: Đường Tam lôi kiếp",
+    "filename": "00692_14657846.txt"
+  },
+  {
+    "id": "693",
+    "number": 693,
+    "title": "Chương 693: Cửu Thiên Thập Địa",
+    "filename": "00693_14659855.txt"
+  },
+  {
+    "id": "694",
+    "number": 694,
+    "title": "Chương 694: Làm sao đến mức này a!",
+    "filename": "00694_14662277.txt"
+  },
+  {
+    "id": "695",
+    "number": 695,
+    "title": "Chương 695: Làm bạn gái của ngươi",
+    "filename": "00695_14663264.txt"
+  },
+  {
+    "id": "696",
+    "number": 696,
+    "title": "Chương 696: Xuất phát",
+    "filename": "00696_14665666.txt"
+  },
+  {
+    "id": "697",
+    "number": 697,
+    "title": "Chương 697: Chia binh hai đường",
+    "filename": "00697_14666734.txt"
+  },
+  {
+    "id": "698",
+    "number": 698,
+    "title": "Chương 698: Lại trèo lên Thiên Dương",
+    "filename": "00698_14669699.txt"
+  },
+  {
+    "id": "699",
+    "number": 699,
+    "title": "Chương 699: Mỹ Công Tử đến tổ đình",
+    "filename": "00699_14671308.txt"
+  },
+  {
+    "id": "700",
+    "number": 700,
+    "title": "Chương 700: Tạm thời phân biệt",
+    "filename": "00700_14671847.txt"
+  },
+  {
+    "id": "701",
+    "number": 701,
+    "title": "Chương 701: Tổ đình nghị hội Hoàng Thiên Trụ",
+    "filename": "00701_14671848.txt"
+  },
+  {
+    "id": "702",
+    "number": 702,
+    "title": "Chương 702: Ba ngày lĩnh ngộ",
+    "filename": "00702_14671849.txt"
+  },
+  {
+    "id": "703",
+    "number": 703,
+    "title": "Chương 703: Khổng Tước Đại Yêu Hoàng",
+    "filename": "00703_14671850.txt"
+  },
+  {
+    "id": "704",
+    "number": 704,
+    "title": "Chương 704: Liền muốn bắt đầu",
+    "filename": "00704_14671851.txt"
+  },
+  {
+    "id": "705",
+    "number": 705,
+    "title": "Chương 705: Hết thảy đều muốn bắt đầu",
+    "filename": "00705_14671852.txt"
+  },
+  {
+    "id": "706",
+    "number": 706,
+    "title": "Chương 706: Lại vào Địa Ngục Hoa Viên",
+    "filename": "00706_14671853.txt"
+  },
+  {
+    "id": "707",
+    "number": 707,
+    "title": "Chương 707: Yêu Hoàng tề tụ",
+    "filename": "00707_14671854.txt"
+  },
+  {
+    "id": "708",
+    "number": 708,
+    "title": "Chương 708: Trận chiến đầu tiên, Hồng Bảo Nữ Vương",
+    "filename": "00708_14671855.txt"
+  },
+  {
+    "id": "709",
+    "number": 709,
+    "title": "Chương 709: Thần thức chuyển di",
+    "filename": "00709_14671856.txt"
+  },
+  {
+    "id": "710",
+    "number": 710,
+    "title": "Chương 710: U Minh Đột Thứ",
+    "filename": "00710_14671857.txt"
+  },
+  {
+    "id": "711",
+    "number": 711,
+    "title": "Chương 711: Lần nữa nghiền ép",
+    "filename": "00711_14671858.txt"
+  },
+  {
+    "id": "712",
+    "number": 712,
+    "title": "Chương 712: Chiến Bất Tử Hỏa Phượng Đại Yêu Vương",
+    "filename": "00712_14671859.txt"
+  },
+  {
+    "id": "713",
+    "number": 713,
+    "title": "Chương 713: Đường Tam dòm thiên cơ",
+    "filename": "00713_14671860.txt"
+  },
+  {
+    "id": "714",
+    "number": 714,
+    "title": "Chương 714: Vạn Hỏa Chi Vương",
+    "filename": "00714_14671861.txt"
+  },
+  {
+    "id": "715",
+    "number": 715,
+    "title": "Chương 715: Phượng Hoàng Khải",
+    "filename": "00715_14671862.txt"
+  },
+  {
+    "id": "716",
+    "number": 716,
+    "title": "Chương 716: Phá niết bàn",
+    "filename": "00716_14671863.txt"
+  },
+  {
+    "id": "717",
+    "number": 717,
+    "title": "Chương 717: Chém thần thức",
+    "filename": "00717_14671864.txt"
+  },
+  {
+    "id": "718",
+    "number": 718,
+    "title": "Chương 718: Cần sáu phiếu",
+    "filename": "00718_14671865.txt"
+  },
+  {
+    "id": "719",
+    "number": 719,
+    "title": "Chương 719: Ba tán thành, một phản đối",
+    "filename": "00719_14671866.txt"
+  },
+  {
+    "id": "720",
+    "number": 720,
+    "title": "Chương 720: Ám Ma Đại Yêu Hoàng phiếu tán thành",
+    "filename": "00720_14708111.txt"
+  },
+  {
+    "id": "721",
+    "number": 721,
+    "title": "Chương 721: Bất Tử Đại Yêu Hoàng phiếu tán thành",
+    "filename": "00721_14709526.txt"
+  },
+  {
+    "id": "722",
+    "number": 722,
+    "title": "Chương 722: Sợ nhất kỳ tích",
+    "filename": "00722_14712180.txt"
+  },
+  {
+    "id": "723",
+    "number": 723,
+    "title": "Chương 723: Thủy Tinh giáng lâm",
+    "filename": "00723_14713438.txt"
+  },
+  {
+    "id": "724",
+    "number": 724,
+    "title": "Chương 724: Chân chính Thủy Tinh Đại Yêu Hoàng",
+    "filename": "00724_14715688.txt"
+  },
+  {
+    "id": "725",
+    "number": 725,
+    "title": "Chương 725: Tinh Tinh, Thủy Tinh",
+    "filename": "00725_14715939.txt"
+  },
+  {
+    "id": "726",
+    "number": 726,
+    "title": "Chương 726: Thương định",
+    "filename": "00726_14716898.txt"
+  },
+  {
+    "id": "727",
+    "number": 727,
+    "title": "Chương 727: Triệu hoán Đường Tam",
+    "filename": "00727_14720021.txt"
+  },
+  {
+    "id": "728",
+    "number": 728,
+    "title": "Chương 728: Bắt đầu đi! Thiên kiếp của ta",
+    "filename": "00728_14721048.txt"
+  },
+  {
+    "id": "729",
+    "number": 729,
+    "title": "Chương 729: Cửu Thiên Thập Địa Đại Phá Diệt Yên Thần Kiếp",
+    "filename": "00729_14722723.txt"
+  },
+  {
+    "id": "730",
+    "number": 730,
+    "title": "Chương 730: Bạch Hổ Đại Yêu Hoàng nội tâm dị dạng",
+    "filename": "00730_14723982.txt"
+  },
+  {
+    "id": "731",
+    "number": 731,
+    "title": "Chương 731: Đây là tên điên tại độ kiếp a?",
+    "filename": "00731_14725824.txt"
+  },
+  {
+    "id": "732",
+    "number": 732,
+    "title": "Chương 732: Chín cái chuẩn bị",
+    "filename": "00732_14727135.txt"
+  },
+  {
+    "id": "733",
+    "number": 733,
+    "title": "Chương 733: Hoàng Giả cản kiếp",
+    "filename": "00733_14729936.txt"
+  },
+  {
+    "id": "734",
+    "number": 734,
+    "title": "Chương 734: Hứa hẹn",
+    "filename": "00734_14729940.txt"
+  },
+  {
+    "id": "735",
+    "number": 735,
+    "title": "Chương 735: Thiên Hồ phụ trợ Mỹ Công Tử",
+    "filename": "00735_14731113.txt"
+  },
+  {
+    "id": "736",
+    "number": 736,
+    "title": "Chương 737: Đại Yêu Vương Mỹ Công Tử",
+    "filename": "00736_14739426.txt"
+  },
+  {
+    "id": "737",
+    "number": 737,
+    "title": "Chương 737: Lấp đầy không gian",
+    "filename": "00737_14733478.txt"
+  },
+  {
+    "id": "738",
+    "number": 738,
+    "title": "Chương 738: Không gian thông đạo",
+    "filename": "00738_14735586.txt"
+  },
+  {
+    "id": "739",
+    "number": 739,
+    "title": "Chương 739: Tới?",
+    "filename": "00739_14737824.txt"
+  },
+  {
+    "id": "740",
+    "number": 740,
+    "title": "Chương 740: Thủy Tinh phức tạp tâm tình",
+    "filename": "00740_14741466.txt"
+  },
+  {
+    "id": "741",
+    "number": 741,
+    "title": "Chương 741: Độ kiếp, từ giờ khắc này bắt đầu",
+    "filename": "00741_14741467.txt"
+  },
+  {
+    "id": "742",
+    "number": 742,
+    "title": "Chương 742: Át chủ bài mở vén",
+    "filename": "00742_14742596.txt"
+  },
+  {
+    "id": "743",
+    "number": 743,
+    "title": "Chương 743: Thần cấp thuế biến",
+    "filename": "00743_14744567.txt"
+  },
+  {
+    "id": "744",
+    "number": 744,
+    "title": "Chương 744: Vị diện đấu đá",
+    "filename": "00744_14746629.txt"
+  },
+  {
+    "id": "745",
+    "number": 745,
+    "title": "Chương 745: Cho vị diện quà tặng",
+    "filename": "00745_14748939.txt"
+  },
+  {
+    "id": "746",
+    "number": 746,
+    "title": "Chương 746: Hãn Hải Càn Khôn, Hải Thần chi kích",
+    "filename": "00746_14750207.txt"
+  },
+  {
+    "id": "747",
+    "number": 747,
+    "title": "Chương 747: Phản xuyên thiên kiếp",
+    "filename": "00747_14758052.txt"
+  },
+  {
+    "id": "748",
+    "number": 748,
+    "title": "Chương 748: Cùng thiên kiếp nói chuyện",
+    "filename": "00748_14752150.txt"
+  },
+  {
+    "id": "749",
+    "number": 749,
+    "title": "Chương 749: Thiên kiếp, tản?",
+    "filename": "00749_14754470.txt"
+  },
+  {
+    "id": "750",
+    "number": 750,
+    "title": "Chương 750: Thiên kiếp cũng có thể hối lộ?",
+    "filename": "00750_14756035.txt"
+  },
+  {
+    "id": "751",
+    "number": 751,
+    "title": "Chương 751: Thiên Hồ cay đắng",
+    "filename": "00751_14758153.txt"
+  },
+  {
+    "id": "752",
+    "number": 752,
+    "title": "Chương 752: Thủy Tinh băng",
+    "filename": "00752_14761476.txt"
+  },
+  {
+    "id": "753",
+    "number": 753,
+    "title": "Chương 753: Thủy Tinh vẫn, chúng hoàng buồn",
+    "filename": "00753_14761766.txt"
+  },
+  {
+    "id": "754",
+    "number": 754,
+    "title": "Chương 754: Trăm ngày",
+    "filename": "00754_14763835.txt"
+  },
+  {
+    "id": "755",
+    "number": 755,
+    "title": "Chương 755: Đường Tam thức tỉnh",
+    "filename": "00755_14768374.txt"
+  },
+  {
+    "id": "756",
+    "number": 756,
+    "title": "Chương 756: Trùng phùng sau kiếp",
+    "filename": "00756_14768375.txt"
+  },
+  {
+    "id": "757",
+    "number": 757,
+    "title": "Chương 757: Giảng thuật thân thế",
+    "filename": "00757_14768376.txt"
+  },
+  {
+    "id": "758",
+    "number": 758,
+    "title": "Chương 758: Đa trí như yêu",
+    "filename": "00758_14768377.txt"
+  },
+  {
+    "id": "759",
+    "number": 759,
+    "title": "Chương 759: Bất an nguyên nhân",
+    "filename": "00759_14768378.txt"
+  },
+  {
+    "id": "760",
+    "number": 760,
+    "title": "Chương 760: Đối cứng Bạch Hổ Đại Yêu Hoàng",
+    "filename": "00760_14768379.txt"
+  },
+  {
+    "id": "761",
+    "number": 761,
+    "title": "Chương 761: Không nên quay đầu lại nhìn",
+    "filename": "00761_14768380.txt"
+  },
+  {
+    "id": "762",
+    "number": 762,
+    "title": "Chương 762: Thù cũng nên báo",
+    "filename": "00762_14768381.txt"
+  },
+  {
+    "id": "763",
+    "number": 763,
+    "title": "Chương 763: Thủy Tinh cô nãi nãi",
+    "filename": "00763_14768382.txt"
+  },
+  {
+    "id": "764",
+    "number": 764,
+    "title": "Chương 764: Thù sâu như biển",
+    "filename": "00764_14768383.txt"
+  },
+  {
+    "id": "765",
+    "number": 765,
+    "title": "Chương 765: Đường Tam chi nộ",
+    "filename": "00765_14768384.txt"
+  },
+  {
+    "id": "766",
+    "number": 766,
+    "title": "Chương 766: Cam nguyện chịu chết",
+    "filename": "00766_14768385.txt"
+  },
+  {
+    "id": "767",
+    "number": 767,
+    "title": "Chương 767: Không cần tự trách",
+    "filename": "00767_14768386.txt"
+  },
+  {
+    "id": "768",
+    "number": 768,
+    "title": "Chương 768: Trở về Nguyệt Nha đảo",
+    "filename": "00768_14768387.txt"
+  },
+  {
+    "id": "769",
+    "number": 769,
+    "title": "Chương 769: Hải Thần Đường Tam",
+    "filename": "00769_14768388.txt"
+  },
+  {
+    "id": "770",
+    "number": 770,
+    "title": "Chương 770: Lại về tổ đình",
+    "filename": "00770_14768389.txt"
+  },
+  {
+    "id": "771",
+    "number": 771,
+    "title": "Chương 771: Bạch Hổ gia trì",
+    "filename": "00771_14768390.txt"
+  },
+  {
+    "id": "772",
+    "number": 772,
+    "title": "Chương 772: Phục sinh Khổng Tước Đại Yêu Vương?",
+    "filename": "00772_14808626.txt"
+  },
+  {
+    "id": "773",
+    "number": 773,
+    "title": "Chương 773: Không có đời sau",
+    "filename": "00773_14768391.txt"
+  },
+  {
+    "id": "774",
+    "number": 774,
+    "title": "Chương 774: Nghi thức phục sinh",
+    "filename": "00774_14768392.txt"
+  },
+  {
+    "id": "775",
+    "number": 775,
+    "title": "Chương 775: Sinh mệnh cấp độ",
+    "filename": "00775_14768393.txt"
+  },
+  {
+    "id": "776",
+    "number": 776,
+    "title": "Chương 776: Uông Thanh, lão bà ngươi muốn tái giá",
+    "filename": "00776_14768394.txt"
+  },
+  {
+    "id": "777",
+    "number": 777,
+    "title": "Chương 777: Tiêu Hà",
+    "filename": "00777_14768395.txt"
+  },
+  {
+    "id": "778",
+    "number": 778,
+    "title": "Chương 778: Sinh không bằng nuôi",
+    "filename": "00778_14806374.txt"
+  },
+  {
+    "id": "779",
+    "number": 779,
+    "title": "Chương 779: Nhân loại huyền bí",
+    "filename": "00779_14813743.txt"
+  },
+  {
+    "id": "780",
+    "number": 780,
+    "title": "Chương 780: Hổ yêu không nhân tính",
+    "filename": "00780_14813744.txt"
+  },
+  {
+    "id": "781",
+    "number": 781,
+    "title": "Chương 781: Khiêu chiến Hoàng Giả",
+    "filename": "00781_14814971.txt"
+  },
+  {
+    "id": "782",
+    "number": 782,
+    "title": "Chương 782: Kinh khủng Bạch Hổ Đại Yêu Hoàng",
+    "filename": "00782_14817895.txt"
+  },
+  {
+    "id": "783",
+    "number": 783,
+    "title": "Chương 783: Vô Định Phong Ba",
+    "filename": "00783_14818772.txt"
+  },
+  {
+    "id": "784",
+    "number": 784,
+    "title": "Chương 784: Một khống tiếp một khống",
+    "filename": "00784_14821655.txt"
+  },
+  {
+    "id": "785",
+    "number": 785,
+    "title": "Chương 785: Thần hỏa",
+    "filename": "00785_14823124.txt"
+  },
+  {
+    "id": "786",
+    "number": 786,
+    "title": "Chương 786: Không gian tước đoạt",
+    "filename": "00786_14825177.txt"
+  },
+  {
+    "id": "787",
+    "number": 787,
+    "title": "Chương 787: Mẫn diệt chi lực",
+    "filename": "00787_14826685.txt"
+  },
+  {
+    "id": "788",
+    "number": 788,
+    "title": "Chương 788: Thức tỉnh Phượng Hoàng huyết mạch?",
+    "filename": "00788_14828285.txt"
+  },
+  {
+    "id": "789",
+    "number": 789,
+    "title": "Chương 789: Tiêu Hà thái độ",
+    "filename": "00789_14829599.txt"
+  },
+  {
+    "id": "790",
+    "number": 790,
+    "title": "Chương 790: Nhân loại thiên phú là sức sáng tạo",
+    "filename": "00790_14831634.txt"
+  },
+  {
+    "id": "791",
+    "number": 791,
+    "title": "Chương 791: Cha con gặp nhau",
+    "filename": "00791_14832603.txt"
+  },
+  {
+    "id": "792",
+    "number": 792,
+    "title": "Chương 792: Bản nguyên chủ đạo, Phượng Hoàng thức tỉnh",
+    "filename": "00792_14834456.txt"
+  },
+  {
+    "id": "793",
+    "number": 793,
+    "title": "Chương 793: Tu La, kiếm trảm bản nguyên",
+    "filename": "00793_14835925.txt"
+  },
+  {
+    "id": "794",
+    "number": 794,
+    "title": "Chương 794: Thiên Không Vương Chủ, siêu cấp huyết mạch?",
+    "filename": "00794_14838487.txt"
+  },
+  {
+    "id": "795",
+    "number": 795,
+    "title": "Chương 795: Bái kiến tổ phụ",
+    "filename": "00795_14840169.txt"
+  },
+  {
+    "id": "796",
+    "number": 796,
+    "title": "Chương 796: Cần mẫu thân tha thứ",
+    "filename": "00796_14841794.txt"
+  },
+  {
+    "id": "797",
+    "number": 797,
+    "title": "Chương 797: Thực hiện hứa hẹn",
+    "filename": "00797_14843489.txt"
+  },
+  {
+    "id": "798",
+    "number": 798,
+    "title": "Chương 798: Thẩm Phán Chi Kiếm, thiên địa chính khí",
+    "filename": "00798_14845476.txt"
+  },
+  {
+    "id": "799",
+    "number": 799,
+    "title": "Chương 799: Trở về Gia Lý thành",
+    "filename": "00799_14846633.txt"
+  },
+  {
+    "id": "800",
+    "number": 800,
+    "title": "Chương 800: Tiêu Hà cùng vương phi",
+    "filename": "00800_14851510.txt"
+  },
+  {
+    "id": "801",
+    "number": 801,
+    "title": "Chương 801: Trở về liền tốt",
+    "filename": "00801_14852048.txt"
+  },
+  {
+    "id": "802",
+    "number": 802,
+    "title": "Chương 802: Vĩnh viễn không tha thứ",
+    "filename": "00802_14854638.txt"
+  },
+  {
+    "id": "803",
+    "number": 803,
+    "title": "Chương 803: Ân huệ tỏa khắp mọi chúng sinh",
+    "filename": "00803_14856069.txt"
+  },
+  {
+    "id": "804",
+    "number": 804,
+    "title": "Chương 804: Thiên Hồ lo lắng",
+    "filename": "00804_14857779.txt"
+  },
+  {
+    "id": "805",
+    "number": 805,
+    "title": "Chương 805: Hải Thần quy vị",
+    "filename": "00805_14859494.txt"
+  },
+  {
+    "id": "806",
+    "number": 806,
+    "title": "Chương 806: Hòn đảo kết nối?",
+    "filename": "00806_14861746.txt"
+  },
+  {
+    "id": "807",
+    "number": 807,
+    "title": "Chương 807: Hải Cự Nhân thế giới",
+    "filename": "00807_14862879.txt"
+  },
+  {
+    "id": "808",
+    "number": 808,
+    "title": "Chương 808: Lục đại vương giả",
+    "filename": "00808_14865819.txt"
+  },
+  {
+    "id": "809",
+    "number": 809,
+    "title": "Chương 809: Kim quang xán lạn",
+    "filename": "00809_14866978.txt"
+  },
+  {
+    "id": "810",
+    "number": 810,
+    "title": "Chương 810: Thần Chi lực lượng",
+    "filename": "00810_14869228.txt"
+  },
+  {
+    "id": "811",
+    "number": 811,
+    "title": "Chương 811: Phục",
+    "filename": "00811_14870227.txt"
+  },
+  {
+    "id": "812",
+    "number": 812,
+    "title": "Chương 812: Trở về Nguyệt Nha đảo",
+    "filename": "00812_14872307.txt"
+  },
+  {
+    "id": "813",
+    "number": 813,
+    "title": "Chương 813: Quy hoạch",
+    "filename": "00813_14873189.txt"
+  },
+  {
+    "id": "814",
+    "number": 814,
+    "title": "Chương 814: Ngủ cảm giác thực tốt",
+    "filename": "00814_14875305.txt"
+  },
+  {
+    "id": "815",
+    "number": 815,
+    "title": "Chương 815: Một lần lạ hai hồi quen",
+    "filename": "00815_14876550.txt"
+  },
+  {
+    "id": "816",
+    "number": 816,
+    "title": "Chương 816: Tổ đình sứ giả",
+    "filename": "00816_14878906.txt"
+  },
+  {
+    "id": "817",
+    "number": 817,
+    "title": "Chương 817: Liệt Thiên thành chủ muốn tới?",
+    "filename": "00817_14880009.txt"
+  },
+  {
+    "id": "818",
+    "number": 818,
+    "title": "Chương 818: Sứ đoàn đến",
+    "filename": "00818_14882105.txt"
+  },
+  {
+    "id": "819",
+    "number": 819,
+    "title": "Chương 819: Liệt Thiên thành chủ Kim An Quốc",
+    "filename": "00819_14883439.txt"
+  },
+  {
+    "id": "820",
+    "number": 820,
+    "title": "Chương 820: Cầu hôn",
+    "filename": "00820_14886463.txt"
+  },
+  {
+    "id": "821",
+    "number": 821,
+    "title": "Chương 821: Cự tuyệt",
+    "filename": "00821_14888653.txt"
+  },
+  {
+    "id": "822",
+    "number": 822,
+    "title": "Chương 822: Tiêu Hà phân tích",
+    "filename": "00822_14890906.txt"
+  },
+  {
+    "id": "823",
+    "number": 823,
+    "title": "Chương 823: Kiến Mộc chi quốc",
+    "filename": "00823_14892787.txt"
+  },
+  {
+    "id": "824",
+    "number": 824,
+    "title": "Chương 824: Đường Tam đi xa",
+    "filename": "00824_14894958.txt"
+  },
+  {
+    "id": "825",
+    "number": 825,
+    "title": "Chương 825: Rộng lớn Lam Hải",
+    "filename": "00825_14894959.txt"
+  },
+  {
+    "id": "826",
+    "number": 826,
+    "title": "Chương 826: Tổ đình hỏi lại",
+    "filename": "00826_14894960.txt"
+  },
+  {
+    "id": "827",
+    "number": 827,
+    "title": "Chương 827: Thần bí Hồng Hải",
+    "filename": "00827_14894961.txt"
+  },
+  {
+    "id": "828",
+    "number": 828,
+    "title": "Chương 828: Hỏa Lê tộc",
+    "filename": "00828_14894962.txt"
+  },
+  {
+    "id": "829",
+    "number": 829,
+    "title": "Chương 829: Kỳ dị hỏa thế giới",
+    "filename": "00829_14894963.txt"
+  },
+  {
+    "id": "830",
+    "number": 830,
+    "title": "Chương 830: Hỏa Tinh",
+    "filename": "00830_14894964.txt"
+  },
+  {
+    "id": "831",
+    "number": 831,
+    "title": "Chương 831: Hỏa Thần thành",
+    "filename": "00831_14894965.txt"
+  },
+  {
+    "id": "832",
+    "number": 832,
+    "title": "Chương 832: Hỏa Thần tiết",
+    "filename": "00832_14894966.txt"
+  },
+  {
+    "id": "833",
+    "number": 833,
+    "title": "Chương 833: Hỏa Lê tộc tộc trưởng",
+    "filename": "00833_14894967.txt"
+  },
+  {
+    "id": "834",
+    "number": 834,
+    "title": "Chương 834: Vầng sáng bảy màu",
+    "filename": "00834_14894968.txt"
+  },
+  {
+    "id": "835",
+    "number": 835,
+    "title": "Chương 835: Hải Thần đối với Hỏa Thần chúc phúc",
+    "filename": "00835_14894969.txt"
+  },
+  {
+    "id": "836",
+    "number": 836,
+    "title": "Chương 836: Hỏa Thần quyền trượng hưng phấn",
+    "filename": "00836_14894970.txt"
+  },
+  {
+    "id": "837",
+    "number": 837,
+    "title": "Chương 837: Đổ ước Liệt Dương Vương",
+    "filename": "00837_14894971.txt"
+  },
+  {
+    "id": "838",
+    "number": 838,
+    "title": "Chương 838: Cưỡng chế Liệt Dương Vương",
+    "filename": "00838_14925619.txt"
+  },
+  {
+    "id": "839",
+    "number": 839,
+    "title": "Chương 839: Thần phạt",
+    "filename": "00839_14925620.txt"
+  },
+  {
+    "id": "840",
+    "number": 840,
+    "title": "Chương 840: Thắng tính cướp cô dâu?",
+    "filename": "00840_14925621.txt"
+  },
+  {
+    "id": "841",
+    "number": 841,
+    "title": "Chương 841: Tổ đình bức bách, thành thân?",
+    "filename": "00841_14927680.txt"
+  },
+  {
+    "id": "842",
+    "number": 842,
+    "title": "Chương 842: Hỏa Thần động quật",
+    "filename": "00842_14930223.txt"
+  },
+  {
+    "id": "843",
+    "number": 843,
+    "title": "Chương 843: Minh hữu",
+    "filename": "00843_14931740.txt"
+  },
+  {
+    "id": "844",
+    "number": 844,
+    "title": "Chương 844: Khế ước, hãn hải",
+    "filename": "00844_14934124.txt"
+  },
+  {
+    "id": "845",
+    "number": 845,
+    "title": "Chương 845: Luận võ chọn rể?",
+    "filename": "00845_14936492.txt"
+  },
+  {
+    "id": "846",
+    "number": 846,
+    "title": "Chương 846: Luyện chế Thần khí",
+    "filename": "00846_14938537.txt"
+  },
+  {
+    "id": "847",
+    "number": 847,
+    "title": "Chương 847: Thần khí dung hợp",
+    "filename": "00847_14939988.txt"
+  },
+  {
+    "id": "848",
+    "number": 848,
+    "title": "Chương 848: Chư Pháp Chi Thư",
+    "filename": "00848_14941753.txt"
+  },
+  {
+    "id": "849",
+    "number": 849,
+    "title": "Chương 849: Quay về Hỏa Lê tộc",
+    "filename": "00849_14943594.txt"
+  },
+  {
+    "id": "850",
+    "number": 850,
+    "title": "Chương 850: Ngươi người xấu này",
+    "filename": "00850_14945501.txt"
+  },
+  {
+    "id": "851",
+    "number": 851,
+    "title": "Chương 851: Tiến về Nhật Thần đế quốc",
+    "filename": "00851_14946715.txt"
+  },
+  {
+    "id": "852",
+    "number": 852,
+    "title": "Chương 852: Huyết mạch hiện trạng",
+    "filename": "00852_14954881.txt"
+  },
+  {
+    "id": "853",
+    "number": 853,
+    "title": "Chương 853: Cải trang giả dạng",
+    "filename": "00853_14950420.txt"
+  },
+  {
+    "id": "854",
+    "number": 854,
+    "title": "Chương 854: Kiến Mộc thành",
+    "filename": "00854_14953289.txt"
+  },
+  {
+    "id": "855",
+    "number": 855,
+    "title": "Chương 855: Đường Tam ghen ghét",
+    "filename": "00855_14954882.txt"
+  },
+  {
+    "id": "856",
+    "number": 856,
+    "title": "Chương 856: Ca, ngươi không biết ta rồi?",
+    "filename": "00856_14958466.txt"
+  },
+  {
+    "id": "857",
+    "number": 857,
+    "title": "Chương 857: Lam Kim Thụ tộc",
+    "filename": "00857_14961043.txt"
+  },
+  {
+    "id": "858",
+    "number": 858,
+    "title": "Chương 858: Thụ Tổ quang huy",
+    "filename": "00858_14962204.txt"
+  },
+  {
+    "id": "859",
+    "number": 859,
+    "title": "Chương 859: Lam Kim Trưởng Lão hội",
+    "filename": "00859_14964483.txt"
+  },
+  {
+    "id": "860",
+    "number": 860,
+    "title": "Chương 860: Bỏ phiếu?",
+    "filename": "00860_14967000.txt"
+  },
+  {
+    "id": "861",
+    "number": 861,
+    "title": "Chương 861: Nếu như ta có thể cho quang huy càng sáng tỏ",
+    "filename": "00861_14968637.txt"
+  },
+  {
+    "id": "862",
+    "number": 862,
+    "title": "Chương 862: Hỗn Độn chi khí dung Thụ Tổ",
+    "filename": "00862_14971857.txt"
+  },
+  {
+    "id": "863",
+    "number": 863,
+    "title": "Chương 863: Thần Thể thoát thai hoán cốt",
+    "filename": "00863_14973550.txt"
+  },
+  {
+    "id": "864",
+    "number": 864,
+    "title": "Chương 864: Thụ Tổ khôi phục",
+    "filename": "00864_14976499.txt"
+  },
+  {
+    "id": "865",
+    "number": 865,
+    "title": "Chương 865: Rút Hoàng Giả",
+    "filename": "00865_14978750.txt"
+  },
+  {
+    "id": "866",
+    "number": 866,
+    "title": "Chương 866: Thụ Tổ truyền nhân",
+    "filename": "00866_14981151.txt"
+  },
+  {
+    "id": "867",
+    "number": 867,
+    "title": "Chương 867: Cứu vớt thất lạc giả",
+    "filename": "00867_14982783.txt"
+  },
+  {
+    "id": "868",
+    "number": 868,
+    "title": "Chương 868: Thiên Hồ chúc mừng",
+    "filename": "00868_14986427.txt"
+  },
+  {
+    "id": "869",
+    "number": 869,
+    "title": "Chương 869: Tập thể bế quan",
+    "filename": "00869_14987148.txt"
+  },
+  {
+    "id": "870",
+    "number": 870,
+    "title": "Chương 870: Thần thức trở về",
+    "filename": "00870_14989504.txt"
+  },
+  {
+    "id": "871",
+    "number": 871,
+    "title": "Chương 871: Suất đội xuất phát",
+    "filename": "00871_14991388.txt"
+  },
+  {
+    "id": "872",
+    "number": 872,
+    "title": "Chương 872: Kim Cương thành",
+    "filename": "00872_14992950.txt"
+  },
+  {
+    "id": "873",
+    "number": 873,
+    "title": "Chương 873: Kim Cương Tinh tộc",
+    "filename": "00873_14992951.txt"
+  },
+  {
+    "id": "874",
+    "number": 874,
+    "title": "Chương 874: Kim Thành Ngô",
+    "filename": "00874_14992952.txt"
+  },
+  {
+    "id": "875",
+    "number": 875,
+    "title": "Chương 875: Đường Tam xuất thủ",
+    "filename": "00875_14992953.txt"
+  },
+  {
+    "id": "876",
+    "number": 876,
+    "title": "Chương 876: Diệt sát Hỏa Tinh Vương",
+    "filename": "00876_14992954.txt"
+  },
+  {
+    "id": "877",
+    "number": 877,
+    "title": "Chương 877: Làm sai chỗ nào?",
+    "filename": "00877_14992955.txt"
+  },
+  {
+    "id": "878",
+    "number": 878,
+    "title": "Chương 878: Thụ Tổ chiếu rọi, tộc nhân trở về",
+    "filename": "00878_14992956.txt"
+  },
+  {
+    "id": "879",
+    "number": 879,
+    "title": "Chương 879: Tên điên?",
+    "filename": "00879_14992957.txt"
+  },
+  {
+    "id": "880",
+    "number": 880,
+    "title": "Chương 880: Mười hai giờ",
+    "filename": "00880_14992958.txt"
+  },
+  {
+    "id": "881",
+    "number": 881,
+    "title": "Chương 881: Kim Cương thành loạn",
+    "filename": "00881_14992959.txt"
+  },
+  {
+    "id": "882",
+    "number": 882,
+    "title": "Chương 882: Hai đại Hoàng Giả",
+    "filename": "00882_14992960.txt"
+  },
+  {
+    "id": "883",
+    "number": 883,
+    "title": "Chương 883: Nợ máu trả bằng máu",
+    "filename": "00883_14992961.txt"
+  },
+  {
+    "id": "884",
+    "number": 884,
+    "title": "Chương 884: Khiêu chiến Hoàng Giả",
+    "filename": "00884_14992962.txt"
+  },
+  {
+    "id": "885",
+    "number": 885,
+    "title": "Chương 885: Không trung một trận chiến",
+    "filename": "00885_14992963.txt"
+  },
+  {
+    "id": "886",
+    "number": 886,
+    "title": "Chương 886: Đại Địa Tù Lung",
+    "filename": "00886_14992964.txt"
+  },
+  {
+    "id": "887",
+    "number": 887,
+    "title": "Chương 887: Hỗn Độn thu, Âm Dương biến",
+    "filename": "00887_14992965.txt"
+  },
+  {
+    "id": "888",
+    "number": 888,
+    "title": "Chương 888: Muốn chết liền có thể chết sao?",
+    "filename": "00888_14992966.txt"
+  },
+  {
+    "id": "889",
+    "number": 889,
+    "title": "Chương 889: Vẫn! Kim Cương Thiên Tinh Hoàng",
+    "filename": "00889_14992967.txt"
+  },
+  {
+    "id": "890",
+    "number": 890,
+    "title": "Chương 890: Đồ hoàng",
+    "filename": "00890_14992968.txt"
+  },
+  {
+    "id": "891",
+    "number": 891,
+    "title": "Chương 891: Trong kế hoạch",
+    "filename": "00891_14992969.txt"
+  },
+  {
+    "id": "892",
+    "number": 892,
+    "title": "Chương 892: Trở lại Kiến Mộc thành",
+    "filename": "00892_14992970.txt"
+  },
+  {
+    "id": "893",
+    "number": 893,
+    "title": "Chương 893: Hưng phấn Lam Kim Thụ tộc",
+    "filename": "00893_14992971.txt"
+  },
+  {
+    "id": "894",
+    "number": 894,
+    "title": "Chương 894: Kim Cương Sư Hổ Biến",
+    "filename": "00894_14992972.txt"
+  },
+  {
+    "id": "895",
+    "number": 895,
+    "title": "Chương 895: Thủy Tinh Đại Yêu Hoàng thiên phú",
+    "filename": "00895_14992973.txt"
+  },
+  {
+    "id": "896",
+    "number": 896,
+    "title": "Chương 896: Kiến Mộc thành huy hoàng",
+    "filename": "00896_14992974.txt"
+  },
+  {
+    "id": "897",
+    "number": 897,
+    "title": "Chương 897: Thật giả Cận Miểu Lâm",
+    "filename": "00897_14992975.txt"
+  },
+  {
+    "id": "898",
+    "number": 898,
+    "title": "Chương 898: Huyết mạch lạc ấn tập thể tăng lên",
+    "filename": "00898_15041427.txt"
+  },
+  {
+    "id": "899",
+    "number": 899,
+    "title": "Chương 899: Đường Tam kế hoạch",
+    "filename": "00899_15043174.txt"
+  },
+  {
+    "id": "900",
+    "number": 900,
+    "title": "Chương 900: Xuất phát",
+    "filename": "00900_15044834.txt"
+  },
+  {
+    "id": "901",
+    "number": 901,
+    "title": "Chương 901: Lại vào tổ đình",
+    "filename": "00901_15047475.txt"
+  },
+  {
+    "id": "902",
+    "number": 902,
+    "title": "Chương 902: Tinh Tinh đề nghị",
+    "filename": "00902_15049001.txt"
+  },
+  {
+    "id": "903",
+    "number": 903,
+    "title": "Chương 903: Thiên Dương truyền thuyết",
+    "filename": "00903_15049002.txt"
+  },
+  {
+    "id": "904",
+    "number": 904,
+    "title": "Chương 904: Thiên Dương Thiên Tinh Hoàng",
+    "filename": "00904_15049003.txt"
+  },
+  {
+    "id": "905",
+    "number": 905,
+    "title": "Chương 905: Giao lưu",
+    "filename": "00905_15051504.txt"
+  },
+  {
+    "id": "906",
+    "number": 906,
+    "title": "Chương 906: Thiên Dương tán thành",
+    "filename": "00906_15052897.txt"
+  },
+  {
+    "id": "907",
+    "number": 907,
+    "title": "Chương 907: Gia tốc?",
+    "filename": "00907_15055180.txt"
+  },
+  {
+    "id": "908",
+    "number": 908,
+    "title": "Chương 908: Tổ đình nghị hội Hoàng Thiên Trụ!",
+    "filename": "00908_15057261.txt"
+  },
+  {
+    "id": "909",
+    "number": 909,
+    "title": "Chương 909: Thủy Tinh Hoàng Thiên Trụ",
+    "filename": "00909_15059514.txt"
+  },
+  {
+    "id": "910",
+    "number": 910,
+    "title": "Chương 910: Thắp sáng Hoàng Thiên Trụ",
+    "filename": "00910_15060961.txt"
+  },
+  {
+    "id": "911",
+    "number": 911,
+    "title": "Chương 911: Ngũ quang thập sắc Nghị Hội sơn",
+    "filename": "00911_15063077.txt"
+  },
+  {
+    "id": "912",
+    "number": 912,
+    "title": "Chương 912: Rung động tổ đình",
+    "filename": "00912_15065008.txt"
+  },
+  {
+    "id": "913",
+    "number": 913,
+    "title": "Chương 913: Tin tưởng lựa chọn của ngươi",
+    "filename": "00913_15067277.txt"
+  },
+  {
+    "id": "914",
+    "number": 914,
+    "title": "Chương 914: Triệu hoán?",
+    "filename": "00914_15069136.txt"
+  },
+  {
+    "id": "915",
+    "number": 915,
+    "title": "Chương 915: Vẫn là phải khảo hạch",
+    "filename": "00915_15071187.txt"
+  },
+  {
+    "id": "916",
+    "number": 916,
+    "title": "Chương 916: Đường Tam báo cáo công tác",
+    "filename": "00916_15072564.txt"
+  },
+  {
+    "id": "917",
+    "number": 917,
+    "title": "Chương 917: Sinh Mệnh Bác Đoạt lĩnh vực",
+    "filename": "00917_15074564.txt"
+  },
+  {
+    "id": "918",
+    "number": 918,
+    "title": "Chương 918: Tiểu Thụ Tổ",
+    "filename": "00918_15075893.txt"
+  },
+  {
+    "id": "919",
+    "number": 919,
+    "title": "Chương 919: Nhật Thần đồng ý",
+    "filename": "00919_15078261.txt"
+  },
+  {
+    "id": "920",
+    "number": 920,
+    "title": "Chương 920: Ngươi còn biết trở về?",
+    "filename": "00920_15079551.txt"
+  },
+  {
+    "id": "921",
+    "number": 921,
+    "title": "Chương 921: Bảy sắc huyết dịch",
+    "filename": "00921_15082537.txt"
+  },
+  {
+    "id": "922",
+    "number": 922,
+    "title": "Chương 922: Chiếm hoàng chi chiến",
+    "filename": "00922_15083723.txt"
+  },
+  {
+    "id": "923",
+    "number": 923,
+    "title": "Chương 924: chờ một chút, ta có chút loạn",
+    "filename": "00923_15085933.txt"
+  },
+  {
+    "id": "924",
+    "number": 924,
+    "title": "Chương 924: Thất Sắc Lộc Đại Yêu Hoàng",
+    "filename": "00924_15087219.txt"
+  },
+  {
+    "id": "925",
+    "number": 925,
+    "title": "Chương 925: Loại thứ năm siêu cấp huyết mạch",
+    "filename": "00925_15087220.txt"
+  },
+  {
+    "id": "926",
+    "number": 926,
+    "title": "Chương 926: Thức tỉnh",
+    "filename": "00926_15090660.txt"
+  },
+  {
+    "id": "927",
+    "number": 927,
+    "title": "Chương 927: Chiếm hoàng chi chiến",
+    "filename": "00927_15093470.txt"
+  },
+  {
+    "id": "928",
+    "number": 928,
+    "title": "Chương 928: Báo danh dự thi",
+    "filename": "00928_15095234.txt"
+  },
+  {
+    "id": "929",
+    "number": 929,
+    "title": "Chương 929: Ai cản ta thì phải chết",
+    "filename": "00929_15097419.txt"
+  },
+  {
+    "id": "930",
+    "number": 930,
+    "title": "Chương 930: Đập nồi bán sắt mua Thần khí?",
+    "filename": "00930_15099231.txt"
+  },
+  {
+    "id": "931",
+    "number": 931,
+    "title": "Chương 931: Gặp lại Tiêu Hà",
+    "filename": "00931_15101725.txt"
+  },
+  {
+    "id": "932",
+    "number": 932,
+    "title": "Chương 932: Ngài biết quá nhiều",
+    "filename": "00932_15103148.txt"
+  },
+  {
+    "id": "933",
+    "number": 933,
+    "title": "Chương 933: Tập thể độ kiếp",
+    "filename": "00933_15106135.txt"
+  },
+  {
+    "id": "934",
+    "number": 934,
+    "title": "Chương 934: Nguyên Tố Hải",
+    "filename": "00934_15107473.txt"
+  },
+  {
+    "id": "935",
+    "number": 935,
+    "title": "Chương 935: Lam Kim Thụ tộc tích súc",
+    "filename": "00935_15109895.txt"
+  },
+  {
+    "id": "936",
+    "number": 936,
+    "title": "Chương 936: Nguyên lai ta là đại phú ông",
+    "filename": "00936_15111600.txt"
+  },
+  {
+    "id": "937",
+    "number": 937,
+    "title": "Chương 937: Mỹ Công Tử tới",
+    "filename": "00937_15114601.txt"
+  },
+  {
+    "id": "938",
+    "number": 938,
+    "title": "Chương 938: Lại nổi giận rồi?",
+    "filename": "00938_15116292.txt"
+  },
+  {
+    "id": "939",
+    "number": 939,
+    "title": "Chương 939: Chế độ thi đấu",
+    "filename": "00939_15119192.txt"
+  },
+  {
+    "id": "940",
+    "number": 940,
+    "title": "Chương 940: Đường Tam không có vấn đề",
+    "filename": "00940_15121278.txt"
+  },
+  {
+    "id": "941",
+    "number": 941,
+    "title": "Chương 941: Tiểu thâu?",
+    "filename": "00941_15123716.txt"
+  },
+  {
+    "id": "942",
+    "number": 942,
+    "title": "Chương 942: Ảnh Ma",
+    "filename": "00942_15125179.txt"
+  },
+  {
+    "id": "943",
+    "number": 943,
+    "title": "Chương 943: Kín người hết chỗ",
+    "filename": "00943_15127970.txt"
+  },
+  {
+    "id": "944",
+    "number": 944,
+    "title": "Chương 944: Nàng sẽ trở thành tẩu tử ngươi",
+    "filename": "00944_15129575.txt"
+  },
+  {
+    "id": "945",
+    "number": 945,
+    "title": "Chương 945: Quang Minh Long Vương Từ An Vũ",
+    "filename": "00945_15131846.txt"
+  },
+  {
+    "id": "946",
+    "number": 946,
+    "title": "Chương 946: Tiến vào phòng khách quý",
+    "filename": "00946_15133601.txt"
+  },
+  {
+    "id": "947",
+    "number": 947,
+    "title": "Chương 947: Vĩnh Hằng Liệt Dương Hoa",
+    "filename": "00947_15135927.txt"
+  },
+  {
+    "id": "948",
+    "number": 948,
+    "title": "Chương 948: Cạnh tranh bắt đầu",
+    "filename": "00948_15137638.txt"
+  },
+  {
+    "id": "949",
+    "number": 949,
+    "title": "Chương 949: Kiện thứ hai vật đấu giá lại là. . .",
+    "filename": "00949_15139670.txt"
+  },
+  {
+    "id": "950",
+    "number": 950,
+    "title": "Chương 950: Cầm xuống Băng Phong vương tọa?",
+    "filename": "00950_15140776.txt"
+  },
+  {
+    "id": "951",
+    "number": 951,
+    "title": "Chương 951: Tịnh Đế Liên truyền thuyết",
+    "filename": "00951_15143334.txt"
+  },
+  {
+    "id": "952",
+    "number": 952,
+    "title": "Chương 952: Thế Thân Liên Tử",
+    "filename": "00952_15145027.txt"
+  },
+  {
+    "id": "953",
+    "number": 953,
+    "title": "Chương 953: Thế Thân Liên Tử cầm xuống",
+    "filename": "00953_15147722.txt"
+  },
+  {
+    "id": "954",
+    "number": 954,
+    "title": "Chương 954: Trời biết đất biết ngươi biết ta biết",
+    "filename": "00954_15149987.txt"
+  },
+  {
+    "id": "955",
+    "number": 955,
+    "title": "Chương 955: Cố tình nâng giá",
+    "filename": "00955_15151718.txt"
+  },
+  {
+    "id": "956",
+    "number": 956,
+    "title": "Chương 956: Năm năm hai vạn năm",
+    "filename": "00956_15153138.txt"
+  },
+  {
+    "id": "957",
+    "number": 957,
+    "title": "Chương 957: Ninh Thần Ân",
+    "filename": "00957_15155713.txt"
+  },
+  {
+    "id": "958",
+    "number": 958,
+    "title": "Chương 958: Thông gia sản phẩm",
+    "filename": "00958_15157068.txt"
+  },
+  {
+    "id": "959",
+    "number": 959,
+    "title": "Chương 959: Behemoth Kiếm Thánh?",
+    "filename": "00959_15159571.txt"
+  },
+  {
+    "id": "960",
+    "number": 960,
+    "title": "Chương 960: Ảnh Ma Kiếm",
+    "filename": "00960_15163600.txt"
+  },
+  {
+    "id": "961",
+    "number": 961,
+    "title": "Chương 961: Cận Miểu Lâm ngươi đợi đấy cho ta lấy",
+    "filename": "00961_15163601.txt"
+  },
+  {
+    "id": "962",
+    "number": 962,
+    "title": "Chương 962: Sát Thần lĩnh vực tiến giai",
+    "filename": "00962_15165261.txt"
+  },
+  {
+    "id": "963",
+    "number": 963,
+    "title": "Chương 963: Quá nguy hiểm",
+    "filename": "00963_15167727.txt"
+  },
+  {
+    "id": "964",
+    "number": 964,
+    "title": "Chương 964: Đưa than sưởi ấm trong ngày tuyết rơi",
+    "filename": "00964_15169292.txt"
+  },
+  {
+    "id": "965",
+    "number": 965,
+    "title": "Chương 965: Quang Minh Long Thương",
+    "filename": "00965_15171943.txt"
+  },
+  {
+    "id": "966",
+    "number": 966,
+    "title": "Chương 966: Giá trên trời cầm xuống",
+    "filename": "00966_15173635.txt"
+  },
+  {
+    "id": "967",
+    "number": 967,
+    "title": "Chương 967: Tứ Thiên tùy hành",
+    "filename": "00967_15175909.txt"
+  },
+  {
+    "id": "968",
+    "number": 968,
+    "title": "Chương 968: Trấn áp long thương",
+    "filename": "00968_15177332.txt"
+  },
+  {
+    "id": "969",
+    "number": 969,
+    "title": "Chương 969: Ngươi ở đâu ta ngay tại đó",
+    "filename": "00969_15179915.txt"
+  },
+  {
+    "id": "970",
+    "number": 970,
+    "title": "Chương 970: Ta chỉ là cái Lam Kim Thụ tộc",
+    "filename": "00970_15181124.txt"
+  },
+  {
+    "id": "971",
+    "number": 971,
+    "title": "Chương 971: Mù đập? Thất Sắc Bảo Thạch",
+    "filename": "00971_15183521.txt"
+  },
+  {
+    "id": "972",
+    "number": 972,
+    "title": "Chương 972: Tự Nhiên Chi Tâm",
+    "filename": "00972_15184995.txt"
+  },
+  {
+    "id": "973",
+    "number": 973,
+    "title": "Chương 973: Huyền Vũ Thuẫn",
+    "filename": "00973_15187556.txt"
+  },
+  {
+    "id": "974",
+    "number": 974,
+    "title": "Chương 974: Thu chí bảo",
+    "filename": "00974_15189117.txt"
+  },
+  {
+    "id": "975",
+    "number": 975,
+    "title": "Chương 975: Huyễn Thần mặt nạ",
+    "filename": "00975_15191653.txt"
+  },
+  {
+    "id": "976",
+    "number": 976,
+    "title": "Chương 976: Diệt Thần Toa",
+    "filename": "00976_15192998.txt"
+  },
+  {
+    "id": "977",
+    "number": 977,
+    "title": "Chương 977: Công nghệ cao sản phẩm?",
+    "filename": "00977_15194587.txt"
+  },
+  {
+    "id": "978",
+    "number": 978,
+    "title": "Chương 978: Kiếm Thánh tượng thần",
+    "filename": "00978_15196288.txt"
+  },
+  {
+    "id": "979",
+    "number": 979,
+    "title": "Chương 979: Hủy Diệt Hung Long",
+    "filename": "00979_15199413.txt"
+  },
+  {
+    "id": "980",
+    "number": 980,
+    "title": "Chương 980: Cạnh tranh Hung Long",
+    "filename": "00980_15200375.txt"
+  },
+  {
+    "id": "981",
+    "number": 981,
+    "title": "Chương 981: Kỳ Linh Đồng Sinh dây chuyền",
+    "filename": "00981_15203510.txt"
+  },
+  {
+    "id": "982",
+    "number": 982,
+    "title": "Chương 982: Cầm xuống sính lễ",
+    "filename": "00982_15204739.txt"
+  },
+  {
+    "id": "983",
+    "number": 983,
+    "title": "Chương 983: Quang nguyên tố Tinh Linh",
+    "filename": "00983_15208065.txt"
+  },
+  {
+    "id": "984",
+    "number": 984,
+    "title": "Chương 984: Ách Vận Châu",
+    "filename": "00984_15209831.txt"
+  },
+  {
+    "id": "985",
+    "number": 985,
+    "title": "Chương 985: Ách Vận thuộc về",
+    "filename": "00985_15212937.txt"
+  },
+  {
+    "id": "986",
+    "number": 986,
+    "title": "Chương 986: Cạnh tranh Hoàng Thiên Trụ?",
+    "filename": "00986_15214222.txt"
+  },
+  {
+    "id": "987",
+    "number": 987,
+    "title": "Chương 987: Nhân loại Hoàng Giả truyền thừa",
+    "filename": "00987_15217388.txt"
+  },
+  {
+    "id": "988",
+    "number": 988,
+    "title": "Chương 988: Tức giận Mỹ Công Tử",
+    "filename": "00988_15221671.txt"
+  },
+  {
+    "id": "989",
+    "number": 989,
+    "title": "Chương 989: Bất Tử Kim Thân",
+    "filename": "00989_15221672.txt"
+  },
+  {
+    "id": "990",
+    "number": 990,
+    "title": "Chương 990: Hội đấu giá kết thúc",
+    "filename": "00990_15222828.txt"
+  },
+  {
+    "id": "991",
+    "number": 991,
+    "title": "Chương 991: Về Nguyệt Nha đảo",
+    "filename": "00991_15225409.txt"
+  },
+  {
+    "id": "992",
+    "number": 992,
+    "title": "Chương 992: Dự chi thù lao",
+    "filename": "00992_15226839.txt"
+  },
+  {
+    "id": "993",
+    "number": 993,
+    "title": "Chương 993: Tu La Ảnh Kiếm",
+    "filename": "00993_15229486.txt"
+  },
+  {
+    "id": "994",
+    "number": 994,
+    "title": "Chương 994: Sơ luyện Huyền Vũ Thuẫn",
+    "filename": "00994_15231241.txt"
+  },
+  {
+    "id": "995",
+    "number": 995,
+    "title": "Chương 995: Nhân số dự thi",
+    "filename": "00995_15233992.txt"
+  },
+  {
+    "id": "996",
+    "number": 996,
+    "title": "Chương 996: Tên thứ 133 Cận Miểu Lâm",
+    "filename": "00996_15235716.txt"
+  },
+  {
+    "id": "997",
+    "number": 997,
+    "title": "Chương 997: Rút thăm",
+    "filename": "00997_15238241.txt"
+  },
+  {
+    "id": "998",
+    "number": 998,
+    "title": "Chương 998: Trận chiến đầu tiên, Lang Báo chi tranh",
+    "filename": "00998_15239363.txt"
+  },
+  {
+    "id": "999",
+    "number": 999,
+    "title": "Chương 999: Hiến tế",
+    "filename": "00999_15242169.txt"
+  },
+  {
+    "id": "1000",
+    "number": 1000,
+    "title": "Chương 1000: Thiên Địa Nhất Kiếm",
+    "filename": "01000_15244076.txt"
+  },
+  {
+    "id": "1001",
+    "number": 1001,
+    "title": "Chương 1001: Thế Thân Liên Tử bán hay không?",
+    "filename": "01001_15246295.txt"
+  },
+  {
+    "id": "1002",
+    "number": 1002,
+    "title": "Chương 1002: Tê Ngưu Đại Yêu Vương",
+    "filename": "01002_15248323.txt"
+  },
+  {
+    "id": "1003",
+    "number": 1003,
+    "title": "Chương 1003: Kiếm Thánh pho tượng",
+    "filename": "01003_15250408.txt"
+  },
+  {
+    "id": "1004",
+    "number": 1004,
+    "title": "Chương 1004: Đại Miêu xuất chiến",
+    "filename": "01004_15252174.txt"
+  },
+  {
+    "id": "1005",
+    "number": 1005,
+    "title": "Chương 1005: Đại Miêu thắng",
+    "filename": "01005_15254964.txt"
+  },
+  {
+    "id": "1006",
+    "number": 1006,
+    "title": "Chương 1006: Người áo bào tro",
+    "filename": "01006_15257151.txt"
+  },
+  {
+    "id": "1007",
+    "number": 1007,
+    "title": "Chương 1007: Vòng thứ hai đấu vòng loại bắt đầu",
+    "filename": "01007_15259850.txt"
+  },
+  {
+    "id": "1008",
+    "number": 1008,
+    "title": "Chương 1008: Trận chiến thứ hai, Hỏa Long Vương",
+    "filename": "01008_15261713.txt"
+  },
+  {
+    "id": "1009",
+    "number": 1009,
+    "title": "Chương 1009: Bổ dưỡng Kiếm Thánh pho tượng",
+    "filename": "01009_15262195.txt"
+  },
+  {
+    "id": "1010",
+    "number": 1010,
+    "title": "Chương 1010: Lại nhận thua một cái?",
+    "filename": "01010_15262196.txt"
+  },
+  {
+    "id": "1011",
+    "number": 1011,
+    "title": "Chương 1011: Xong chuyện phủi áo đi",
+    "filename": "01011_15262197.txt"
+  },
+  {
+    "id": "1012",
+    "number": 1012,
+    "title": "Chương 1012: Hết thảy thuận lợi",
+    "filename": "01012_15262198.txt"
+  },
+  {
+    "id": "1013",
+    "number": 1013,
+    "title": "Chương 1013: Thuần long",
+    "filename": "01013_15263669.txt"
+  },
+  {
+    "id": "1014",
+    "number": 1014,
+    "title": "Chương 1014: Sinh mệnh cùng hủy diệt",
+    "filename": "01014_15263670.txt"
+  },
+  {
+    "id": "1015",
+    "number": 1015,
+    "title": "Chương 1015: Hung Long Thanos",
+    "filename": "01015_15268210.txt"
+  },
+  {
+    "id": "1016",
+    "number": 1016,
+    "title": "Chương 1016: Đường Tam vs Thiên Địa Nhất Kiếm",
+    "filename": "01016_15279283.txt"
+  },
+  {
+    "id": "1017",
+    "number": 1017,
+    "title": "Chương 1017: Huyền Vũ Thuẫn, thuẫn cản thiên địa",
+    "filename": "01017_15279339.txt"
+  },
+  {
+    "id": "1018",
+    "number": 1018,
+    "title": "Chương 1018: Tử tinh tệ chiến sĩ Cận Miểu Lâm",
+    "filename": "01018_15280652.txt"
+  },
+  {
+    "id": "1019",
+    "number": 1019,
+    "title": "Chương 1019: Ngọc thạch câu phần?",
+    "filename": "01019_15284963.txt"
+  },
+  {
+    "id": "1020",
+    "number": 1020,
+    "title": "Chương 1020: Thế Thân Liên Tử",
+    "filename": "01020_15284967.txt"
+  },
+  {
+    "id": "1021",
+    "number": 1021,
+    "title": "Chương 1021: Thí thần, giết thần thức!",
+    "filename": "01021_15287356.txt"
+  },
+  {
+    "id": "1022",
+    "number": 1022,
+    "title": "Chương 1022: Đấu bán kết bắt đầu",
+    "filename": "01022_15289480.txt"
+  },
+  {
+    "id": "1023",
+    "number": 1023,
+    "title": "Chương 1023: Từ An Vũ vs Kim An Quốc",
+    "filename": "01023_15292014.txt"
+  },
+  {
+    "id": "1024",
+    "number": 1024,
+    "title": "Chương 1024: Mỹ Công Tử xuất chiến",
+    "filename": "01024_15294050.txt"
+  },
+  {
+    "id": "1025",
+    "number": 1025,
+    "title": "Chương 1025: Mỹ Công Tử trận chiến đầu tiên",
+    "filename": "01025_15296200.txt"
+  },
+  {
+    "id": "1026",
+    "number": 1026,
+    "title": "Chương 1026: Khai trương đi, chân đạp Huyền Hoàng múa thiên cơ",
+    "filename": "01026_15298172.txt"
+  },
+  {
+    "id": "1027",
+    "number": 1027,
+    "title": "Chương 1027: Hung Long ra sân",
+    "filename": "01027_15300182.txt"
+  },
+  {
+    "id": "1028",
+    "number": 1028,
+    "title": "Chương 1028: Tử tinh tệ chiến sĩ lại thắng",
+    "filename": "01028_15301646.txt"
+  },
+  {
+    "id": "1029",
+    "number": 1029,
+    "title": "Chương 1029: Hoàng Giả bàn bạc",
+    "filename": "01029_15303750.txt"
+  },
+  {
+    "id": "1030",
+    "number": 1030,
+    "title": "Chương 1030: Long tộc khát vọng",
+    "filename": "01030_15305320.txt"
+  },
+  {
+    "id": "1031",
+    "number": 1031,
+    "title": "Chương 1031: Long tộc hữu nghị",
+    "filename": "01031_15307352.txt"
+  },
+  {
+    "id": "1032",
+    "number": 1032,
+    "title": "Chương 1032: Hung Long địa vị",
+    "filename": "01032_15308538.txt"
+  },
+  {
+    "id": "1033",
+    "number": 1033,
+    "title": "Chương 1033: Nguyệt Tế",
+    "filename": "01033_15310721.txt"
+  },
+  {
+    "id": "1034",
+    "number": 1034,
+    "title": "Chương 1034: Huyết Nguyệt Tế, Tu La ra",
+    "filename": "01034_15313383.txt"
+  },
+  {
+    "id": "1037",
+    "number": 1037,
+    "title": "Chương 1035: Hai trận chiến hai thắng",
+    "filename": "01037_15314872.txt"
+  },
+  {
+    "id": "1038",
+    "number": 1038,
+    "title": "Chương 1036: Đường Tam giao đấu Kim An Quốc",
+    "filename": "01038_15316325.txt"
+  },
+  {
+    "id": "1039",
+    "number": 1039,
+    "title": "Chương 1037: Sinh Diệt chi đạo",
+    "filename": "01039_15318012.txt"
+  },
+  {
+    "id": "1040",
+    "number": 1040,
+    "title": "Chương 1038: Cái này không công bằng",
+    "filename": "01040_15319513.txt"
+  },
+  {
+    "id": "1041",
+    "number": 1041,
+    "title": "Chương 1039: Hoàng Giả va chạm",
+    "filename": "01041_15321451.txt"
+  },
+  {
+    "id": "1042",
+    "number": 1042,
+    "title": "Chương 1040: Bồi thường",
+    "filename": "01042_15322766.txt"
+  },
+  {
+    "id": "1044",
+    "number": 1044,
+    "title": "Chương 1041: Toàn phiếu thông qua",
+    "filename": "01044_15324465.txt"
+  },
+  {
+    "id": "1045",
+    "number": 1045,
+    "title": "Chương 1042: Mỹ Công Tử hẹn nhau Cận Miểu Lâm",
+    "filename": "01045_15325917.txt"
+  },
+  {
+    "id": "1046",
+    "number": 1046,
+    "title": "Chương 1043: Gả cho Cận Miểu Lâm rất tốt",
+    "filename": "01046_15350118.txt"
+  },
+  {
+    "id": "1047",
+    "number": 1047,
+    "title": "Chương 1044: Bánh trái thơm ngon \"Cận Miểu Lâm \"",
+    "filename": "01047_15350119.txt"
+  },
+  {
+    "id": "1048",
+    "number": 1048,
+    "title": "Chương 1045: Đường Tam đã mười phần",
+    "filename": "01048_15332370.txt"
+  },
+  {
+    "id": "1049",
+    "number": 1049,
+    "title": "Chương 1046: Nhất Kiếm Cửu Đãng",
+    "filename": "01049_15333393.txt"
+  },
+  {
+    "id": "1050",
+    "number": 1050,
+    "title": "Chương 1047: Ngươi cũng tiếp ta một kiếm",
+    "filename": "01050_15335991.txt"
+  },
+  {
+    "id": "1051",
+    "number": 1051,
+    "title": "Chương 1048: Thần Kiếm sao là?",
+    "filename": "01051_15337485.txt"
+  },
+  {
+    "id": "1052",
+    "number": 1052,
+    "title": "Chương 1049: Ách Vận Châu",
+    "filename": "01052_15339988.txt"
+  },
+  {
+    "id": "1053",
+    "number": 1053,
+    "title": "Chương 1050: Ám Hắc Long Vương",
+    "filename": "01053_15346142.txt"
+  },
+  {
+    "id": "1054",
+    "number": 1054,
+    "title": "Chương 1051: Thần thánh",
+    "filename": "01054_15346143.txt"
+  },
+  {
+    "id": "1055",
+    "number": 1055,
+    "title": "Chương 1052: Giết người tru tâm",
+    "filename": "01055_15348648.txt"
+  },
+  {
+    "id": "1056",
+    "number": 1056,
+    "title": "Chương 1053: Đường Tam ra biên",
+    "filename": "01056_15348649.txt"
+  },
+  {
+    "id": "1057",
+    "number": 1057,
+    "title": "Chương 1054: Nữ tuyển thủ mạnh nhất quyết đấu",
+    "filename": "01057_15350182.txt"
+  },
+  {
+    "id": "1058",
+    "number": 1058,
+    "title": "Chương 1055: Bất Tử Kim Thân",
+    "filename": "01058_15352811.txt"
+  },
+  {
+    "id": "1059",
+    "number": 1059,
+    "title": "Chương 1056: Kiếm ảnh",
+    "filename": "01059_15354788.txt"
+  },
+  {
+    "id": "1060",
+    "number": 1060,
+    "title": "Chương 1057: Sâm La Địa Ngục",
+    "filename": "01060_15357059.txt"
+  },
+  {
+    "id": "1061",
+    "number": 1061,
+    "title": "Chương 1058: Tộc trưởng vạn tuế",
+    "filename": "01061_15358653.txt"
+  },
+  {
+    "id": "1062",
+    "number": 1062,
+    "title": "Chương 1059: Đại cục đã định",
+    "filename": "01062_15361815.txt"
+  },
+  {
+    "id": "1063",
+    "number": 1063,
+    "title": "Chương 1060: Cuối cùng lục cường",
+    "filename": "01063_15362151.txt"
+  },
+  {
+    "id": "1064",
+    "number": 1064,
+    "title": "Chương 1061: Trận chung kết trước",
+    "filename": "01064_15364713.txt"
+  },
+  {
+    "id": "1065",
+    "number": 1065,
+    "title": "Chương 1062: Lên đài",
+    "filename": "01065_15366786.txt"
+  },
+  {
+    "id": "1066",
+    "number": 1066,
+    "title": "Chương 1063: Trận chung kết bắt đầu",
+    "filename": "01066_15368541.txt"
+  },
+  {
+    "id": "1067",
+    "number": 1067,
+    "title": "Chương 1064: Huyết mạch thiêu đốt, Tu La một kiếm",
+    "filename": "01067_15370188.txt"
+  },
+  {
+    "id": "1068",
+    "number": 1068,
+    "title": "Chương 1065: Một kiếm này, chém thương khung",
+    "filename": "01068_15370189.txt"
+  },
+  {
+    "id": "1069",
+    "number": 1069,
+    "title": "Chương 1066: Đường Tam giao đấu Lam Mạch Thiển",
+    "filename": "01069_15370629.txt"
+  },
+  {
+    "id": "1070",
+    "number": 1070,
+    "title": "Chương 1067: Buồn nôn Thần Thánh thuộc tính",
+    "filename": "01070_15370630.txt"
+  },
+  {
+    "id": "1071",
+    "number": 1071,
+    "title": "Chương 1068: Cản cản cản, đâm đâm đâm",
+    "filename": "01071_15370631.txt"
+  },
+  {
+    "id": "1072",
+    "number": 1072,
+    "title": "Chương 1069: Huyền Quy nhận chủ",
+    "filename": "01072_15370632.txt"
+  },
+  {
+    "id": "1073",
+    "number": 1073,
+    "title": "Chương 1070: Trận chung kết vòng thứ nhất kết thúc",
+    "filename": "01073_15370633.txt"
+  },
+  {
+    "id": "1074",
+    "number": 1074,
+    "title": "Chương 1071: Nhất được công nhận chính là Đường Tam",
+    "filename": "01074_15370634.txt"
+  },
+  {
+    "id": "1075",
+    "number": 1075,
+    "title": "Chương 1072: Nhanh nhất tranh tài",
+    "filename": "01075_15370635.txt"
+  },
+  {
+    "id": "1076",
+    "number": 1076,
+    "title": "Chương 1073: Bên thắng tổ Mỹ Công Tử, Đường Tam",
+    "filename": "01076_15370636.txt"
+  },
+  {
+    "id": "1077",
+    "number": 1077,
+    "title": "Chương 1074: Tam đại Chuẩn Hoàng",
+    "filename": "01077_15370637.txt"
+  },
+  {
+    "id": "1078",
+    "number": 1078,
+    "title": "Chương 1075: Tam cường",
+    "filename": "01078_15392990.txt"
+  },
+  {
+    "id": "1079",
+    "number": 1079,
+    "title": "Chương 1076: Ba vị trí đầu bài vị chiến",
+    "filename": "01079_15394408.txt"
+  },
+  {
+    "id": "1080",
+    "number": 1080,
+    "title": "Chương 1077: Lục Dực Quang Minh Long Kỵ Sĩ",
+    "filename": "01080_15396691.txt"
+  },
+  {
+    "id": "1081",
+    "number": 1081,
+    "title": "Chương 1078: Thủy Tinh truyền thừa?",
+    "filename": "01081_15398335.txt"
+  },
+  {
+    "id": "1082",
+    "number": 1082,
+    "title": "Chương 1079: Đường Tam vs Từ An Vũ",
+    "filename": "01082_15401892.txt"
+  },
+  {
+    "id": "1083",
+    "number": 1083,
+    "title": "Chương 1080: Quang nguyên tố Tinh Linh biến hóa",
+    "filename": "01083_15401893.txt"
+  },
+  {
+    "id": "1084",
+    "number": 1084,
+    "title": "Chương 1081: Song sát Từ An Vũ",
+    "filename": "01084_15404052.txt"
+  },
+  {
+    "id": "1085",
+    "number": 1085,
+    "title": "Chương 1082: Trên chiến trường gặp!",
+    "filename": "01085_15405895.txt"
+  },
+  {
+    "id": "1086",
+    "number": 1086,
+    "title": "Chương 1083: Các phe các cô nương",
+    "filename": "01086_15407379.txt"
+  },
+  {
+    "id": "1087",
+    "number": 1087,
+    "title": "Chương 1084: Nào có Hoàng Giả khóc nhè?",
+    "filename": "01087_15409238.txt"
+  },
+  {
+    "id": "1088",
+    "number": 1088,
+    "title": "Chương 1085: Ngươi cảm thấy ta thế nào?",
+    "filename": "01088_15411778.txt"
+  },
+  {
+    "id": "1089",
+    "number": 1089,
+    "title": "Chương 1086: Người chồng quốc dân",
+    "filename": "01089_15413558.txt"
+  },
+  {
+    "id": "1090",
+    "number": 1090,
+    "title": "Chương 1087: Lão công tuyển ta!",
+    "filename": "01090_15437838.txt"
+  },
+  {
+    "id": "1091",
+    "number": 1091,
+    "title": "Chương 1088: Đường Tam nhận thua",
+    "filename": "01091_15415385.txt"
+  },
+  {
+    "id": "1092",
+    "number": 1092,
+    "title": "Chương 1089: Thứ nhất Chuẩn Hoàng!",
+    "filename": "01092_15418580.txt"
+  },
+  {
+    "id": "1093",
+    "number": 1093,
+    "title": "Chương 1090: Hôm nay, ta ở đây tuyển phu!",
+    "filename": "01093_15420418.txt"
+  },
+  {
+    "id": "1094",
+    "number": 1094,
+    "title": "Chương 1091: Cưới ta, ngươi nguyện ý không?",
+    "filename": "01094_15422622.txt"
+  },
+  {
+    "id": "1095",
+    "number": 1095,
+    "title": "Chương 1092: Sơ hở từ đâu mà đến?",
+    "filename": "01095_15422963.txt"
+  },
+  {
+    "id": "1096",
+    "number": 1096,
+    "title": "Chương 1093: Càng ngày càng gần",
+    "filename": "01096_15425213.txt"
+  },
+  {
+    "id": "1097",
+    "number": 1097,
+    "title": "Chương 1094: Quy tắc",
+    "filename": "01097_15426400.txt"
+  },
+  {
+    "id": "1098",
+    "number": 1098,
+    "title": "Chương 1095: Trở về trước đó",
+    "filename": "01098_15428340.txt"
+  },
+  {
+    "id": "1099",
+    "number": 1099,
+    "title": "Chương 1096: Chừa chút cho ta",
+    "filename": "01099_15430152.txt"
+  },
+  {
+    "id": "1100",
+    "number": 1100,
+    "title": "Chương 1097: Trở về Kiến Mộc thành",
+    "filename": "01100_15431224.txt"
+  },
+  {
+    "id": "1101",
+    "number": 1101,
+    "title": "Chương 1098: Thụ Tổ biến hóa",
+    "filename": "01101_15434282.txt"
+  },
+  {
+    "id": "1102",
+    "number": 1102,
+    "title": "Chương 1099: \"Cận Miểu Lâm\" tuyên ngôn",
+    "filename": "01102_15434283.txt"
+  },
+  {
+    "id": "1103",
+    "number": 1103,
+    "title": "Chương 1100: Ta cũng muốn ngươi, bảo bối",
+    "filename": "01103_15435154.txt"
+  },
+  {
+    "id": "1104",
+    "number": 1104,
+    "title": "Chương 1101: Minh Châu đảo",
+    "filename": "01104_15436626.txt"
+  },
+  {
+    "id": "1105",
+    "number": 1105,
+    "title": "Chương 1102: Hải Thần tái nhập",
+    "filename": "01105_15440072.txt"
+  },
+  {
+    "id": "1106",
+    "number": 1106,
+    "title": "Chương 1103: Tự Nhiên Chi Tâm nhảy lên",
+    "filename": "01106_15440073.txt"
+  },
+  {
+    "id": "1107",
+    "number": 1107,
+    "title": "Chương 1104: Nguyên Tố Chi Hải",
+    "filename": "01107_15441445.txt"
+  },
+  {
+    "id": "1108",
+    "number": 1108,
+    "title": "Chương 1105: Nhân loại truyền thừa bắt đầu",
+    "filename": "01108_15444092.txt"
+  },
+  {
+    "id": "1109",
+    "number": 1109,
+    "title": "Chương 1106: Nguyên tố triều tịch",
+    "filename": "01109_15445159.txt"
+  },
+  {
+    "id": "1110",
+    "number": 1110,
+    "title": "Chương 1107: Chấp pháp giả",
+    "filename": "01110_15447365.txt"
+  },
+  {
+    "id": "1111",
+    "number": 1111,
+    "title": "Chương 1108: Xảy ra chuyện",
+    "filename": "01111_15450659.txt"
+  },
+  {
+    "id": "1112",
+    "number": 1112,
+    "title": "Chương 1109: Thủy Tinh thành",
+    "filename": "01112_15450660.txt"
+  },
+  {
+    "id": "1113",
+    "number": 1113,
+    "title": "Chương 1110: Chữa thương (thượng)",
+    "filename": "01113_15452520.txt"
+  },
+  {
+    "id": "1114",
+    "number": 1114,
+    "title": "Chương 1111: Chữa thương (hạ)",
+    "filename": "01114_15454562.txt"
+  },
+  {
+    "id": "1115",
+    "number": 1115,
+    "title": "Chương 1112: Đối đầu tới",
+    "filename": "01115_15456156.txt"
+  },
+  {
+    "id": "1116",
+    "number": 1116,
+    "title": "Chương 1113: Thần phục hoặc là tử vong?",
+    "filename": "01116_15458422.txt"
+  },
+  {
+    "id": "1117",
+    "number": 1117,
+    "title": "Chương 1114: Chân tướng phơi bày, khiêu chiến Hoàng Giả",
+    "filename": "01117_15461521.txt"
+  },
+  {
+    "id": "1118",
+    "number": 1118,
+    "title": "Chương 1115: Chiến Ám Ma Đại Yêu Hoàng",
+    "filename": "01118_15461522.txt"
+  },
+  {
+    "id": "1119",
+    "number": 1119,
+    "title": "Chương 1116: Lại đồ hoàng",
+    "filename": "01119_15462855.txt"
+  },
+  {
+    "id": "1120",
+    "number": 1120,
+    "title": "Chương 1117: Huyết vũ phiêu bạt",
+    "filename": "01120_15464689.txt"
+  },
+  {
+    "id": "1121",
+    "number": 1121,
+    "title": "Chương 1118: Sau đó phân tích",
+    "filename": "01121_15466685.txt"
+  },
+  {
+    "id": "1122",
+    "number": 1122,
+    "title": "Chương 1119: Đến đây báo cáo",
+    "filename": "01122_15468543.txt"
+  },
+  {
+    "id": "1123",
+    "number": 1123,
+    "title": "Chương 1120: Ngươi cũng quá có thể gây chuyện",
+    "filename": "01123_15470159.txt"
+  },
+  {
+    "id": "1124",
+    "number": 1124,
+    "title": "Chương 1121: Ông nội nuôi cùng nhạc phụ tương lai",
+    "filename": "01124_15472584.txt"
+  },
+  {
+    "id": "1125",
+    "number": 1125,
+    "title": "Chương 1122: Đến, cầu thân",
+    "filename": "01125_15474018.txt"
+  },
+  {
+    "id": "1126",
+    "number": 1126,
+    "title": "Chương 1123: Ngươi có thể hôn ngươi vị hôn thê",
+    "filename": "01126_15476426.txt"
+  },
+  {
+    "id": "1127",
+    "number": 1127,
+    "title": "Chương 1124: Lần thứ nhất gặp mặt địa phương",
+    "filename": "01127_15478534.txt"
+  },
+  {
+    "id": "1128",
+    "number": 1128,
+    "title": "Chương 1125: Lại hướng Tổ Đình",
+    "filename": "01128_15480103.txt"
+  },
+  {
+    "id": "1129",
+    "number": 1129,
+    "title": "Chương 1126: Già yếu Thiên Hồ",
+    "filename": "01129_15481483.txt"
+  },
+  {
+    "id": "1130",
+    "number": 1130,
+    "title": "Chương 1127: Lam Kim Thánh Sơn",
+    "filename": "01130_15481484.txt"
+  },
+  {
+    "id": "1131",
+    "number": 1131,
+    "title": "Chương 1128: Gia cường phiên bản Hải Thần đệ nhất khảo",
+    "filename": "01131_15483728.txt"
+  },
+  {
+    "id": "1132",
+    "number": 1132,
+    "title": "Chương 1129: Âm Dương Ngũ Hành Lam Kim cung",
+    "filename": "01132_15483737.txt"
+  },
+  {
+    "id": "1133",
+    "number": 1133,
+    "title": "Chương 1130: Tự Nhiên Chi Tâm làm cơ sở",
+    "filename": "01133_15483738.txt"
+  },
+  {
+    "id": "1134",
+    "number": 1134,
+    "title": "Chương 1131: Sinh Mệnh Chi Tháp",
+    "filename": "01134_15483739.txt"
+  },
+  {
+    "id": "1135",
+    "number": 1135,
+    "title": "Chương 1132: Tầng mười ba",
+    "filename": "01135_15483740.txt"
+  },
+  {
+    "id": "1136",
+    "number": 1136,
+    "title": "Chương 1133: Không có gì sánh kịp sinh mệnh khí tức",
+    "filename": "01136_15483741.txt"
+  },
+  {
+    "id": "1137",
+    "number": 1137,
+    "title": "Chương 1134: Lam Kim cung vị khách nhân thứ nhất",
+    "filename": "01137_15498561.txt"
+  },
+  {
+    "id": "1138",
+    "number": 1138,
+    "title": "Chương 1135: Đại hôn khúc nhạc dạo",
+    "filename": "01138_15498562.txt"
+  },
+  {
+    "id": "1139",
+    "number": 1139,
+    "title": "Chương 1136: Vân kiều",
+    "filename": "01139_15499900.txt"
+  },
+  {
+    "id": "1140",
+    "number": 1140,
+    "title": "Chương 1137: Đón dâu Bạch Hổ cung",
+    "filename": "01140_15502018.txt"
+  },
+  {
+    "id": "1141",
+    "number": 1141,
+    "title": "Chương 1138: Vượt qua kiểm tra",
+    "filename": "01141_15503849.txt"
+  },
+  {
+    "id": "1142",
+    "number": 1142,
+    "title": "Chương 1139: Ba ba cùng phụ thân",
+    "filename": "01142_15505943.txt"
+  },
+  {
+    "id": "1143",
+    "number": 1143,
+    "title": "Chương 1140: Nghi thức bắt đầu",
+    "filename": "01143_15507343.txt"
+  },
+  {
+    "id": "1144",
+    "number": 1144,
+    "title": "Chương 1141: Trước hôn nhân tam vấn",
+    "filename": "01144_15509835.txt"
+  },
+  {
+    "id": "1145",
+    "number": 1145,
+    "title": "Chương 1142: Đường Tam cùng Tiểu Vũ kết hôn lễ vật",
+    "filename": "01145_15511576.txt"
+  },
+  {
+    "id": "1146",
+    "number": 1146,
+    "title": "Chương 1143: Chư Pháp Chi Thư",
+    "filename": "01146_15515091.txt"
+  },
+  {
+    "id": "1147",
+    "number": 1147,
+    "title": "Chương 1144: Có thể thôn phệ công kích Thần khí",
+    "filename": "01147_15515092.txt"
+  },
+  {
+    "id": "1148",
+    "number": 1148,
+    "title": "Chương 1145: Thác ấn đấu giá",
+    "filename": "01148_15516799.txt"
+  },
+  {
+    "id": "1149",
+    "number": 1149,
+    "title": "Chương 1146: Một đêm này, nhất định mỹ hảo",
+    "filename": "01149_15518003.txt"
+  },
+  {
+    "id": "1150",
+    "number": 1150,
+    "title": "Chương 1147: Hôn lễ sau",
+    "filename": "01150_15547830.txt"
+  },
+  {
+    "id": "1151",
+    "number": 1151,
+    "title": "Chương 1148: Sinh Mệnh Chi Tháp xây thành",
+    "filename": "01151_15522703.txt"
+  },
+  {
+    "id": "1152",
+    "number": 1152,
+    "title": "Chương 1149: Ngô ngô ngô. . .",
+    "filename": "01152_15524217.txt"
+  },
+  {
+    "id": "1153",
+    "number": 1153,
+    "title": "Chương 1150: Điều hòa huyết mạch Hỗn Độn thăng",
+    "filename": "01153_15526551.txt"
+  },
+  {
+    "id": "1154",
+    "number": 1154,
+    "title": "Chương 1151: Sinh mệnh đang thăng hoa",
+    "filename": "01154_15528240.txt"
+  },
+  {
+    "id": "1155",
+    "number": 1155,
+    "title": "Chương 1152: Hỗn Độn phân Âm Dương",
+    "filename": "01155_15529569.txt"
+  },
+  {
+    "id": "1156",
+    "number": 1156,
+    "title": "Chương 1153: Pháp Lam Thần Thể",
+    "filename": "01156_15531735.txt"
+  },
+  {
+    "id": "1157",
+    "number": 1157,
+    "title": "Chương 1154: Thành Hoàng Đăng Lâm Kiếp",
+    "filename": "01157_15532801.txt"
+  },
+  {
+    "id": "1158",
+    "number": 1158,
+    "title": "Chương 1155: Nguyên tố mở đường",
+    "filename": "01158_15536885.txt"
+  },
+  {
+    "id": "1159",
+    "number": 1159,
+    "title": "Chương 1156: Thủy Tinh Thăng Long",
+    "filename": "01159_15536886.txt"
+  },
+  {
+    "id": "1160",
+    "number": 1160,
+    "title": "Chương 1157: Đăng Thiên Thê",
+    "filename": "01160_15540834.txt"
+  },
+  {
+    "id": "1161",
+    "number": 1161,
+    "title": "Chương 1158: Thiên địa đại kiếp",
+    "filename": "01161_15540835.txt"
+  },
+  {
+    "id": "1162",
+    "number": 1162,
+    "title": "Chương 1159: Tiểu Vũ trở về",
+    "filename": "01162_15545057.txt"
+  },
+  {
+    "id": "1163",
+    "number": 1163,
+    "title": "Chương 1160: Đã từng chúng ta",
+    "filename": "01163_15545058.txt"
+  },
+  {
+    "id": "1164",
+    "number": 1164,
+    "title": "Chương 1161: Đạp hoàng lên trời",
+    "filename": "01164_15547828.txt"
+  },
+  {
+    "id": "1165",
+    "number": 1165,
+    "title": "Chương 1162: Cha con chi chiến",
+    "filename": "01165_15547829.txt"
+  },
+  {
+    "id": "1166",
+    "number": 1166,
+    "title": "Chương 1163: Diệt sát Vô Tận Thiên Tinh Hoàng",
+    "filename": "01166_15551270.txt"
+  },
+  {
+    "id": "1167",
+    "number": 1167,
+    "title": "Chương 1164: Chính Nghĩa Chi Kiếm",
+    "filename": "01167_15551271.txt"
+  },
+  {
+    "id": "1168",
+    "number": 1168,
+    "title": "Chương 1165: Lưu Ly cận chiến",
+    "filename": "01168_15553325.txt"
+  },
+  {
+    "id": "1169",
+    "number": 1169,
+    "title": "Chương 1166: Trấn sát Mãnh Mã Đại Yêu Hoàng",
+    "filename": "01169_15555996.txt"
+  },
+  {
+    "id": "1170",
+    "number": 1170,
+    "title": "Chương 1167: Nhiếp Hồn",
+    "filename": "01170_15558582.txt"
+  },
+  {
+    "id": "1171",
+    "number": 1171,
+    "title": "Chương 1168: Thần hồn phản phệ, Chí Ác Nhiếp Hồn",
+    "filename": "01171_15560485.txt"
+  },
+  {
+    "id": "1172",
+    "number": 1172,
+    "title": "Chương 1169: Bạch Hổ, Liệt Thiên",
+    "filename": "01172_15562413.txt"
+  },
+  {
+    "id": "1173",
+    "number": 1173,
+    "title": "Chương 1170: Thiên Thanh Trì Độn Thần Trảo",
+    "filename": "01173_15564680.txt"
+  },
+  {
+    "id": "1174",
+    "number": 1174,
+    "title": "Chương 1171: Phượng Tê Ngô Đồng Mộc",
+    "filename": "01174_15566476.txt"
+  },
+  {
+    "id": "1175",
+    "number": 1175,
+    "title": "Chương 1172: Huyền Vũ chiến Chu Tước",
+    "filename": "01175_15568430.txt"
+  },
+  {
+    "id": "1176",
+    "number": 1176,
+    "title": "Chương 1173: Thần kỹ tái hiện! Vô Định Phong Ba!",
+    "filename": "01176_15570966.txt"
+  },
+  {
+    "id": "1177",
+    "number": 1177,
+    "title": "Chương 1174: Tu La Kiếm Trảm",
+    "filename": "01177_15572006.txt"
+  },
+  {
+    "id": "1178",
+    "number": 1178,
+    "title": "Chương 1175: Ngươi muốn hủy diệt Tổ Đình sao?",
+    "filename": "01178_15574346.txt"
+  },
+  {
+    "id": "1179",
+    "number": 1179,
+    "title": "Chương 1176: Chiến Âm Dương",
+    "filename": "01179_15574347.txt"
+  },
+  {
+    "id": "1180",
+    "number": 1180,
+    "title": "Chương 1177: Nếu đã tới cũng đừng đi",
+    "filename": "01180_15574348.txt"
+  },
+  {
+    "id": "1181",
+    "number": 1181,
+    "title": "Chương 1178: Bổ đủ",
+    "filename": "01181_15579919.txt"
+  },
+  {
+    "id": "1182",
+    "number": 1182,
+    "title": "Chương 1179: Thiên Dương Địa Âm, thu!",
+    "filename": "01182_15582084.txt"
+  },
+  {
+    "id": "1183",
+    "number": 1183,
+    "title": "Chương 1180: Một bước lên trời",
+    "filename": "01183_15584012.txt"
+  },
+  {
+    "id": "1184",
+    "number": 1184,
+    "title": "Chương 1181: Pháp lệnh",
+    "filename": "01184_15586034.txt"
+  },
+  {
+    "id": "1185",
+    "number": 1185,
+    "title": "Chương 1182: Về nhà",
+    "filename": "01185_15621169.txt"
+  },
+  {
+    "id": "1186",
+    "number": 1186,
+    "title": "Chương 1183: Đấu La, đại đoàn viên ( đại kết cục )",
+    "filename": "01186_15588554.txt"
+  }
+]
