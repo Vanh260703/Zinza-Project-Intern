@@ -2,24 +2,33 @@
 
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
-import { useUserStore } from "@/stores/userStore";
+import { useMemo } from "react";
+import { useAuthStore } from "@/stores/userStore";
+import { useLibraryStore } from "@/stores/libraryStore";
+import { getNominated } from "@/utils/handleStories";
+import type { Story } from "@/types/story";
 import SectionHeader from "./SectionHeader";
+import StoryCarousel from "./StoryCarousel";
 
-export default function NominatedSection() {
-  const user = useUserStore((state) => state.user);
+type NominatedSectionProps = {
+  allStories: Story[];
+};
+
+export default function NominatedSection({ allStories }: NominatedSectionProps) {
+  const user = useAuthStore((state) => state.user);
+  const history = useLibraryStore((state) => state.history);
+
+  const stories = useMemo(
+    () => (user ? getNominated(allStories, history) : []),
+    [history, allStories, user]
+  );
 
   return (
     <section>
       <SectionHeader icon="⭐" title="Truyện đề cử" />
 
       {user ? (
-        // TODO: hiện danh sách truyện đề cử cho user
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <p className="text-stone-400 text-sm">
-            Xin chào, <span className="text-amber-400 font-medium">{user.name}</span>!
-            Truyện đề cử sẽ hiện ở đây.
-          </p>
-        </div>
+        <StoryCarousel stories={stories} autoMs={2000} />
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <div className="w-16 h-16 rounded-2xl bg-stone-800 flex items-center justify-center mb-4">

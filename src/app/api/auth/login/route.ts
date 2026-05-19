@@ -27,16 +27,8 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     token: `mock-token-${user.id}`,
-    user: { 
-      id: user.id, 
-      name: user.name, 
-      email: user.email, 
-      gender: user.gender,
-      candy: user.candy, 
-      follow: user.follower,
-      chaptersRead: user.chaptersRead, 
-      storiesMark: user.storiesMark,
-      isRead: user.isRead,
-    },
+    user,
+    history: user.isRead,
+    bookmarks: user.storiesMark,
   });
 }

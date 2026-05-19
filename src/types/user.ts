@@ -10,7 +10,7 @@ export interface User {
   candy: number;
   chaptersRead: number;
   follower?: number;
-  storiesMark: string[];
   isRead: string[];
+  storiesMark: string[];
 }
 

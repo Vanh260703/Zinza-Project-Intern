@@ -1,9 +1,11 @@
 import fs from "fs";
 import path from "path";
 import { generateId } from "@/utils/generateId";
+import { getHot, getNominated, getRandomStory, getRankingStories } from "@/utils/handleStories";
 import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
+
 
 const DATA_DIR = path.join(process.cwd(), "src/lib/data");
 const UPLOAD_DIR = path.join(process.cwd(), "upload");
@@ -20,6 +22,10 @@ function writeJson<T>(filename: string, data: T[]): void {
 
 export const db = {
   users: {
+    findById(id: string): User | undefined {
+      return readJson<User>("users.json").find((u) => u.id === id);
+    },
+
     findByEmail(email: string): User | undefined {
       return readJson<User>("users.json").find((u) => u.email === email);
     },
@@ -45,13 +51,24 @@ export const db = {
       return readJson<Story>("stories.json").find((s) => s.slug === slug);
     },
 
+    // Lấy ra 5 truyện hot nhất
     getHot(limit = 5): Story[] {
-      const hotScore = (s: Story) =>
-        (s.followers ?? 0) * 2 + s.commentCount + s.nominations;
+      return getHot(readJson<Story>("stories.json"), limit);
+    },
 
-      return readJson<Story>("stories.json")
-        .sort((a, b) => hotScore(b) - hotScore(a))
-        .slice(0, limit);
+    // Lấy ra 5 truyện đề cử theo lịch sử đọc
+    getNominated(history: string[], limit = 5): Story[] {
+      return getNominated(readJson<Story>("stories.json"), history, limit);
+    },
+    
+    // Lấy ra random truyện
+    getRandom() : Story {
+      return getRandomStory(readJson<Story>("stories.json"));
+    },
+
+    // Lấy ra ranking truyện
+    getRanking() : Story[] {
+      return getRankingStories(readJson<Story>("stories.json"));
     },
   },
 
