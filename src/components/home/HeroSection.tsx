@@ -47,7 +47,7 @@ export default function HeroSection() {
     if (genre) params.set("genre", genre);
     if (status) params.set("status", status);
     if (sort) params.set("sort", sort);
-    router.push(`/?${params.toString()}`);
+    router.push(`/novels?${params.toString()}`);
   };
 
   return (

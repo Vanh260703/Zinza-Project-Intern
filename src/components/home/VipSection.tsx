@@ -27,7 +27,7 @@ export default function VipSection({ stories }: VipSectionProps) {
         <div className="flex-1 h-px bg-stone-700/60 ml-2" />
         {hasMore && (
           <Link
-            href="/stories/vip"
+            href="/novels/vip"
             className="shrink-0 text-xs text-amber-400 hover:text-amber-300 font-medium transition-colors"
           >
             Xem tất cả →
@@ -55,7 +55,7 @@ export default function VipSection({ stories }: VipSectionProps) {
       {hasMore && (
         <div className="mt-6 flex justify-center">
           <Link
-            href="/stories/vip"
+            href="/novels/vip"
             className="flex items-center gap-2 px-6 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 hover:border-amber-500/50 text-amber-400 hover:text-amber-300 text-sm font-semibold rounded-xl transition-colors"
           >
             <Crown className="w-4 h-4" />

@@ -9,7 +9,7 @@ import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ" },
-  { href: "/stories/vip", label: "👑 VIP" },
+  { href: "/novels/vip", label: "👑 VIP" },
 ];
 
 type SearchResult = {
@@ -51,7 +51,7 @@ function SearchBox() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/stories/search?q=${encodeURIComponent(value)}&limit=4`);
+      const res = await fetch(`/novels/search?q=${encodeURIComponent(value)}&limit=4`);
       const data = await res.json();
       setResults(data.results);
       setRemaining(data.total - data.results.length);
@@ -70,7 +70,7 @@ function SearchBox() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && q.trim()) {
       setOpen(false);
-      router.push(`/?q=${encodeURIComponent(q.trim())}`);
+      router.push(`/novels?q=${encodeURIComponent(q.trim())}`);
     }
   };
 
@@ -104,7 +104,7 @@ function SearchBox() {
               {results.map((story) => (
                 <Link
                   key={story.id}
-                  href={`/stories/${story.slug}`}
+                  href={`/novels/${story.slug}`}
                   onClick={() => { setOpen(false); setQ(""); }}
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
@@ -137,7 +137,7 @@ function SearchBox() {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    router.push(`/?q=${encodeURIComponent(q.trim())}`);
+                    router.push(`/novels?q=${encodeURIComponent(q.trim())}`);
                   }}
                   className="w-full px-4 py-2.5 text-xs text-amber-400 hover:text-amber-300 hover:bg-stone-800 transition-colors border-t border-stone-800 text-center font-medium"
                 >

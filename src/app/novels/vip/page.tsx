@@ -65,7 +65,7 @@ export default async function VipPage({ searchParams }: Props) {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-10">
                 <Link
-                  href={`/stories/vip?page=${currentPage - 1}`}
+                  href={`/novels/vip?page=${currentPage - 1}`}
                   aria-disabled={currentPage === 1}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
                     currentPage === 1
@@ -82,7 +82,7 @@ export default async function VipPage({ searchParams }: Props) {
                 </span>
 
                 <Link
-                  href={`/stories/vip?page=${currentPage + 1}`}
+                  href={`/novels/vip?page=${currentPage + 1}`}
                   aria-disabled={currentPage === totalPages}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
                     currentPage === totalPages
