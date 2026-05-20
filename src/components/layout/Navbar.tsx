@@ -224,7 +224,7 @@ function UserDropdown() {
             Hồ sơ công khai
           </Link>
           <Link
-            href="/tu-sach"
+            href="/profile/library"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stone-300
               hover:text-white hover:bg-stone-800 transition-colors"
@@ -233,7 +233,7 @@ function UserDropdown() {
             Tủ sách
           </Link>
           <Link
-            href="/truyen-cua-toi"
+            href="/my-novels"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stone-300
               hover:text-white hover:bg-stone-800 transition-colors"

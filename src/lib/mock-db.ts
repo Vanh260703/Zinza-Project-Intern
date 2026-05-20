@@ -36,6 +36,15 @@ export const db = {
       writeJson("users.json", [...users, user]);
       return user;
     },
+
+    update(id: string, patch: Partial<Omit<User, "id">>): User | null {
+      const users = readJson<User>("users.json");
+      const idx = users.findIndex((u) => u.id === id);
+      if (idx === -1) return null;
+      users[idx] = { ...users[idx], ...patch };
+      writeJson("users.json", users);
+      return users[idx];
+    },
   },
 
   stories: {
@@ -79,6 +88,11 @@ export const db = {
     // Lấy ra truyện vip
     getVip() : Story[] {
       return getVipStories(readJson<Story>("stories.json"));
+    },
+
+    // Truyện đã đăng bởi user
+    getByUser(userId: string): Story[] {
+      return readJson<Story>("stories.json").filter((s) => s.postedBy === userId);
     },
   },
 

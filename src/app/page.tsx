@@ -22,10 +22,10 @@ export default async function HomePage() {
         <RandomSection story={randomStory} />
 
         <div className="space-y-16">
+          <NominatedSection allStories={allStories} />
           <NewSection stories={newStories} />
           <HotSection stories={hotStories} />
           <VipSection stories={vipStories} />
-          <NominatedSection allStories={allStories} />
         </div>
       </div>
 

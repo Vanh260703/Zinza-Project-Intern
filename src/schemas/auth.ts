@@ -33,3 +33,29 @@ export const forgotPasswordSchema = z.object({
 });
 
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
+// Update profle
+
+export const updateProfileSchema = z.object({
+  userId: z.string().min(1),
+  name: z.string().min(2, "Tên tối thiểu 2 ký tự").max(50).trim().optional(),
+})
+
+export type UpdateProfileSchema = z.infer<typeof updateProfileSchema>;
+
+
+// Reset password 
+
+export const resetPasswordSchema = z
+  .object({
+    userId: z.string().min(1),
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
+    newPassword: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
