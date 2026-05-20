@@ -4,10 +4,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
 import { registerSchema, type RegisterFormData } from "@/schemas/auth";
 import { GENDER_OPTIONS } from "@/enums/auth";
-import CountdownToast from "@/components/ui/CountdownToast";
+import { showToast } from "@/lib/toast";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
@@ -34,26 +33,15 @@ export default function RegisterForm() {
       body: JSON.stringify(data),
     });
 
-    const DURATION = 3000;
-
     if (!res.ok) {
       const json = await res.json();
       const msg = json.message ?? "Đăng ký thất bại";
       setServerError(msg);
-      toast.custom(() => (
-        <CountdownToast type="error" title={msg} duration={DURATION} />
-      ), { duration: DURATION });
+      showToast.error(msg);
       return;
     }
 
-    toast.custom(() => (
-      <CountdownToast
-        type="success"
-        title="Đăng ký thành công!"
-        description="Hãy đăng nhập để tiếp tục."
-        duration={DURATION}
-      />
-    ), { duration: DURATION });
+    showToast.success("Đăng ký thành công!", "Hãy đăng nhập để tiếp tục.");
 
     router.push("/auth/login?registered=1");
   };

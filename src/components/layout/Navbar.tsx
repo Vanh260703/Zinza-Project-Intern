@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Search, Menu, Bell, ChevronDown, User, BookMarked, LogOut, BookOpenText } from "lucide-react";
+import { BookOpen, Search, Menu, Bell, ChevronDown, User, BookMarked, LogOut, BookOpenText, Crown } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ" },
-  { href: "/ranking", label: "Bảng xếp hạng" },
+  { href: "/stories/vip", label: "👑 VIP" },
 ];
 
 type SearchResult = {
@@ -76,7 +76,7 @@ function SearchBox() {
 
   return (
     <div ref={wrapperRef} className="relative hidden md:block">
-      <div className="flex items-center gap-2 bg-stone-800/70 border border-stone-700 rounded-xl px-3 py-2 transition-all w-52 focus-within:w-72 focus-within:border-amber-500/60">
+      <div className="flex items-center gap-2 bg-stone-800/70 border border-stone-700 rounded-xl px-4 py-2 transition-all w-52 focus-within:w-72 focus-within:border-amber-500/60">
         <Search className="w-4 h-4 shrink-0 text-stone-500" strokeWidth={2} />
         <input
           value={q}
@@ -213,6 +213,15 @@ function UserDropdown() {
           >
             <User className="w-4 h-4" />
             Trang cá nhân
+          </Link>
+          <Link
+            href={`/users/${user?.id}`}
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stone-300
+              hover:text-white hover:bg-stone-800 transition-colors"
+          >
+            <User className="w-4 h-4" />
+            Hồ sơ công khai
           </Link>
           <Link
             href="/tu-sach"

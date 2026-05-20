@@ -1,5 +1,22 @@
 import type { Story } from "@/types/story";
 
+// Lấy ra truyện mới nhất
+// Truyện có updatedAt → sort theo thời gian giảm dần
+// Truyện không có updatedAt → coi là cũ hơn, sort theo hot score
+export function getNew(allStories: Story[], limit = 5): Story[] {
+  const hotScore = (s: Story) => (s.followers ?? 0) * 2 + s.commentCount + s.nominations;
+
+  const withDate = allStories.filter((s) => !!s.updatedAt);
+  const withoutDate = allStories.filter((s) => !s.updatedAt);
+
+  const sortedWithDate = [...withDate].sort(
+    (a, b) => new Date(b.updatedAt!).getTime() - new Date(a.updatedAt!).getTime()
+  );
+  const sortedWithoutDate = [...withoutDate].sort((a, b) => hotScore(b) - hotScore(a));
+
+  return [...sortedWithDate, ...sortedWithoutDate].slice(0, limit);
+}
+
 // Lấy ra truyện hot
 export function getHot(allStories: Story[], limit = 5): Story[] {
   const hotScore = (s: Story) => (s.followers ?? 0) * 2 + s.commentCount + s.nominations;

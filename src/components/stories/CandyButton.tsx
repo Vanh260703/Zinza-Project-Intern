@@ -3,22 +3,23 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
+import { useRouter } from "next/navigation";
+import { showToast } from "@/lib/toast";
 
 const PRESETS = [50, 100, 200, 500];
 
 export default function CandyButton() {
   const { user, token, setUser } = useAuthStore();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
-  const [done, setDone] = useState(false);
 
   const amount = custom !== "" ? (parseInt(custom) || 0) : selected;
 
   const handleOpen = () => {
     setSelected(null);
     setCustom("");
-    setDone(false);
     setOpen(true);
   };
 
@@ -26,7 +27,9 @@ export default function CandyButton() {
     if (!amount || amount <= 0 || !user || !token) return;
     if (user.candy < amount) return;
     setUser({ ...user, candy: user.candy - amount }, token);
-    setDone(true);
+    setOpen(false);
+    showToast.success(`Đã tặng ${amount} kẹo! 🍬`, `Bạn còn ${(user.candy - amount).toLocaleString()} kẹo`);
+    router.refresh();
   };
 
   const notEnough = amount !== null && amount > 0 && user !== null && user.candy < amount;
@@ -59,18 +62,6 @@ export default function CandyButton() {
               <p className="text-stone-400 text-sm text-center py-4">
                 Bạn cần <span className="text-amber-400 font-semibold">đăng nhập</span> để tặng kẹo.
               </p>
-            ) : done ? (
-              <div className="flex flex-col items-center gap-3 py-4">
-                <span className="text-4xl">🍬</span>
-                <p className="text-white font-semibold">Đã tặng {amount} kẹo!</p>
-                <p className="text-stone-500 text-sm">Kẹo còn lại: {user.candy.toLocaleString()}</p>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="mt-2 px-5 py-2 rounded-xl bg-stone-800 text-stone-300 text-sm hover:bg-stone-700 transition-colors"
-                >
-                  Đóng
-                </button>
-              </div>
             ) : (
               <>
                 {/* Balance */}

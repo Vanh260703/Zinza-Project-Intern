@@ -1,13 +1,12 @@
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import RandomSection from "@/components/home/RandomSection";
+import NewSection from "@/components/home/NewSection";
 import HotSection from "@/components/home/HotSection";
 import NominatedSection from "@/components/home/NominatedSection";
 import VipSection from "@/components/home/VipSection";
-import LeaderboardWidget from "@/components/home/LeaderboardWidget";
 import SearchResultsSection from "@/components/home/SearchResultsSection";
 import { db } from "@/lib/mock-db";
-import { getRankingStories } from "@/utils/handleStories";
 import { removeDiacritics } from "@/utils/removeDiacritics";
 import type { Story } from "@/types/story";
 
@@ -83,9 +82,9 @@ export default async function HomePage({
     );
   }
 
+  const newStories = db.stories.getNew();
   const hotStories = db.stories.getHot();
   const randomStory = db.stories.getRandom();
-  const rankingStories = getRankingStories(allStories);
   const vipStories = db.stories.getVip();
 
   return (
@@ -95,16 +94,11 @@ export default async function HomePage({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-16">
         <RandomSection story={randomStory} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10 items-start">
-          <div className="lg:col-span-3 space-y-16">
-            <HotSection stories={hotStories} />
-            <NominatedSection allStories={allStories} />
-            <VipSection stories={vipStories} />
-          </div>
-
-          <div className="lg:col-span-1 sticky top-24">
-            <LeaderboardWidget stories={rankingStories} />
-          </div>
+        <div className="space-y-16">
+          <NewSection stories={newStories} />
+          <HotSection stories={hotStories} />
+          <VipSection stories={vipStories} />
+          <NominatedSection allStories={allStories} />
         </div>
       </div>
 

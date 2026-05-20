@@ -4,16 +4,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { Mail, ArrowLeft } from "lucide-react";
-import { toast } from "sonner";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/schemas/auth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import CountdownToast from "@/components/ui/CountdownToast";
+import { showToast } from "@/lib/toast";
 import { useState } from "react";
 
 export default function ForgotPasswordForm() {
   const [sent, setSent] = useState(false);
-  const DURATION = 4000;
 
   const {
     register,
@@ -31,9 +29,7 @@ export default function ForgotPasswordForm() {
     });
 
     if (!res.ok) {
-      toast.custom(() => (
-        <CountdownToast type="error" title="Có lỗi xảy ra, thử lại sau." duration={DURATION} />
-      ), { duration: DURATION });
+      showToast.error("Có lỗi xảy ra, thử lại sau.");
       return;
     }
 
