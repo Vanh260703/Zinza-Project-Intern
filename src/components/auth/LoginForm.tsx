@@ -61,7 +61,7 @@ export default function LoginForm() {
       />
     ), { duration: DURATION });
 
-    router.push("/home");
+    router.push("/");
   };
 
   return (
@@ -83,7 +83,7 @@ export default function LoginForm() {
           placeholder="Nhập mật khẩu"
           error={errors.password?.message}
           labelRight={
-            <Link href="/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+            <Link href="/auth/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
               Quên mật khẩu?
             </Link>
           }
@@ -109,7 +109,7 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-stone-500">
         Chưa có tài khoản?{" "}
-        <Link href="/register" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
+        <Link href="/auth/register" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
           Đăng ký ngay
         </Link>
       </p>

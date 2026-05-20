@@ -41,3 +41,8 @@ export function getRandomStory(allStories: Story[]): Story {
 export function getRankingStories(allStories: Story[]): Story[] {
   return allStories.sort((a, b) => b.nominations - a.nominations).slice(0, 5);
 }
+
+// Lấy ra truyện VIP 
+export function getVipStories(allStories: Story[]) : Story[] {
+  return allStories.filter(s => s.vip);
+}

@@ -18,7 +18,7 @@
     "password": "123456",
     "gender": "male",
     "role": "user",
-    "candy": 0,
+    "candy": 1000,
     "chaptersRead": 0,
     "isRead": [],
     "storiesMark": []

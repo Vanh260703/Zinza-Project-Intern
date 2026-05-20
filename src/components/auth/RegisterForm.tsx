@@ -55,7 +55,7 @@ export default function RegisterForm() {
       />
     ), { duration: DURATION });
 
-    router.push("/login?registered=1");
+    router.push("/auth/login?registered=1");
   };
 
   return (
@@ -115,7 +115,7 @@ export default function RegisterForm() {
 
       <p className="text-center text-sm text-stone-500">
         Đã có tài khoản?{" "}
-        <Link href="/login" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
+        <Link href="/auth/login" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
           Đăng nhập ngay
         </Link>
       </p>

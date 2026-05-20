@@ -8,8 +8,8 @@ import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
-  { href: "/home", label: "Trang chủ" },
-  { href: "/bang-xep-hang", label: "Bảng xếp hạng" },
+  { href: "/", label: "Trang chủ" },
+  { href: "/ranking", label: "Bảng xếp hạng" },
 ];
 
 type SearchResult = {
@@ -70,7 +70,7 @@ function SearchBox() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && q.trim()) {
       setOpen(false);
-      router.push(`/home?q=${encodeURIComponent(q.trim())}`);
+      router.push(`/?q=${encodeURIComponent(q.trim())}`);
     }
   };
 
@@ -104,7 +104,7 @@ function SearchBox() {
               {results.map((story) => (
                 <Link
                   key={story.id}
-                  href={`/truyen/${story.slug}`}
+                  href={`/stories/${story.slug}`}
                   onClick={() => { setOpen(false); setQ(""); }}
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
@@ -137,7 +137,7 @@ function SearchBox() {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    router.push(`/home?q=${encodeURIComponent(q.trim())}`);
+                    router.push(`/?q=${encodeURIComponent(q.trim())}`);
                   }}
                   className="w-full px-4 py-2.5 text-xs text-amber-400 hover:text-amber-300 hover:bg-stone-800 transition-colors border-t border-stone-800 text-center font-medium"
                 >
@@ -172,7 +172,7 @@ function UserDropdown() {
   const handleLogout = () => {
     logout();
     clearLibrary();
-    router.push("/home");
+    router.push("/");
   };
 
   return (
@@ -259,7 +259,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/home" className="flex items-center gap-2.5 group">
+          <Link href="/" className="flex items-center gap-2.5 group">
             <div className="flex items-center justify-center w-9 h-9 bg-amber-500 rounded-xl group-hover:bg-amber-400 transition-colors">
               <BookOpen className="w-5 h-5 text-white" strokeWidth={1.8} />
             </div>
@@ -298,13 +298,13 @@ export default function Navbar() {
             ) : (
               <div className="hidden sm:flex items-center gap-2">
                 <Link
-                  href="/login"
+                  href="/auth/login"
                   className="px-4 py-2 text-stone-300 hover:text-white text-sm font-medium transition-colors rounded-lg hover:bg-stone-700/60"
                 >
                   Đăng nhập
                 </Link>
                 <Link
-                  href="/register"
+                  href="/auth/register"
                   className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
                 >
                   Đăng ký
@@ -343,10 +343,10 @@ export default function Navbar() {
               <div className="px-4 pt-2 text-sm text-stone-300">{user.name}</div>
             ) : (
               <div className="flex gap-2 px-4 pt-2">
-                <Link href="/login" className="flex-1 text-center py-2 text-sm text-stone-300 border border-stone-700 rounded-lg hover:border-stone-600 transition-colors">
+                <Link href="/auth/login" className="flex-1 text-center py-2 text-sm text-stone-300 border border-stone-700 rounded-lg hover:border-stone-600 transition-colors">
                   Đăng nhập
                 </Link>
-                <Link href="/register" className="flex-1 text-center py-2 text-sm text-white font-semibold bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors">
+                <Link href="/auth/register" className="flex-1 text-center py-2 text-sm text-white font-semibold bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors">
                   Đăng ký
                 </Link>
               </div>

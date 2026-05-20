@@ -30,6 +30,13 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Playwright (local test only - không commit)
+e2e/
+playwright.config.ts
+playwright-report/
+test-results/
+.playwright/
+
 # Logs
 *.log
 npm-debug.log*

@@ -17,3 +17,15 @@
 .bell-hover:hover {
   animation: bell-shake 0.5s ease-in-out;
 }
+
+@keyframes dice-shake {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  20%       { transform: rotate(-20deg) scale(1.2); }
+  40%       { transform: rotate(18deg) scale(1.1); }
+  60%       { transform: rotate(-14deg) scale(1.15); }
+  80%       { transform: rotate(10deg) scale(1.05); }
+}
+
+.dice-btn:hover .dice-icon {
+  animation: dice-shake 0.5s ease-in-out;
+}

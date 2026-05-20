@@ -47,7 +47,7 @@ export default function HeroSection() {
     if (genre) params.set("genre", genre);
     if (status) params.set("status", status);
     if (sort) params.set("sort", sort);
-    router.push(`/home?${params.toString()}`);
+    router.push(`/?${params.toString()}`);
   };
 
   return (
@@ -75,7 +75,7 @@ export default function HeroSection() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/home"
+              href="/"
               className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-amber-500/20"
             >
               Khám phá ngay

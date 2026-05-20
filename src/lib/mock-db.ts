@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { generateId } from "@/utils/generateId";
-import { getHot, getNominated, getRandomStory, getRankingStories } from "@/utils/handleStories";
+import { getHot, getNominated, getRandomStory, getRankingStories, getVipStories } from "@/utils/handleStories";
 import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
@@ -69,6 +69,11 @@ export const db = {
     // Lấy ra ranking truyện
     getRanking() : Story[] {
       return getRankingStories(readJson<Story>("stories.json"));
+    },
+
+    // Lấy ra truyện vip
+    getVip() : Story[] {
+      return getVipStories(readJson<Story>("stories.json"));
     },
   },
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Star, BookMarked, Shuffle, Play } from "lucide-react";
+import { BookOpen, Star, BookMarked, Play } from "lucide-react";
 import type { Story } from "@/types/story";
 import SectionHeader from "./SectionHeader";
 
@@ -43,7 +43,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
       <div className="flex gap-5 sm:gap-7 p-5 sm:p-6 rounded-2xl bg-stone-900 border border-stone-800 hover:border-stone-700/80 transition-colors">
         {/* Cover */}
         <Link
-          href={`/truyen/${slug}`}
+          href={`/stories/${slug}`}
           className="relative shrink-0 w-28 sm:w-36 rounded-xl overflow-hidden bg-stone-800 group"
           style={{ aspectRatio: "3/4" }}
         >
@@ -77,7 +77,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
         <div className="flex flex-col justify-between flex-1 min-w-0 py-0.5">
           <div className="space-y-2.5">
             {/* Title */}
-            <Link href={`/truyen/${slug}`}>
+            <Link href={`/stories/${slug}`}>
               <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 hover:text-amber-400 transition-colors">
                 {name}
               </h3>
@@ -136,7 +136,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
           {/* Actions */}
           <div className="flex items-center gap-3 mt-4">
             <Link
-              href={`/truyen/${slug}`}
+              href={`/stories/${slug}`}
               className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
             >
               <Play className="w-3.5 h-3.5 fill-white" />
@@ -144,9 +144,9 @@ export default function RandomSection({ story }: RandomSectionProps) {
             </Link>
             <button
               onClick={() => router.refresh()}
-              className="flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-sm font-medium rounded-lg border border-stone-700 hover:border-stone-600 transition-colors"
+              className="dice-btn flex items-center gap-2 px-4 py-2 bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-sm font-medium rounded-lg border border-stone-700 hover:border-stone-600 transition-colors"
             >
-              <Shuffle className="w-3.5 h-3.5" />
+              <span className="dice-icon inline-block">🎲</span>
               Truyện khác
             </button>
           </div>
