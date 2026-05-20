@@ -1,10 +1,27 @@
+"use client";
+
 import Link from "next/link";
 import { Search, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/userStore";
 
-function FilterSelect({ children }: { children: React.ReactNode }) {
+function FilterSelect({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  children: React.ReactNode;
+}) {
   return (
     <div className="relative">
-      <select className="w-full bg-stone-800 border border-stone-700 hover:border-stone-600 focus:border-amber-500 text-stone-200 text-sm rounded-xl px-3 py-2.5 outline-none transition-colors appearance-none cursor-pointer pr-8">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-stone-800 border border-stone-700 hover:border-stone-600 focus:border-amber-500 text-stone-200 text-sm rounded-xl px-3 py-2.5 outline-none transition-colors appearance-none cursor-pointer pr-8"
+      >
         {children}
       </select>
       <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
@@ -15,6 +32,24 @@ function FilterSelect({ children }: { children: React.ReactNode }) {
 }
 
 export default function HeroSection() {
+  const user = useAuthStore((state) => state.user);
+  const router = useRouter();
+
+  const [q, setQ] = useState("");
+  const [genre, setGenre] = useState("");
+  const [status, setStatus] = useState("");
+  const [sort, setSort] = useState("latest");
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    if (genre) params.set("genre", genre);
+    if (status) params.set("status", status);
+    if (sort) params.set("sort", sort);
+    router.push(`/?${params.toString()}`);
+  };
+
   return (
     <div className="relative bg-linear-to-br from-stone-900 via-amber-950/30 to-stone-900 border-b border-stone-800">
       {/* Decorative glows */}
@@ -40,51 +75,58 @@ export default function HeroSection() {
 
           <div className="flex items-center gap-3">
             <Link
-              href="/home"
+              href="/"
               className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 text-white font-semibold rounded-xl text-sm transition-colors shadow-lg shadow-amber-500/20"
             >
               Khám phá ngay
             </Link>
-            <Link
-              href="/register"
-              className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-white font-semibold rounded-xl text-sm transition-colors"
-            >
-              Đăng ký miễn phí
-            </Link>
+            {!user && (
+              <Link
+                href="/register"
+                className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-white font-semibold rounded-xl text-sm transition-colors"
+              >
+                Đăng ký miễn phí
+              </Link>
+            )}
           </div>
         </div>
       </div>
 
       {/* Search / filter bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
-        <form className="relative z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 bg-stone-900/80 backdrop-blur-sm border border-stone-700/60 rounded-2xl px-4 py-3">
+        <form
+          onSubmit={handleSearch}
+          className="relative z-10 flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 bg-stone-900/80 backdrop-blur-sm border border-stone-700/60 rounded-2xl px-4 py-3"
+        >
           <div className="relative w-full sm:flex-1 sm:min-w-44">
             <div className="pointer-events-none absolute inset-y-0 left-3 flex items-center">
               <Search className="w-4 h-4 text-stone-500" />
             </div>
             <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
               placeholder="Tên truyện hoặc tác giả..."
               className="w-full bg-stone-800 border border-stone-700 hover:border-stone-600 focus:border-amber-500 text-stone-200 text-sm rounded-xl px-3 py-2.5 outline-none transition-colors pl-9"
             />
           </div>
 
           <div className="grid grid-cols-3 sm:contents gap-2">
-            <FilterSelect>
+            <FilterSelect value={genre} onChange={setGenre}>
               <option value="">Thể loại</option>
-              <option>Tiên hiệp</option>
-              <option>Huyền huyễn</option>
-              <option>Võ hiệp</option>
-              <option>Đô thị</option>
-              <option>Lịch sử</option>
+              <option value="tien-hiep">Tiên hiệp</option>
+              <option value="huyen-huyen">Huyền huyễn</option>
+              <option value="vo-hiep">Võ hiệp</option>
+              <option value="do-thi">Đô thị</option>
+              <option value="lich-su">Lịch sử</option>
             </FilterSelect>
 
-            <FilterSelect>
+            <FilterSelect value={status} onChange={setStatus}>
               <option value="">Trạng thái</option>
-              <option>Đang ra</option>
-              <option>Hoàn thành</option>
+              <option value="pending">Đang ra</option>
+              <option value="completed">Hoàn thành</option>
             </FilterSelect>
 
-            <FilterSelect>
+            <FilterSelect value={sort} onChange={setSort}>
               <option value="latest">⚡ Mới nhất</option>
               <option value="views">👁 Lượt xem</option>
               <option value="rating">⭐ Đánh giá</option>

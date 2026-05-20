@@ -2,14 +2,14 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "@/types/user";
 
-type UserStore = {
+type AuthStore = {
   user: User | null;
   token: string | null;
   setUser: (user: User, token: string) => void;
   logout: () => void;
 };
 
-export const useUserStore = create<UserStore>()(
+export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
       user: null,
@@ -17,6 +17,12 @@ export const useUserStore = create<UserStore>()(
       setUser: (user, token) => set({ user, token }),
       logout: () => set({ user: null, token: null }),
     }),
-    { name: "auth" } // key trong localStorage
+    {
+      name: "auth",
+      onRehydrateStorage: () => () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+      },
+    }
   )
 );

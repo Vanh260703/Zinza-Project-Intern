@@ -6,7 +6,10 @@
     "password": "123456",
     "gender": "male",
     "role": "admin",
-    "candy": 999999
+    "candy": 999999,
+    "chaptersRead": 0,
+    "isRead": [],
+    "storiesMark": []
   },
   {
     "id": "2153d5c8-5fb9-42fa-8d40-43abf339a40c",
@@ -15,7 +18,7 @@
     "password": "123456",
     "gender": "male",
     "role": "user",
-    "candy": 0,
+    "candy": 1000,
     "chaptersRead": 0,
     "isRead": [],
     "storiesMark": []
