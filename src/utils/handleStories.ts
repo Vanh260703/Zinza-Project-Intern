@@ -54,9 +54,18 @@ export function getRandomStory(allStories: Story[]): Story {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Lấy ra ranking truyện theo ngày, tháng, năm (hiện tại mock data)
-export function getRankingStories(allStories: Story[]): Story[] {
-  return allStories.sort((a, b) => b.nominations - a.nominations).slice(0, 5);
+// Lấy ra ranking truyện theo ngày, tuần, tháng (hiện tại mock data)
+export type RankingPeriod = "day" | "week" | "month";
+
+export function getRankingStories(allStories: Story[], period: RankingPeriod = "month", limit = 5): Story[] {
+  const score = (s: Story): number => {
+    switch (period) {
+      case "day":   return s.nominations * 0.5 + (s.followers ?? 0) * 0.3 + s.rating * 10;
+      case "week":  return s.nominations * 0.7 + (s.followers ?? 0) * 0.5 + s.commentCount * 2;
+      case "month": return s.nominations + (s.followers ?? 0) * 0.8 + s.commentCount;
+    }
+  };
+  return [...allStories].sort((a, b) => score(b) - score(a)).slice(0, limit);
 }
 
 // Lấy ra truyện VIP 

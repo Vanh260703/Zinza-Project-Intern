@@ -112,7 +112,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 flex-wrap mt-1">
             <Link
-              href={firstChapter ? `/stories/${slug}/chapters/${firstChapter.id}` : "#"}
+              href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
               className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
             >
               <BookOpen className="w-4 h-4" />

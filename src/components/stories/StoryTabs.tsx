@@ -157,7 +157,7 @@ function ChaptersTab({ slug, chapters }: { slug: string; chapters: Chapter[] }) 
           {visible.map((ch) => (
             <Link
               key={ch.id}
-              href={`/stories/${slug}/chapters/${ch.id}`}
+              href={`/novels/${slug}/chapters/${ch.id}`}
               className="flex items-center gap-3 px-4 py-3 rounded-xl bg-stone-900 hover:bg-stone-800 border border-stone-800 hover:border-stone-700 transition-colors group"
             >
               <span className="text-stone-600 text-xs w-8 shrink-0">{ch.number}</span>

@@ -2,10 +2,11 @@ import fs from "fs";
 import path from "path";
 import { generateId } from "@/utils/generateId";
 import { removeDiacritics } from "@/utils/removeDiacritics";
-import { getNew, getHot, getNominated, getRandomStory, getRankingStories, getVipStories } from "@/utils/handleStories";
+import { getNew, getHot, getNominated, getRandomStory, getRankingStories, getVipStories, type RankingPeriod } from "@/utils/handleStories";
 import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
+import type { Notification } from "@/types/notification";
 
 
 const DATA_DIR = path.join(process.cwd(), "src/lib/data");
@@ -81,9 +82,9 @@ export const db = {
       return getRandomStory(readJson<Story>("stories.json"));
     },
 
-    // Lấy ra ranking truyện
-    getRanking() : Story[] {
-      return getRankingStories(readJson<Story>("stories.json"));
+    // Lấy ra ranking truyện theo period
+    getRanking(period: RankingPeriod = "month") : Story[] {
+      return getRankingStories(readJson<Story>("stories.json"), period);
     },
 
     // Lấy ra truyện vip
@@ -144,6 +145,29 @@ export const db = {
     },   
   },
 
+  notifications: {
+    getByUser(userId: string, limit = 4): { notifications: Notification[]; totalUnread: number } {
+      const all = readJson<Notification>("notifications.json")
+        .filter((n) => n.userId === userId)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const totalUnread = all.filter((n) => !n.isRead).length;
+      return { notifications: all.slice(0, limit), totalUnread };
+    },
+
+    getAll(userId: string): { notifications: Notification[]; totalUnread: number } {
+      const all = readJson<Notification>("notifications.json")
+        .filter((n) => n.userId === userId)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const totalUnread = all.filter((n) => !n.isRead).length;
+      return { notifications: all, totalUnread };
+    },
+
+    markAllRead(userId: string): void {
+      const all = readJson<Notification>("notifications.json");
+      writeJson("notifications.json", all.map((n) => n.userId === userId ? { ...n, isRead: true } : n));
+    },
+  },
+
   reviews: {
     getByStory(storyId: string) {
       return readJson<{ id: string; storyId: string; userName: string; stars: number; text: string; daysAgo: number }>("reviews.json")
@@ -163,6 +187,32 @@ export const db = {
     getContent(storyId: string, storySlug: string, filename: string): string {
       const filePath = path.join(UPLOAD_DIR, `${storyId}_${storySlug}`, filename);
       return fs.readFileSync(filePath, "utf-8");
+    },
+
+    // Tìm 1 chapter theo id
+    getOne(slug: string, chapterId: string): Chapter | undefined {
+      const index = db.chapters.getIndex(slug);
+      return index.find((c) => c.id === chapterId);
+    },
+
+    // Dữ liệu đầy đủ cho trang đọc: chapter + nội dung + prev/next
+    getReader(
+      story: Story,
+      chapterId: string
+    ): { chapter: Chapter; content: string; prev: Chapter | null; next: Chapter | null } | null {
+      const index = db.chapters.getIndex(story.slug);
+      const pos = index.findIndex((c) => c.id === chapterId);
+      if (pos === -1) return null;
+
+      const chapter = index[pos];
+      const content = db.chapters.getContent(story.id, story.slug, chapter.filename);
+
+      return {
+        chapter,
+        content,
+        prev: pos > 0 ? index[pos - 1] : null,
+        next: pos < index.length - 1 ? index[pos + 1] : null,
+      };
     },
 
     create(story: Story, data: { title: string; content: string; candyPrice?: number }): Chapter {
