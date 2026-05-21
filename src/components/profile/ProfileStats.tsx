@@ -1,60 +1,58 @@
 "use client";
 
-import { Candy, Ticket, BookOpen } from "lucide-react";
+import { Candy, BookOpen, Users, Lock } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 
-const stats = [
-  {
-    key: "candy",
-    label: "Ngân quỹ",
-    sublabel: "Kẹo",
-    icon: Candy,
-    color: "amber",
-    format: (v: number) => v.toLocaleString(),
-  },
-  {
-    key: "chaptersRead",
-    label: "Chương đã đọc",
-    sublabel: "Tổng",
-    icon: BookOpen,
-    color: "emerald",
-    format: (v: number) => v.toLocaleString(),
-  },
-];
-
-const COLOR_MAP: Record<string, string> = {
-  amber:   "bg-amber-500/10   border-amber-500/20   text-amber-400",
-  emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400",
-};
-
-const ICON_COLOR: Record<string, string> = {
-  amber:   "text-amber-400",
-  emerald: "text-emerald-400",
-};
+const FOLLOWER_UNLOCK = 1000;
 
 export default function ProfileStats() {
   const user = useAuthStore((s) => s.user);
 
-  const values: Record<string, number> = {
-    candy:        user?.candy        ?? 0,
-    chaptersRead: user?.chaptersRead ?? 0,
-  };
+  const candy        = user?.candy        ?? 0;
+  const chaptersRead = user?.chaptersRead ?? 0;
+  const followers    = user?.follower     ?? 0;
+  const unlocked     = followers >= FOLLOWER_UNLOCK;
 
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {stats.map(({ key, label, sublabel, icon: Icon, color, format }) => (
-        <div
-          key={key}
-          className={`flex flex-col gap-2 p-4 rounded-xl border ${COLOR_MAP[color]}`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-stone-400 text-xs font-medium">{label}</span>
-            <Icon className={`w-4 h-4 ${ICON_COLOR[color]}`} strokeWidth={1.8} />
-          </div>
-          <p className={`text-xl font-bold ${ICON_COLOR[color]}`}>{format(values[key])}</p>
-          <p className="text-stone-600 text-[11px]">{sublabel}</p>
+    <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 grid grid-cols-3 divide-x divide-stone-800">
+      {/* Kẹo */}
+      <div className="flex flex-col gap-1 px-4 first:pl-0">
+        <div className="flex items-center gap-1.5 text-stone-500 text-xs">
+          <Candy className="w-3.5 h-3.5 text-amber-400" />
+          Ngân quỹ
         </div>
-      ))}
+        <p className="text-amber-400 text-xl font-bold">{candy.toLocaleString()}</p>
+        <p className="text-stone-600 text-[11px]">Kẹo</p>
+      </div>
+
+      {/* Chương đã đọc */}
+      <div className="flex flex-col gap-1 px-4">
+        <div className="flex items-center gap-1.5 text-stone-500 text-xs">
+          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+          Đã đọc
+        </div>
+        <p className="text-emerald-400 text-xl font-bold">{chaptersRead.toLocaleString()}</p>
+        <p className="text-stone-600 text-[11px]">Chương</p>
+      </div>
+
+      {/* Người theo dõi */}
+      <div className="flex flex-col gap-1 px-4">
+        <div className="flex items-center gap-1.5 text-stone-500 text-xs">
+          <Users className={`w-3.5 h-3.5 ${unlocked ? "text-violet-400" : "text-stone-500"}`} />
+          Theo dõi
+        </div>
+        <p className={`text-xl font-bold ${unlocked ? "text-violet-400" : "text-stone-300"}`}>
+          {followers.toLocaleString()}
+        </p>
+        {unlocked ? (
+          <p className="text-violet-400/80 text-[11px]">Chương trả phí đã mở ✦</p>
+        ) : (
+          <p className="text-stone-600 text-[11px] flex items-center gap-1">
+            <Lock className="w-2.5 h-2.5 shrink-0" />
+            Cần {FOLLOWER_UNLOCK.toLocaleString()}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
