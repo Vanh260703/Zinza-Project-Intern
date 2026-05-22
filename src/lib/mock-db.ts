@@ -47,6 +47,25 @@ export const db = {
       writeJson("users.json", users);
       return users[idx];
     },
+
+    // Trả kẹo để mở khoá chương
+    unlockChapter(userId: string, chapterId: string, price: number): { user: User } | { error: string } {
+      const users = readJson<User>("users.json");
+      const idx = users.findIndex((u) => u.id === userId);
+      if (idx === -1) return { error: "Không tìm thấy người dùng" };
+
+      const user = users[idx];
+      if ((user.unlockedChapters ?? []).includes(chapterId)) return { user }; // already unlocked
+      if (user.candy < price) return { error: "Không đủ kẹo" };
+
+      users[idx] = {
+        ...user,
+        candy: user.candy - price,
+        unlockedChapters: [...(user.unlockedChapters ?? []), chapterId],
+      };
+      writeJson("users.json", users);
+      return { user: users[idx] };
+    },
   },
 
   stories: {
@@ -215,6 +234,17 @@ export const db = {
       };
     },
 
+    // Đồng bộ vip = true nếu có ít nhất 1 chapter trả phí, ngược lại false
+    syncVip(story: Story, chapters: Chapter[]): void {
+      const hasVip = chapters.some((c) => (c.candyPrice ?? 0) > 0);
+      const stories = readJson<Story>("stories.json");
+      const idx = stories.findIndex((s) => s.id === story.id);
+      if (idx !== -1 && stories[idx].vip !== hasVip) {
+        stories[idx].vip = hasVip;
+        writeJson("stories.json", stories);
+      }
+    },
+
     create(story: Story, data: { title: string; content: string; candyPrice?: number }): Chapter {
       const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
       const dir = path.join(DATA_DIR, "chapters", story.slug);
@@ -233,15 +263,75 @@ export const db = {
       fs.mkdirSync(uploadDir, { recursive: true });
       fs.writeFileSync(path.join(uploadDir, filename), data.content, "utf-8");
 
-      const chapter: Chapter = { id, number, title: data.title, filename, ...(data.candyPrice ? { candyPrice: data.candyPrice } : {}) };
-      writeJson(`chapters/${story.slug}/index.json`, [...existing, chapter]);
+      const wordCount = data.content.replace(/\s/g, "").length;
+      const createdAt = new Date().toISOString();
+      const chapter: Chapter = { id, number, title: data.title, filename, wordCount, views: 0, createdAt, ...(data.candyPrice ? { candyPrice: data.candyPrice } : {}) };
+      const updated = [...existing, chapter];
+      writeJson(`chapters/${story.slug}/index.json`, updated);
 
-      // Cập nhật chapterCount trong stories.json
+      // Cập nhật chapterCount + vip trong stories.json
       const stories = readJson<Story>("stories.json");
       const idx = stories.findIndex((s) => s.id === story.id);
-      if (idx !== -1) { stories[idx].chapterCount = number; writeJson("stories.json", stories); }
+      if (idx !== -1) {
+        stories[idx].chapterCount = number;
+        stories[idx].vip = updated.some((c) => (c.candyPrice ?? 0) > 0);
+        writeJson("stories.json", stories);
+      }
 
       return chapter;
+    },
+
+    update(story: Story, chapterId: string, data: { title?: string; content?: string; candyPrice?: number }): Chapter | null {
+      const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
+      if (!fs.existsSync(indexPath)) return null;
+      const existing: Chapter[] = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+      const idx = existing.findIndex((c) => c.id === chapterId);
+      if (idx === -1) return null;
+
+      const chapter = { ...existing[idx] };
+
+      if (data.content !== undefined) {
+        const uploadPath = path.join(UPLOAD_DIR, `${story.id}_${story.slug}`, chapter.filename);
+        fs.writeFileSync(uploadPath, data.content, "utf-8");
+        chapter.wordCount = data.content.replace(/\s/g, "").length;
+      }
+      if (data.title !== undefined) chapter.title = data.title;
+      if (data.candyPrice !== undefined) {
+        if (data.candyPrice === 0) delete chapter.candyPrice;
+        else chapter.candyPrice = data.candyPrice;
+      }
+
+      existing[idx] = chapter;
+      fs.writeFileSync(indexPath, JSON.stringify(existing, null, 2), "utf-8");
+      db.chapters.syncVip(story, existing);
+      return chapter;
+    },
+
+    delete(story: Story, chapterId: string): boolean {
+      const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
+      if (!fs.existsSync(indexPath)) return false;
+      const existing: Chapter[] = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+      const chapter = existing.find((c) => c.id === chapterId);
+      if (!chapter) return false;
+
+      // Xóa file nội dung
+      const uploadPath = path.join(UPLOAD_DIR, `${story.id}_${story.slug}`, chapter.filename);
+      if (fs.existsSync(uploadPath)) fs.unlinkSync(uploadPath);
+
+      // Cập nhật index
+      const updated = existing.filter((c) => c.id !== chapterId);
+      fs.writeFileSync(indexPath, JSON.stringify(updated, null, 2), "utf-8");
+
+      // Cập nhật chapterCount + vip
+      const stories = readJson<Story>("stories.json");
+      const idx = stories.findIndex((s) => s.id === story.id);
+      if (idx !== -1) {
+        stories[idx].chapterCount = updated.length;
+        stories[idx].vip = updated.some((c) => (c.candyPrice ?? 0) > 0);
+        writeJson("stories.json", stories);
+      }
+
+      return true;
     },
   },
 };

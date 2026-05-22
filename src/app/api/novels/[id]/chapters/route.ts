@@ -17,9 +17,28 @@ export async function GET(
   const story = db.stories.findById(id);
   if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
 
-  return NextResponse.json(db.chapters.getIndex(story.slug));
+  const chapters = db.chapters.getIndex(story.slug);
+  const enriched = chapters.map((ch) => {
+    let wordCount = ch.wordCount;
+    if (wordCount === undefined) {
+      try {
+        const content = db.chapters.getContent(story.id, story.slug, ch.filename);
+        wordCount = content.replace(/\s/g, "").length;
+      } catch {
+        wordCount = 0;
+      }
+    }
+    let createdAt = ch.createdAt;
+    if (!createdAt) {
+      const ts = parseInt(ch.filename.split("_")[1]?.replace(".txt", "") ?? "", 10);
+      createdAt = ts > 1_000_000_000_000 ? new Date(ts).toISOString() : undefined;
+    }
+    return { ...ch, wordCount, views: ch.views ?? 0, createdAt };
+  });
+  return NextResponse.json(enriched);
 }
 
+// Thêm chương
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

@@ -4,9 +4,8 @@ export interface Chapter {
   title: string;
   filename: string;
   candyPrice?: number;
+  wordCount?: number;
+  views?: number;
+  createdAt?: string;
 }
 
-export interface ChapterFull extends Chapter {
-  content: string;
-  storyId: string;
-}

@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, ArrowRight, AlignJustify, Gift, Star,
-  Settings, List, X, ArrowUpDown, Minus, Plus,
+  Settings, List, X, ArrowUpDown, Minus, Plus, Lock, CandyIcon,
 } from "lucide-react";
 import { useLibraryStore } from "@/stores/libraryStore";
+import { useAuthStore } from "@/stores/userStore";
 import {
   useReaderStore,
   FONT_MIN, FONT_MAX,
@@ -253,17 +254,120 @@ function SettingsPopover() {
   );
 }
 
+/* ── Paywall overlay ────────────────────────────────────── */
+function ChapterPaywall({
+  story, chapter, onUnlocked,
+}: {
+  story: Story;
+  chapter: Chapter;
+  onUnlocked: (content: string) => void;
+}) {
+  const { user, token, setUser } = useAuthStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  const price      = chapter.candyPrice!;
+  const hasEnough  = (user?.candy ?? 0) >= price;
+
+  async function handleUnlock() {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/novels/${story.id}/chapters/${chapter.id}/unlock`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.message ?? "Mở khoá thất bại"); return; }
+      setUser(data.user, token!);
+      onUnlocked(data.content);
+    } catch {
+      setError("Lỗi kết nối, thử lại sau");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-6 py-16 px-6 text-center">
+      <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+        <Lock className="w-7 h-7 text-amber-400" strokeWidth={1.8} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <p className="text-white font-semibold text-lg">Chương có phí</p>
+        <p className="text-stone-400 text-sm">
+          Cần <span className="text-amber-400 font-semibold">{price} kẹo</span> để mở khoá chương này
+        </p>
+      </div>
+
+      {user ? (
+        <div className="flex flex-col items-center gap-3 w-full max-w-xs">
+          <div className="flex items-center gap-2 text-sm text-stone-400">
+            <CandyIcon className="w-4 h-4 text-amber-400" />
+            Số dư của bạn:{" "}
+            <span className={`font-semibold ${hasEnough ? "text-amber-400" : "text-red-400"}`}>
+              {user.candy.toLocaleString()} kẹo
+            </span>
+          </div>
+
+          {error && <p className="text-red-400 text-sm">{error}</p>}
+
+          {hasEnough ? (
+            <button
+              onClick={handleUnlock}
+              disabled={loading}
+              className="w-full py-3 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
+            >
+              {loading ? "Đang mở khoá..." : `Dùng ${price} kẹo để đọc`}
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-2 w-full">
+              <p className="text-red-400 text-sm">Không đủ kẹo để mở khoá</p>
+              <Link
+                href="/topup"
+                className="w-full py-3 rounded-xl text-sm font-semibold bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white transition-colors text-center"
+              >
+                Nạp thêm kẹo
+              </Link>
+            </div>
+          )}
+        </div>
+      ) : (
+        <Link
+          href="/login"
+          className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
+        >
+          Đăng nhập để đọc
+        </Link>
+      )}
+    </div>
+  );
+}
+
 /* ── Main component ─────────────────────────────────────── */
 export default function ChapterReader({ story, chapter, content, prev, next, allChapters, posterName }: Props) {
   const addHistory   = useLibraryStore((s) => s.addHistory);
+  const user         = useAuthStore((s) => s.user);
   const { fontSize, lineHeight, fontFamily, textColor } = useReaderStore();
 
   const [showToc,      setShowToc]      = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
+  // Nội dung thực (có thể được set sau khi unlock)
+  const [unlockedContent, setUnlockedContent] = useState<string | null>(null);
+
+  const isLocked = (chapter.candyPrice ?? 0) > 0
+    && !(user?.unlockedChapters ?? []).includes(chapter.id)
+    && !unlockedContent;
+
+  const displayContent = unlockedContent ?? content;
+
   useEffect(() => { addHistory(story.id); }, [story.id, addHistory]);
-  useEffect(() => { window.scrollTo({ top: 0 }); }, [chapter.id]);
+  useEffect(() => { window.scrollTo({ top: 0 }); setUnlockedContent(null); }, [chapter.id]);
   useEffect(() => {
     document.body.style.overflow = showToc ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -279,7 +383,7 @@ export default function ChapterReader({ story, chapter, content, prev, next, all
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const paragraphs = content.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const paragraphs = (displayContent ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
   const articleStyle = {
     fontSize,
@@ -311,12 +415,22 @@ export default function ChapterReader({ story, chapter, content, prev, next, all
 
         <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
 
-        {/* Content */}
-        <article className="mt-10 mb-10 flex flex-col gap-5" style={articleStyle}>
-          {paragraphs.map((p, i) => (
-            <p key={i} className="tracking-wide">{p}</p>
-          ))}
-        </article>
+        {/* Content / Paywall */}
+        {isLocked ? (
+          <div className="mt-10 mb-10 rounded-2xl border border-stone-800 bg-stone-900/50">
+            <ChapterPaywall
+              story={story}
+              chapter={chapter}
+              onUnlocked={(c) => setUnlockedContent(c)}
+            />
+          </div>
+        ) : (
+          <article className="mt-10 mb-10 flex flex-col gap-5" style={articleStyle}>
+            {paragraphs.map((p, i) => (
+              <p key={i} className="tracking-wide">{p}</p>
+            ))}
+          </article>
+        )}
 
         <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
       </div>

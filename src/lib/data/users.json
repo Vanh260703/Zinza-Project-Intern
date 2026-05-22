@@ -11,7 +11,8 @@
     "candyTopUp": 122270,
     "chaptersRead": 1503,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "2153d5c8-5fb9-42fa-8d40-43abf339a40c",
@@ -26,7 +27,8 @@
     "chaptersRead": 73,
     "isRead": [],
     "storiesMark": [],
-    "follower": 1001
+    "follower": 1001,
+    "unlockedChapters": []
   },
   {
     "id": "01820c35-8d60-4326-9d20-0d95f33b6a9d",
@@ -40,7 +42,11 @@
     "candyTopUp": 2787,
     "chaptersRead": 88,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": [
+      "27d1bf56-6f00-4b7b-b2db-25cc1ed750be",
+      "a73c4128-5f78-48a1-97e2-7856c3feec66"
+    ]
   },
   {
     "id": "63e0ad6a-f00c-4b36-81d0-463df867c423",
@@ -54,7 +60,8 @@
     "candyTopUp": 197116,
     "chaptersRead": 22208,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "932f22ce-1cd7-4528-bb75-15937d8a6677",
@@ -68,7 +75,8 @@
     "candyTopUp": 240445,
     "chaptersRead": 21097,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "429f7c95-71ef-4335-b34c-48c38ecb639f",
@@ -82,7 +90,8 @@
     "candyTopUp": 261060,
     "chaptersRead": 16775,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "47c1fb3d-dadf-4b26-a066-738fb34f039f",
@@ -96,7 +105,8 @@
     "candyTopUp": 335551,
     "chaptersRead": 13490,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "67d594d9-9cf5-4e9b-b335-fd108542d2ac",
@@ -110,7 +120,8 @@
     "candyTopUp": 230849,
     "chaptersRead": 20586,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "c2e0677f-0473-43d0-ad29-071c8a09130b",
@@ -124,7 +135,8 @@
     "candyTopUp": 211134,
     "chaptersRead": 2695,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "afa16409-a979-468a-ad49-085b9d181bcf",
@@ -138,7 +150,8 @@
     "candyTopUp": 210863,
     "chaptersRead": 3190,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "ed75874b-2757-4fcd-92a1-6498b98af60b",
@@ -152,7 +165,8 @@
     "candyTopUp": 434395,
     "chaptersRead": 7995,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "d106b7c9-b80c-4904-bee3-5bc898acd78d",
@@ -166,7 +180,8 @@
     "candyTopUp": 20148,
     "chaptersRead": 2506,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "e796dd5d-914b-40af-b59d-e1793c58aba5",
@@ -180,7 +195,8 @@
     "candyTopUp": 34564,
     "chaptersRead": 6285,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "4c440cf1-1026-4281-90c0-c6fd6e2711ba",
@@ -194,7 +210,8 @@
     "candyTopUp": 13184,
     "chaptersRead": 3725,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "2edbf74b-c690-44d0-9cfd-0311ab1fe8ae",
@@ -208,7 +225,8 @@
     "candyTopUp": 15467,
     "chaptersRead": 2285,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "ca06a4f4-8843-4e77-8e09-d6002910843d",
@@ -222,7 +240,8 @@
     "candyTopUp": 38950,
     "chaptersRead": 4404,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "115f7525-f7d8-422e-8ac4-16bdfdbaa294",
@@ -236,7 +255,8 @@
     "candyTopUp": 46925,
     "chaptersRead": 6710,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "506454da-a434-4909-a57f-2dfdd2821f59",
@@ -250,7 +270,8 @@
     "candyTopUp": 41620,
     "chaptersRead": 3759,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "7fc6581e-a535-46ff-92a8-77eb60709f97",
@@ -264,7 +285,8 @@
     "candyTopUp": 41677,
     "chaptersRead": 3033,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "b53b23a3-dce2-46bd-a8b4-f7c070af8cf7",
@@ -278,7 +300,8 @@
     "candyTopUp": 47348,
     "chaptersRead": 1451,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "14b2569e-9def-46fc-a4a0-f6ef31ea00db",
@@ -292,7 +315,8 @@
     "candyTopUp": 40218,
     "chaptersRead": 958,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "5aad99a4-2852-41eb-85c3-5e309fee88aa",
@@ -306,7 +330,8 @@
     "candyTopUp": 40980,
     "chaptersRead": 4434,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "7037c53d-a19f-4db0-98b3-509dc86a5252",
@@ -320,7 +345,8 @@
     "candyTopUp": 24012,
     "chaptersRead": 883,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "79320d31-ff01-4f1c-ab3f-8a58e63456e2",
@@ -334,7 +360,8 @@
     "candyTopUp": 30579,
     "chaptersRead": 2150,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "300ca7e4-f463-4d4c-9213-e7f9c3e66838",
@@ -348,7 +375,8 @@
     "candyTopUp": 29681,
     "chaptersRead": 6527,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "82d3fbd0-beb1-4bcd-9714-74af802cd8dd",
@@ -362,7 +390,8 @@
     "candyTopUp": 46254,
     "chaptersRead": 3605,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "3ccd2703-2fb9-49ac-b3f6-82504310f77f",
@@ -376,7 +405,8 @@
     "candyTopUp": 41068,
     "chaptersRead": 2989,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "bbf4bc8b-ddb3-4625-875b-b9fb57b4aa0f",
@@ -390,7 +420,8 @@
     "candyTopUp": 36514,
     "chaptersRead": 4875,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "85c99419-123b-4318-9778-b7d3260e06cc",
@@ -404,7 +435,8 @@
     "candyTopUp": 28236,
     "chaptersRead": 7433,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "e9b9e9e5-521b-49fe-bf70-0d40dae83cd9",
@@ -418,7 +450,8 @@
     "candyTopUp": 47402,
     "chaptersRead": 7240,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "4dc56aa5-1f29-4e10-a01d-f216d1a2874a",
@@ -432,7 +465,8 @@
     "candyTopUp": 17610,
     "chaptersRead": 7746,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "d4ad5960-5c89-4db1-9480-65d8602bf6ad",
@@ -446,7 +480,8 @@
     "candyTopUp": 43737,
     "chaptersRead": 2079,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "eebd9053-ea4e-4a93-8938-7482cd4bb002",
@@ -460,7 +495,8 @@
     "candyTopUp": 10571,
     "chaptersRead": 2516,
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "4eafb0e9-bf8d-4333-bbfd-d503120ad044",
@@ -473,7 +509,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T07:32:18.087Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "928137a4-c105-4382-8cfb-7a59efbace4a",
@@ -486,7 +523,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T07:35:25.952Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "8ccb656a-3acf-410e-a5e6-e7cffb883fad",
@@ -499,7 +537,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T07:40:00.170Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "dab9d1f3-f6af-48b1-885a-6979d54f6270",
@@ -512,7 +551,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T07:47:49.195Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "b413c6d7-8367-4124-a769-1c76d8db445d",
@@ -525,7 +565,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:13:43.883Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "99530386-8188-4c8b-aa03-a71f83bc14b8",
@@ -538,7 +579,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:29:47.445Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "0fed3f70-4be9-4f4b-8ae0-bbe373b4fe51",
@@ -551,7 +593,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:32:54.112Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "242ca31a-96ae-41e6-a2b6-e68ba21ece32",
@@ -564,7 +607,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:38:04.576Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "95648ed4-236f-405f-b98a-b2073e9bca41",
@@ -577,7 +621,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:44:37.327Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "39cd960e-a81d-434d-b8e6-1161fc30f0a5",
@@ -590,7 +635,8 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:47:44.850Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   },
   {
     "id": "c13c8462-61bf-4b8d-b9b3-d3d13c335234",
@@ -603,6 +649,7 @@
     "chaptersRead": 0,
     "joinedAt": "2026-05-21T08:51:49.543Z",
     "isRead": [],
-    "storiesMark": []
+    "storiesMark": [],
+    "unlockedChapters": []
   }
 ]

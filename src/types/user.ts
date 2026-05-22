@@ -13,5 +13,6 @@ export interface User {
   joinedAt?: string;
   isRead: string[];
   storiesMark: string[];
+  unlockedChapters: string[];
 }
 
