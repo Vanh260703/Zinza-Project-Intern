@@ -4,11 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
 import { loginSchema, type LoginFormData } from "@/schemas/auth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
-import CountdownToast from "@/components/ui/CountdownToast";
+import { showToast } from "@/lib/toast";
 import { useState } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -36,30 +35,18 @@ export default function LoginForm() {
       body: JSON.stringify(data),
     });
 
-    const DURATION = 3000;
-
     if (!res.ok) {
       const json = await res.json();
       const msg = json.message ?? "Đăng nhập thất bại";
       setServerError(msg);
-      toast.custom(() => (
-        <CountdownToast type="error" title={msg} duration={DURATION} />
-      ), { duration: DURATION });
+      showToast.error(msg);
       return;
     }
 
     const { token, user, history, bookmarks } = await res.json();
     setUser(user, token);
     initLibrary(user.id, history, bookmarks);
-
-    toast.custom(() => (
-      <CountdownToast
-        type="success"
-        title="Chào mừng trở lại!"
-        description={user.name}
-        duration={DURATION}
-      />
-    ), { duration: DURATION });
+    showToast.success("Chào mừng trở lại!", user.name);
 
     router.push("/");
   };

@@ -39,7 +39,7 @@ export default function NominatedSection({ allStories }: NominatedSectionProps) 
             Đăng nhập để xem truyện được đề cử dành riêng cho bạn
           </p>
           <Link
-            href="/login"
+            href="/auth/login"
             className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors"
           >
             Đăng nhập ngay

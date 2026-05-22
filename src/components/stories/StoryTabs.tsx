@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BookOpen, Star } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
+import type { Review } from "@/types/review";
 
 type Tab = "review" | "chapters" | "rating" | "comments";
 
@@ -12,7 +13,12 @@ type StoryTabsProps = {
   story: Story;
   chapters: Chapter[];
   slug: string;
+  reviews: Review[];
 };
+
+const RATING_LABELS = ["", "Tệ", "Không hay", "Bình thường", "Hay", "Tuyệt vời"];
+const PAGE_SIZE = 30;
+
 
 function TabBar({
   active,
@@ -51,7 +57,15 @@ function TabBar({
   );
 }
 
-function ReviewTab({ description }: { description: string }) {
+function formatDaysAgo(days: number): string {
+  if (days < 1) return "Hôm nay";
+  if (days === 1) return "1 ngày trước";
+  if (days < 30) return `${days} ngày trước`;
+  if (days < 365) return `${Math.floor(days / 30)} tháng trước`;
+  return `${Math.floor(days / 365)} năm trước`;
+}
+
+function ReviewTab({ description, reviews }: { description: string; reviews: Review[] }) {
   return (
     <div className="flex flex-col gap-6">
       {/* Description */}
@@ -60,39 +74,39 @@ function ReviewTab({ description }: { description: string }) {
         <p className="text-stone-400 text-sm leading-relaxed whitespace-pre-line">{description || "Chưa có giới thiệu."}</p>
       </div>
 
-      {/* Reader reviews placeholder */}
+      {/* Reader reviews */}
       <div>
-        <h3 className="text-white font-bold text-base mb-4">Đánh giá của độc giả</h3>
-        <div className="flex flex-col gap-3">
-          {[
-            { name: "Độc giả 1", stars: 5, text: "Truyện rất hay, cốt truyện cuốn hút!" },
-            { name: "Độc giả 2", stars: 4, text: "Văn phong mượt mà, nhân vật xây dựng tốt." },
-          ].map((review, i) => (
-            <div key={i} className="bg-stone-900 rounded-xl p-4 border border-stone-800">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-full bg-stone-700 flex items-center justify-center text-xs text-stone-300 font-semibold">
-                  {review.name[0]}
+        <h3 className="text-white font-bold text-base mb-4">
+          Đánh giá của độc giả
+          <span className="ml-2 text-stone-500 text-sm font-normal">({reviews.length})</span>
+        </h3>
+        {reviews.length === 0 ? (
+          <p className="text-stone-600 text-sm text-center py-8">Chưa có đánh giá nào</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {reviews.map((review) => (
+              <div key={review.id} className="bg-stone-900 rounded-xl p-4 border border-stone-800">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-stone-700 flex items-center justify-center text-xs text-stone-300 font-semibold">
+                    {review.userName[0]}
+                  </div>
+                  <span className="text-stone-300 text-sm font-medium">{review.userName}</span>
+                  <div className="flex items-center gap-0.5 ml-1">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className={`w-3 h-3 ${s <= review.stars ? "text-amber-400 fill-amber-400" : "text-stone-600"}`} />
+                    ))}
+                  </div>
+                  <span className="ml-auto text-stone-600 text-xs">{formatDaysAgo(review.daysAgo)}</span>
                 </div>
-                <span className="text-stone-300 text-sm font-medium">{review.name}</span>
-                <div className="flex items-center gap-0.5 ml-1">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star
-                      key={s}
-                      className={`w-3 h-3 ${s <= review.stars ? "text-amber-400 fill-amber-400" : "text-stone-600"}`}
-                    />
-                  ))}
-                </div>
+                <p className="text-stone-400 text-sm">{review.text}</p>
               </div>
-              <p className="text-stone-400 text-sm">{review.text}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-const PAGE_SIZE = 30;
 
 function ChaptersTab({ slug, chapters }: { slug: string; chapters: Chapter[] }) {
   const [query, setQuery] = useState("");
@@ -184,7 +198,6 @@ function ChaptersTab({ slug, chapters }: { slug: string; chapters: Chapter[] }) 
   );
 }
 
-const RATING_LABELS = ["", "Tệ", "Không hay", "Bình thường", "Hay", "Tuyệt vời"];
 
 function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: number }) {
   const [hovered, setHovered] = useState(0);
@@ -308,7 +321,7 @@ function CommentsTab({ commentCount }: { commentCount: number }) {
   );
 }
 
-export default function StoryTabs({ story, chapters, slug }: StoryTabsProps) {
+export default function StoryTabs({ story, chapters, slug, reviews }: StoryTabsProps) {
   const [active, setActive] = useState<Tab>("review");
 
   return (
@@ -321,7 +334,7 @@ export default function StoryTabs({ story, chapters, slug }: StoryTabsProps) {
       />
 
       <div>
-        {active === "review" && <ReviewTab description={story.description} />}
+        {active === "review" && <ReviewTab description={story.description} reviews={reviews} />}
         {active === "chapters" && <ChaptersTab slug={slug} chapters={chapters} />}
         {active === "rating" && <RatingTab rating={story.rating} ratingCount={story.ratingCount} />}
         {active === "comments" && <CommentsTab commentCount={story.commentCount} />}

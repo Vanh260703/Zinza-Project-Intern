@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { generateId } from "@/utils/generateId";
-import { getHot, getNominated, getRandomStory, getRankingStories, getVipStories } from "@/utils/handleStories";
+import { getNew, getHot, getNominated, getRandomStory, getRankingStories, getVipStories } from "@/utils/handleStories";
 import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
@@ -51,6 +51,11 @@ export const db = {
       return readJson<Story>("stories.json").find((s) => s.slug === slug);
     },
 
+    // Lấy ra 5 truyện mới nhất
+    getNew(limit = 5) : Story[] {
+      return getNew(readJson<Story>("stories.json"), limit)
+    },
+
     // Lấy ra 5 truyện hot nhất
     getHot(limit = 5): Story[] {
       return getHot(readJson<Story>("stories.json"), limit);
@@ -74,6 +79,13 @@ export const db = {
     // Lấy ra truyện vip
     getVip() : Story[] {
       return getVipStories(readJson<Story>("stories.json"));
+    },
+  },
+
+  reviews: {
+    getByStory(storyId: string) {
+      return readJson<{ id: string; storyId: string; userName: string; stars: number; text: string; daysAgo: number }>("reviews.json")
+        .filter((r) => r.storyId === storyId);
     },
   },
 
