@@ -1,15 +1,11 @@
 "use client";
 
-import { Lock, Crown } from "lucide-react";
+import { Crown } from "lucide-react";
 import type { Story } from "@/types/story";
 
-const FOLLOWER_UNLOCK = 1000;
+type Props = { story: Story };
 
-type Props = { story: Story; followerCount: number };
-
-export default function SettingsTab({ story, followerCount }: Props) {
-  const canSetPrice = followerCount >= FOLLOWER_UNLOCK;
-
+export default function SettingsTab({ story }: Props) {
   return (
     <div className="flex flex-col gap-5">
       {/* VIP */}
@@ -29,36 +25,24 @@ export default function SettingsTab({ story, followerCount }: Props) {
       </div>
 
       {/* Giá kẹo mặc định */}
-      <div className={`flex flex-col gap-3 p-4 border rounded-xl ${canSetPrice ? "bg-stone-800/50 border-stone-700" : "bg-stone-900 border-stone-800 opacity-60"}`}>
-        <div className="flex items-start gap-3">
-          <Lock className={`w-4 h-4 mt-0.5 shrink-0 ${canSetPrice ? "text-violet-400" : "text-stone-600"}`} />
-          <div className="flex flex-col gap-1 flex-1">
-            <p className="text-stone-200 text-sm font-medium">Giá kẹo mặc định cho chương trả phí</p>
-            {canSetPrice ? (
-              <p className="text-stone-500 text-xs">Số kẹo mặc định khi tạo chương mới. Có thể chỉnh riêng từng chương.</p>
-            ) : (
-              <p className="text-stone-500 text-xs">
-                Cần đạt <span className="text-violet-400 font-medium">{FOLLOWER_UNLOCK.toLocaleString()} người theo dõi</span> để mở khoá tính năng này.
-              </p>
-            )}
-          </div>
+      <div className="flex flex-col gap-3 p-4 border rounded-xl bg-stone-800/50 border-stone-700">
+        <div className="flex flex-col gap-1">
+          <p className="text-stone-200 text-sm font-medium">Giá kẹo mặc định cho chương trả phí</p>
+          <p className="text-stone-500 text-xs">Số kẹo mặc định khi tạo chương mới. Có thể chỉnh riêng từng chương.</p>
         </div>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min={0}
             defaultValue={story.price ?? 0}
-            disabled={!canSetPrice}
             placeholder="0"
-            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors disabled:cursor-not-allowed"
+            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo / chương</span>
         </div>
-        {canSetPrice && (
-          <button className="self-start px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors">
-            Lưu
-          </button>
-        )}
+        <button className="self-start px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors">
+          Lưu
+        </button>
       </div>
     </div>
   );

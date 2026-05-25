@@ -15,8 +15,6 @@ export default async function EditChapterPage({ params }: Props) {
   const reader = db.chapters.getReader(story, chapterId);
   if (!reader) notFound();
 
-  const author = db.users.findById(story.postedBy);
-
   return (
     <div className="flex flex-col gap-5">
       <Link
@@ -38,7 +36,6 @@ export default async function EditChapterPage({ params }: Props) {
           novelId={id}
           chapter={reader.chapter}
           initialContent={reader.content}
-          authorFollowers={author?.follower ?? 0}
         />
       </div>
     </div>

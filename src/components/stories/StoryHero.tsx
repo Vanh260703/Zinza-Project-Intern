@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { BookOpen, Star, Bookmark, Eye, BookMarked } from "lucide-react";
+import { BookOpen, Star, BookMarked } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import CandyButton from "./CandyButton";
-import FollowButton from "./FollowButton";
 import RecommendButton from "./RecommendButton";
 
 type StoryHeroProps = {
@@ -41,7 +40,7 @@ function StatItem({ icon, value, label }: { icon: React.ReactNode; value: string
 export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
   const {
     id, slug, name, poster, author, postedBy, genres, status,
-    rating, ratingCount, followers, chapterCount, nominations, vip,
+    rating, ratingCount, chapterCount, nominations, vip,
   } = story;
 
   const formatNum = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n);
@@ -102,8 +101,6 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
                 {ratingCount > 0 && <span className="text-stone-500 text-xs">({ratingCount})</span>}
               </div>
             )}
-            <StatItem icon={<Eye className="w-4 h-4" />} value={formatNum(followers ?? 0)} />
-            <StatItem icon={<Bookmark className="w-4 h-4" />} value={formatNum(followers ?? 0)} label="theo dõi" />
             <StatItem icon={<BookMarked className="w-4 h-4" />} value={chapterCount.toLocaleString()} label="chương" />
             {nominations > 0 && (
               <StatItem icon={<span className="text-sm">🍬</span>} value={formatNum(nominations)} label="đề cử" />
@@ -119,7 +116,6 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
               <BookOpen className="w-4 h-4" />
               Đọc ngay
             </Link>
-            <FollowButton storyId={id} />
             <RecommendButton />
             <CandyButton />
           </div>

@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import type { Chapter } from "@/types/chapter";
-
-const FOLLOWER_UNLOCK = 1000;
 
 const inputCls = "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
@@ -15,10 +12,9 @@ type Props = {
   novelId: string;
   chapter: Chapter;
   initialContent: string;
-  authorFollowers: number;
 };
 
-export default function EditChapterForm({ novelId, chapter, initialContent, authorFollowers }: Props) {
+export default function EditChapterForm({ novelId, chapter, initialContent }: Props) {
   const user   = useAuthStore((s) => s.user);
   const router = useRouter();
 
@@ -28,8 +24,7 @@ export default function EditChapterForm({ novelId, chapter, initialContent, auth
   const [loading, setLoading]       = useState(false);
   const [errors, setErrors]         = useState<Record<string, string>>({});
 
-  const canSetPrice = authorFollowers >= FOLLOWER_UNLOCK;
-  const wordCount   = content.replace(/\s/g, "").length;
+  const wordCount = content.replace(/\s/g, "").length;
 
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,7 +39,7 @@ export default function EditChapterForm({ novelId, chapter, initialContent, auth
         body: JSON.stringify({
           title: title.trim(),
           content,
-          candyPrice: canSetPrice ? candyPrice : 0,
+          candyPrice,
         }),
       });
 
@@ -103,24 +98,15 @@ export default function EditChapterForm({ novelId, chapter, initialContent, auth
       </div>
 
       {/* Giá kẹo */}
-      <div className={`flex flex-col gap-2 p-4 rounded-xl border ${canSetPrice ? "border-stone-700 bg-stone-800/40" : "border-stone-800 bg-stone-900 opacity-50"}`}>
-        <div className="flex items-center gap-2">
-          <Lock className={`w-3.5 h-3.5 ${canSetPrice ? "text-violet-400" : "text-stone-600"}`} />
-          <label className="text-stone-400 text-xs font-medium">Giá kẹo để mở chương</label>
-          {!canSetPrice && (
-            <span className="text-stone-600 text-[11px]">
-              — Cần {FOLLOWER_UNLOCK.toLocaleString()} người theo dõi
-            </span>
-          )}
-        </div>
+      <div className="flex flex-col gap-2 p-4 rounded-xl border border-stone-700 bg-stone-800/40">
+        <label className="text-stone-400 text-xs font-medium">Giá kẹo để mở chương</label>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min={0}
             value={candyPrice}
             onChange={(e) => setCandyPrice(Number(e.target.value))}
-            disabled={!canSetPrice}
-            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors disabled:cursor-not-allowed"
+            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo</span>
           {candyPrice === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}

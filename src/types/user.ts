@@ -10,8 +10,7 @@ export interface User {
   role: Role;
   candy: number;
   chaptersRead: number;
-  follower?: number;
-  joinedAt?: string;
+joinedAt?: string;
   isRead: string[];
   storiesMark: string[];
   unlockedChapters: string[];

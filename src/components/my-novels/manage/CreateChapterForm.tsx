@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
-
-const FOLLOWER_UNLOCK = 1000;
 
 const inputCls = "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
@@ -22,8 +19,6 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
   const [candyPrice, setCandyPrice] = useState<number>(0);
   const [loading, setLoading]   = useState(false);
   const [errors, setErrors]     = useState<Record<string, string>>({});
-
-  const canSetPrice = (user?.follower ?? 0) >= FOLLOWER_UNLOCK;
 
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
@@ -41,7 +36,7 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
           userId: user.id,
           title: title.trim(),
           content,
-          ...(canSetPrice && candyPrice > 0 ? { candyPrice } : {}),
+          ...(candyPrice > 0 ? { candyPrice } : {}),
         }),
       });
 
@@ -102,24 +97,15 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
       </div>
 
       {/* Giá kẹo */}
-      <div className={`flex flex-col gap-2 p-4 rounded-xl border ${canSetPrice ? "border-stone-700 bg-stone-800/40" : "border-stone-800 bg-stone-900 opacity-50"}`}>
-        <div className="flex items-center gap-2">
-          <Lock className={`w-3.5 h-3.5 ${canSetPrice ? "text-violet-400" : "text-stone-600"}`} />
-          <label className="text-stone-400 text-xs font-medium">Giá kẹo để mở chương</label>
-          {!canSetPrice && (
-            <span className="text-stone-600 text-[11px]">
-              — Cần {FOLLOWER_UNLOCK.toLocaleString()} người theo dõi
-            </span>
-          )}
-        </div>
+      <div className="flex flex-col gap-2 p-4 rounded-xl border border-stone-700 bg-stone-800/40">
+        <label className="text-stone-400 text-xs font-medium">Giá kẹo để mở chương</label>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min={0}
             value={candyPrice}
             onChange={(e) => setCandyPrice(Number(e.target.value))}
-            disabled={!canSetPrice}
-            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors disabled:cursor-not-allowed"
+            className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo</span>
           {candyPrice === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}

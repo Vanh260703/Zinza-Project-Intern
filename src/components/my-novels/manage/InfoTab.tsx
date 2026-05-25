@@ -1,11 +1,10 @@
-import { Eye, Users, BookOpen, Candy, User, Tag, Calendar } from "lucide-react";
+import { Eye, BookOpen, Candy, User, Tag, Calendar } from "lucide-react";
 import type { Story } from "@/types/story";
 
 const stats = [
-  { key: "views",     label: "LƯỢT ĐỌC",       icon: Eye,      color: "text-blue-400",   value: 0 },
-  { key: "followers", label: "LƯỢT THEO DÕI",   icon: Users,    color: "text-pink-400",   value: 0 },
-  { key: "chapters",  label: "CHƯƠNG ĐÃ ĐĂNG",  icon: BookOpen, color: "text-emerald-400", value: null },
-  { key: "candy",     label: "KẸO NHẬN ĐƯỢC",   icon: Candy,    color: "text-amber-400",  value: 0 },
+  { key: "views",    label: "LƯỢT ĐỌC",       icon: Eye,      color: "text-blue-400",    value: 0 },
+  { key: "chapters", label: "CHƯƠNG ĐÃ ĐĂNG",  icon: BookOpen, color: "text-emerald-400", value: null },
+  { key: "candy",    label: "KẸO NHẬN ĐƯỢC",   icon: Candy,    color: "text-amber-400",   value: 0 },
 ];
 
 function formatDate(date?: Date | string) {

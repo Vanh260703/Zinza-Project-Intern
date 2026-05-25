@@ -74,7 +74,7 @@ export default function TransactionsContent() {
           <div className="relative">
             <button
               onClick={() => setOpen((v) => !v)}
-              className="flex items-center gap-2 bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none hover:border-stone-600 transition-colors min-w-[150px] justify-between"
+              className="flex items-center gap-2 bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none hover:border-stone-600 transition-colors min-w-37.5 justify-between"
             >
               <span>{selectedLabel}</span>
               <svg className="w-4 h-4 text-stone-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">

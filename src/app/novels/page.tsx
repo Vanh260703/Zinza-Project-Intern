@@ -37,7 +37,7 @@ function filterAndSort(stories: Story[], params: SearchParams): Story[] {
   if (params.sort === "rating") {
     result.sort((a, b) => b.rating - a.rating);
   } else if (params.sort === "views") {
-    result.sort((a, b) => (b.followers ?? 0) - (a.followers ?? 0));
+    result.sort((a, b) => b.nominations - a.nominations);
   }
 
   return result;
