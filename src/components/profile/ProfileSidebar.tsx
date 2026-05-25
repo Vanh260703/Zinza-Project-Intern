@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   User, Bell, BookMarked, CreditCard, LogOut,
   BookOpenText, PlusCircle, BarChart2, Upload,
+  DollarSign
 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -26,6 +27,7 @@ const STORY_ITEMS: NavItem[] = [
 ];
 
 const MORE_ITEMS: NavItem[] = [
+  { href: "/profile/payment",  icon: DollarSign, label: "Nạp kẹo" },
   { href: "/profile/transactions",  icon: CreditCard, label: "Lịch sử giao dịch" },
 ];
 

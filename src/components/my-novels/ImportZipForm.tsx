@@ -11,6 +11,13 @@ const INSTRUCTIONS = [
   "Dung lượng tối đa 50MB",
 ];
 
+const STEPS = [
+  "Đang giải nén file...",
+  "Đang phân tích chương...",
+  "Đang lưu dữ liệu...",
+  "Hoàn tất!",
+];
+
 function DropZone({
   file,
   onFile,
@@ -91,16 +98,42 @@ function DropZone({
 export default function ImportZipForm() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [importing, setImporting] = useState(false);
+  const [done, setDone] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) { showToast.error("Vui lòng chọn file ZIP"); return; }
-    setLoading(true);
-    // TODO: gọi API upload ZIP
-    await new Promise((r) => setTimeout(r, 1000));
-    showToast.success("Import thành công");
-    setLoading(false);
+
+    setImporting(true);
+    setProgress(0);
+    setStepIndex(0);
+    setDone(false);
+
+    // Mock progress: fast 0→80%, slow 80→100% — total ~3.5s
+    await new Promise<void>((resolve) => {
+      let current = 0;
+      const tick = () => {
+        if (current >= 100) { resolve(); return; }
+        const increment = current < 80
+          ? Math.random() * 5 + 3   // 3–8% nhanh
+          : Math.random() * 2 + 0.5; // 0.5–2.5% chậm dần
+        current = Math.min(current + increment, 100);
+        const floored = Math.floor(current);
+        setProgress(floored);
+        if (floored >= 30) setStepIndex(1);
+        if (floored >= 65) setStepIndex(2);
+        if (floored >= 92) setStepIndex(3);
+        setTimeout(tick, current < 80 ? 90 : 180);
+      };
+      setTimeout(tick, 60);
+    });
+
+    setDone(true);
+    await new Promise((r) => setTimeout(r, 600));
+    showToast.success("Import thành công! 🎉");
     router.push("/my-novels");
   };
 
@@ -122,26 +155,65 @@ export default function ImportZipForm() {
         </ul>
       </div>
 
-      {/* Drop zone */}
-      <DropZone file={file} onFile={setFile} onClear={() => setFile(null)} />
+      {/* Drop zone — ẩn khi đang import */}
+      {!importing && (
+        <DropZone file={file} onFile={setFile} onClear={() => setFile(null)} />
+      )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={loading || !file}
-          className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
-        >
-          {loading ? "Đang import..." : "Import"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-6 py-2.5 rounded-xl text-sm font-medium border border-stone-700 text-stone-400 hover:bg-stone-800 hover:text-white transition-colors"
-        >
-          Huỷ
-        </button>
-      </div>
+      {/* Progress panel — hiện khi đang import */}
+      {importing && (
+        <div className="flex flex-col gap-4 p-5 bg-stone-800/50 border border-stone-700 rounded-2xl">
+          {/* File info */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+              <FileArchive className="w-5 h-5 text-amber-400" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-stone-200 text-sm font-medium truncate">{file?.name}</p>
+              <p className="text-stone-500 text-xs">{file ? (file.size / 1024 / 1024).toFixed(2) + " MB" : ""}</p>
+            </div>
+            {done && <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />}
+          </div>
+
+          {/* Progress bar */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className={`text-xs transition-colors ${done ? "text-emerald-400" : "text-stone-400"}`}>
+                {STEPS[stepIndex]}
+              </span>
+              <span className={`text-xs font-bold tabular-nums transition-colors ${done ? "text-emerald-400" : "text-amber-400"}`}>
+                {progress}%
+              </span>
+            </div>
+            <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-100 ease-out ${done ? "bg-emerald-500" : "bg-amber-500"}`}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Actions — ẩn khi đang import */}
+      {!importing && (
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={!file}
+            className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
+          >
+            Import
+          </button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2.5 rounded-xl text-sm font-medium border border-stone-700 text-stone-400 hover:bg-stone-800 hover:text-white transition-colors"
+          >
+            Huỷ
+          </button>
+        </div>
+      )}
     </form>
   );
 }

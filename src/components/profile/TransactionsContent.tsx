@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { CreditCard, Filter } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 
@@ -9,8 +10,6 @@ const FILTER_OPTIONS = [
   { value: "topup",   label: "Nạp kẹo"           },
   { value: "unlock",  label: "Mở khóa chương"    },
   { value: "gift",    label: "Tặng quà"           },
-  { value: "receive", label: "Nhận quà"           },
-  { value: "adjust",  label: "Điều chỉnh"         },
 ];
 
 type Transaction = {
@@ -22,12 +21,24 @@ type Transaction = {
 };
 
 export default function TransactionsContent() {
-  const user = useAuthStore((s) => s.user);
+  const user        = useAuthStore((s) => s.user);
+  const router      = useRouter();
+  const pathname    = usePathname();
+  const searchParams = useSearchParams();
 
-  const [filter, setFilter]     = useState("all");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate]     = useState("");
+  const [filter, setFilter]     = useState(searchParams.get("type") ?? "all");
+  const [fromDate, setFromDate] = useState(searchParams.get("from") ?? "");
+  const [toDate, setToDate]     = useState(searchParams.get("to")   ?? "");
   const [open, setOpen]         = useState(false);
+
+  const syncParams = (type: string, from: string, to: string) => {
+    const params = new URLSearchParams();
+    if (type !== "all") params.set("type", type);
+    if (from)           params.set("from", from);
+    if (to)             params.set("to",   to);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname);
+  };
 
   // No mock transactions — always empty
   const transactions: Transaction[] = [];
@@ -76,7 +87,7 @@ export default function TransactionsContent() {
                 {FILTER_OPTIONS.map((opt) => (
                   <button
                     key={opt.value}
-                    onClick={() => { setFilter(opt.value); setOpen(false); }}
+                    onClick={() => { setFilter(opt.value); setOpen(false); syncParams(opt.value, fromDate, toDate); }}
                     className={`w-full text-left px-4 py-2.5 text-sm flex items-center justify-between transition-colors ${
                       filter === opt.value
                         ? "text-amber-400 bg-amber-500/10"
@@ -99,13 +110,13 @@ export default function TransactionsContent() {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => { setFromDate(e.target.value); syncParams(filter, e.target.value, toDate); }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => { setToDate(e.target.value); syncParams(filter, fromDate, e.target.value); }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
         </div>

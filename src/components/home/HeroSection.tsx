@@ -82,8 +82,8 @@ export default function HeroSection() {
             </Link>
             {!user && (
               <Link
-                href="/register"
-                className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-white font-semibold rounded-xl text-sm transition-colors"
+                href="/auth/register"
+                className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-amber-400 font-semibold rounded-xl text-sm transition-colors"
               >
                 Đăng ký miễn phí
               </Link>

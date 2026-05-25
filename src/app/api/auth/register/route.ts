@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const user = db.users.create({ name, email, password, gender, role: "user", candy: 0, chaptersRead: 0, joinedAt: new Date().toISOString(), isRead: [], storiesMark: [], unlockedChapters: [] });
+  const user = db.users.create({ name, email, password, gender, avatarUrl: '', role: "user", candy: 0, chaptersRead: 0, joinedAt: new Date().toISOString(), isRead: [], storiesMark: [], unlockedChapters: [] , monthlyRecommendationTicket: 0});
 
   return NextResponse.json(
     { message: "Đăng ký thành công", user: { id: user.id, name, email } },

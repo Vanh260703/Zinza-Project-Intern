@@ -4,6 +4,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  avatarUrl: string;
   password: string;
   gender: Gender;
   role: Role;
@@ -14,5 +15,6 @@ export interface User {
   isRead: string[];
   storiesMark: string[];
   unlockedChapters: string[];
+  monthlyRecommendationTicket: number;
 }
 

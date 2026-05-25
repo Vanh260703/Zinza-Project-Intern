@@ -4,6 +4,7 @@ import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import CandyButton from "./CandyButton";
 import FollowButton from "./FollowButton";
+import RecommendButton from "./RecommendButton";
 
 type StoryHeroProps = {
   story: Story;
@@ -119,6 +120,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
               Đọc ngay
             </Link>
             <FollowButton storyId={id} />
+            <RecommendButton />
             <CandyButton />
           </div>
         </div>
