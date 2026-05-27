@@ -9,7 +9,7 @@ import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ" },
-  { href: "/stories/vip", label: "👑 VIP" },
+  { href: "/novels/vip", label: "👑 VIP" },
 ];
 
 type SearchResult = {
@@ -51,7 +51,7 @@ function SearchBox() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/stories/search?q=${encodeURIComponent(value)}&limit=4`);
+      const res = await fetch(`/novels/search?q=${encodeURIComponent(value)}&limit=4`);
       const data = await res.json();
       setResults(data.results);
       setRemaining(data.total - data.results.length);
@@ -70,7 +70,7 @@ function SearchBox() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && q.trim()) {
       setOpen(false);
-      router.push(`/?q=${encodeURIComponent(q.trim())}`);
+      router.push(`/novels?q=${encodeURIComponent(q.trim())}`);
     }
   };
 
@@ -104,7 +104,7 @@ function SearchBox() {
               {results.map((story) => (
                 <Link
                   key={story.id}
-                  href={`/stories/${story.slug}`}
+                  href={`/novels/${story.slug}`}
                   onClick={() => { setOpen(false); setQ(""); }}
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
@@ -137,7 +137,7 @@ function SearchBox() {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    router.push(`/?q=${encodeURIComponent(q.trim())}`);
+                    router.push(`/novels?q=${encodeURIComponent(q.trim())}`);
                   }}
                   className="w-full px-4 py-2.5 text-xs text-amber-400 hover:text-amber-300 hover:bg-stone-800 transition-colors border-t border-stone-800 text-center font-medium"
                 >
@@ -148,6 +148,136 @@ function SearchBox() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function timeAgo(dateStr: string | Date): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "vừa xong";
+  if (m < 60) return `${m} phút trước`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} giờ trước`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return "hôm qua";
+  return new Date(dateStr).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+}
+
+type NotificationItem = {
+  id: number;
+  title: string;
+  content: string;
+  isRead: boolean;
+  createdAt: string;
+};
+
+function NotificationDropdown() {
+  const user = useAuthStore((s) => s.user);
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<NotificationItem[]>([]);
+  const [totalUnread, setTotalUnread] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    fetch(`/api/notifications?userId=${user.id}`)
+      .then((r) => r.json())
+      .then((d) => { setItems(d.notifications); setTotalUnread(d.totalUnread); });
+  }, [open, user]);
+
+  // Số unread trong 4 items đang hiển thị
+  const shownUnread = items.filter((n) => !n.isRead).length;
+  const remainingUnread = totalUnread - shownUnread;
+
+  const handleMarkAllRead = async () => {
+    await fetch("/api/notifications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user?.id }) });
+    setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setTotalUnread(0);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="relative p-2 text-stone-400 hover:text-white rounded-lg hover:bg-stone-700/60 transition-colors"
+      >
+        <Bell className="w-5 h-5" strokeWidth={1.8} />
+        {totalUnread > 0 && (
+          <span className="absolute top-1 right-1 min-w-4 h-4 px-0.5 bg-amber-500 rounded-full text-[10px] font-bold text-white flex items-center justify-center leading-none">
+            {totalUnread > 9 ? "9+" : totalUnread}
+          </span>
+        )}
+      </button>
+
+      <div
+        className={`absolute right-0 top-full mt-2 w-80 bg-stone-900 border border-stone-700/80
+          rounded-xl shadow-xl shadow-black/40 overflow-hidden z-50
+          transition-all duration-200 origin-top-right
+          ${open ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-1 pointer-events-none"}`}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-stone-800">
+          <span className="text-white text-sm font-semibold">Thông báo</span>
+          {totalUnread > 0 && (
+            <button onClick={handleMarkAllRead} className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+              Đánh dấu đã đọc
+            </button>
+          )}
+        </div>
+
+        {/* List */}
+        {items.length === 0 ? (
+          <div className="px-4 py-8 text-stone-500 text-sm text-center">Không có thông báo nào</div>
+        ) : (
+          <div>
+            {items.map((n) => (
+              <div
+                key={n.id}
+                className={`px-4 py-3 border-b border-stone-800/60 last:border-0 hover:bg-stone-800/50 transition-colors cursor-default
+                  ${!n.isRead ? "bg-amber-500/5" : ""}`}
+              >
+                <div className="flex items-start gap-2.5">
+                  {!n.isRead && <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />}
+                  <div className={`flex-1 min-w-0 ${n.isRead ? "pl-4" : ""}`}>
+                    <p className="text-stone-200 text-xs font-medium leading-snug truncate">{n.title}</p>
+                    <p className="text-stone-500 text-xs mt-0.5 line-clamp-2 leading-relaxed">{n.content}</p>
+                    <p className="text-stone-600 text-[10px] mt-1">{timeAgo(n.createdAt)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Footer */}
+        {remainingUnread > 0 && (
+          <Link
+            href="/profile/notifications"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-xs text-amber-400 hover:text-amber-300 hover:bg-stone-800 transition-colors border-t border-stone-800 text-center font-medium"
+          >
+            Còn {remainingUnread} thông báo chưa đọc →
+          </Link>
+        )}
+        {remainingUnread === 0 && items.length > 0 && (
+          <Link
+            href="/profile/notifications"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-xs text-stone-500 hover:text-stone-400 hover:bg-stone-800 transition-colors border-t border-stone-800 text-center"
+          >
+            Xem tất cả thông báo
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
@@ -224,7 +354,7 @@ function UserDropdown() {
             Hồ sơ công khai
           </Link>
           <Link
-            href="/tu-sach"
+            href="/profile/library"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stone-300
               hover:text-white hover:bg-stone-800 transition-colors"
@@ -233,7 +363,7 @@ function UserDropdown() {
             Tủ sách
           </Link>
           <Link
-            href="/truyen-cua-toi"
+            href="/my-novels"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-stone-300
               hover:text-white hover:bg-stone-800 transition-colors"
@@ -298,10 +428,7 @@ export default function Navbar() {
 
             {user ? (
               <div className="hidden sm:flex items-center gap-1">
-                <button className="bell-hover relative p-2 text-stone-400 hover:text-white rounded-lg hover:bg-stone-700/60 transition-colors">
-                  <Bell className="w-5 h-5" strokeWidth={1.8} />
-                  <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-amber-500 rounded-full" />
-                </button>
+                <NotificationDropdown />
                 <UserDropdown />
               </div>
             ) : (

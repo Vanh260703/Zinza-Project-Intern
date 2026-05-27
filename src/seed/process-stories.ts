@@ -55,7 +55,6 @@ export function scanStories(): Story[] {
         description:  overview?.description  ?? "",
         vip:          false,
         price:        0,
-        followers:    0,
       };
     });
 }

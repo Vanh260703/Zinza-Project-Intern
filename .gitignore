@@ -17,7 +17,7 @@ build/
 .env.production.local
 
 # Data files (seeded at runtime)
-src/lib/data/stories.json
+src/lib/data/
 
 # Upload folder (large binary files, seeded locally)
 upload/

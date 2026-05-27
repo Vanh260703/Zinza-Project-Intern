@@ -4,7 +4,7 @@ import type { Story } from "@/types/story";
 // Truyện có updatedAt → sort theo thời gian giảm dần
 // Truyện không có updatedAt → coi là cũ hơn, sort theo hot score
 export function getNew(allStories: Story[], limit = 5): Story[] {
-  const hotScore = (s: Story) => (s.followers ?? 0) * 2 + s.commentCount + s.nominations;
+  const hotScore = (s: Story) => s.commentCount + s.nominations;
 
   const withDate = allStories.filter((s) => !!s.updatedAt);
   const withoutDate = allStories.filter((s) => !s.updatedAt);
@@ -19,7 +19,7 @@ export function getNew(allStories: Story[], limit = 5): Story[] {
 
 // Lấy ra truyện hot
 export function getHot(allStories: Story[], limit = 5): Story[] {
-  const hotScore = (s: Story) => (s.followers ?? 0) * 2 + s.commentCount + s.nominations;
+  const hotScore = (s: Story) => s.commentCount + s.nominations;
   return allStories.sort((a, b) => hotScore(b) - hotScore(a)).slice(0, limit);
 }
 
@@ -54,12 +54,21 @@ export function getRandomStory(allStories: Story[]): Story {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Lấy ra ranking truyện theo ngày, tháng, năm (hiện tại mock data)
-export function getRankingStories(allStories: Story[]): Story[] {
-  return allStories.sort((a, b) => b.nominations - a.nominations).slice(0, 5);
+// Lấy ra ranking truyện theo ngày, tuần, tháng (hiện tại mock data)
+export type RankingPeriod = "day" | "week" | "month";
+
+export function getRankingStories(allStories: Story[], period: RankingPeriod = "month", limit = 5): Story[] {
+  const score = (s: Story): number => {
+    switch (period) {
+      case "day":   return s.nominations * 0.5 + s.rating * 10;
+      case "week":  return s.nominations * 0.7 + s.commentCount * 2;
+      case "month": return s.nominations + s.commentCount;
+    }
+  };
+  return [...allStories].sort((a, b) => score(b) - score(a)).slice(0, limit);
 }
 
-// Lấy ra truyện VIP 
+// Lấy ra truyện VIP
 export function getVipStories(allStories: Story[]) : Story[] {
   return allStories.filter(s => s.vip);
 }

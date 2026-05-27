@@ -27,7 +27,7 @@ export default function StoryCard({ story }: StoryCardProps) {
   const { id, slug, name, poster, author, genres, rating, chapterCount, status, vip, nominations } = story;
 
   return (
-    <Link href={`/stories/${slug}`} className="group flex flex-col">
+    <Link href={`/novels/${slug}`} className="group flex flex-col">
       {/* Cover */}
       <div className="relative aspect-3/4 rounded-xl overflow-hidden mb-3 bg-stone-800">
         <CoverImage storyId={id} hasPoster={!!poster} name={name} />

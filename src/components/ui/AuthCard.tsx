@@ -10,7 +10,7 @@ export default function AuthCard({ children }: AuthCardProps) {
     <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4">
       {/* Ambient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 h-100 bg-amber-500/5 rounded-full blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-md">

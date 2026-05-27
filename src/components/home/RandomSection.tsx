@@ -43,7 +43,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
       <div className="flex flex-col sm:flex-row gap-5 sm:gap-7 p-4 sm:p-6 rounded-2xl bg-stone-900 border border-stone-800 hover:border-stone-700/80 transition-colors">
         {/* Cover */}
         <Link
-          href={`/stories/${slug}`}
+          href={`/novels/${slug}`}
           className="relative shrink-0 w-32 sm:w-36 mx-auto sm:mx-0 rounded-xl overflow-hidden bg-stone-800 group"
           style={{ aspectRatio: "3/4" }}
         >
@@ -73,7 +73,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
         {/* Info */}
         <div className="flex flex-col justify-between flex-1 min-w-0">
           <div className="space-y-2.5">
-            <Link href={`/stories/${slug}`}>
+            <Link href={`/novels/${slug}`}>
               <h3 className="text-white text-lg sm:text-xl font-bold leading-snug line-clamp-2 hover:text-amber-400 transition-colors text-center sm:text-left">
                 {name}
               </h3>
@@ -126,7 +126,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
                 {description.length > 200 ? (
                   <>
                     {description.slice(0, 200).trimEnd()}…{" "}
-                    <Link href={`/stories/${slug}`} className="text-amber-400 hover:text-amber-300 transition-colors font-medium">
+                    <Link href={`/novels/${slug}`} className="text-amber-400 hover:text-amber-300 transition-colors font-medium">
                       Xem thêm
                     </Link>
                   </>
@@ -138,7 +138,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
           {/* Actions */}
           <div className="flex items-center justify-center sm:justify-start gap-3 mt-4">
             <Link
-              href={`/stories/${slug}`}
+              href={`/novels/${slug}`}
               className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm"
             >
               <Play className="w-3.5 h-3.5 fill-white" />

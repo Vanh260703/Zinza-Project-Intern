@@ -18,6 +18,5 @@ export interface Story {
   description: string;
   vip: boolean;
   price: number;
-  followers?: number;
-  updatedAt?: Date; 
+updatedAt?: Date; 
 }

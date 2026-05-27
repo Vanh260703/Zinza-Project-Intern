@@ -23,7 +23,7 @@ export default async function VipPage({ searchParams }: Props) {
       {/* Hero banner */}
       <div className="relative overflow-hidden bg-linear-to-b from-amber-500/10 to-transparent border-b border-amber-500/10">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-amber-500/6 rounded-full blur-3xl" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-75 bg-amber-500/6 rounded-full blur-3xl" />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center gap-4 mb-4">
@@ -65,7 +65,7 @@ export default async function VipPage({ searchParams }: Props) {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-3 mt-10">
                 <Link
-                  href={`/stories/vip?page=${currentPage - 1}`}
+                  href={`/novels/vip?page=${currentPage - 1}`}
                   aria-disabled={currentPage === 1}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
                     currentPage === 1
@@ -82,7 +82,7 @@ export default async function VipPage({ searchParams }: Props) {
                 </span>
 
                 <Link
-                  href={`/stories/vip?page=${currentPage + 1}`}
+                  href={`/novels/vip?page=${currentPage + 1}`}
                   aria-disabled={currentPage === totalPages}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
                     currentPage === totalPages

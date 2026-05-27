@@ -4,7 +4,7 @@ import Navbar from "@/components/layout/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WEB ĐỌC TRUYỆN TU TIÊN",
+  title: "Web đọc truyện chữ top 1",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
