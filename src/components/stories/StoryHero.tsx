@@ -3,6 +3,7 @@ import { BookOpen, Star, BookMarked } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import CandyButton from "./CandyButton";
+import FollowButton from "./FollowButton";
 import RecommendButton from "./RecommendButton";
 
 type StoryHeroProps = {
@@ -116,6 +117,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
               <BookOpen className="w-4 h-4" />
               Đọc ngay
             </Link>
+            <FollowButton storyId={id} />
             <RecommendButton />
             <CandyButton />
           </div>

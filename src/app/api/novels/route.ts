@@ -7,6 +7,10 @@ import { createNovelSchema } from "@/schemas/novel";
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
 
+  if (searchParams.get("all") === "true") {
+    return NextResponse.json(db.stories.getAll());
+  }
+
   const postedBy = searchParams.get("postedBy");
   if (postedBy) {
     return NextResponse.json(db.stories.getByUser(postedBy));

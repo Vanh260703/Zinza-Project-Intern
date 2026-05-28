@@ -44,3 +44,9 @@ npm-debug.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Swagger
+swagger.yaml
+
+# Internal review
+review.md

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { BookOpen, BookMarked, History, Compass } from "lucide-react";
+import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
 // ── Story card ────────────────────────────────────────────────────────────────
@@ -98,6 +99,7 @@ export default function LibraryContent() {
         setHistoryStories(history.map((id) => byId[id]).filter(Boolean));
         setBookmarkStories(bookmarks.map((id) => byId[id]).filter(Boolean));
       })
+      .catch(() => showToast.error("Không tải được tủ sách"))
       .finally(() => setLoading(false));
   }, [history, bookmarks, isEmpty]);
 

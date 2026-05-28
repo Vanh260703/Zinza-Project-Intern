@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Search, Menu, Bell, ChevronDown, User, BookMarked, LogOut, BookOpenText, Crown } from "lucide-react";
+import { BookOpen, Search, Menu, Bell, ChevronDown, User, BookMarked, LogOut, BookOpenText, Crown, ShieldCheck } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -335,6 +335,17 @@ function UserDropdown() {
         </div>
 
         <div className="p-1.5 space-y-0.5">
+          {user?.role === "admin" && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-violet-400
+                hover:text-violet-300 hover:bg-violet-500/10 transition-colors"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Trang quản lý
+            </Link>
+          )}
           <Link
             href="/profile"
             onClick={() => setOpen(false)}
@@ -420,6 +431,19 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${pathname.startsWith("/admin")
+                    ? "text-violet-400 bg-violet-500/10"
+                    : "text-violet-400/70 hover:text-violet-300 hover:bg-violet-500/10"
+                  }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Quản lý
+              </Link>
+            )}
           </div>
 
           {/* Right side */}
@@ -476,7 +500,19 @@ export default function Navbar() {
               </Link>
             ))}
             {user ? (
-              <div className="px-4 pt-2 text-sm text-stone-300">{user.name}</div>
+              <div className="flex flex-col gap-1 pt-1">
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-violet-400 hover:bg-violet-500/10 transition-colors"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Trang quản lý
+                  </Link>
+                )}
+                <div className="px-4 py-1 text-sm text-stone-300">{user.name}</div>
+              </div>
             ) : (
               <div className="flex gap-2 px-4 pt-2">
                 <Link href="/auth/login" className="flex-1 text-center py-2 text-sm text-stone-300 border border-stone-700 rounded-lg hover:border-stone-600 transition-colors">

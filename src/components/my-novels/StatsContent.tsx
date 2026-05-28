@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BarChart2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
+import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
 const SUMMARY_STATS = [
@@ -59,6 +60,7 @@ export default function StatsContent() {
     fetch(`/api/novels?postedBy=${user.id}`)
       .then((r) => r.json())
       .then(setNovels)
+      .catch(() => showToast.error("Không tải được dữ liệu thống kê"))
       .finally(() => setLoading(false));
   }, [user]);
 

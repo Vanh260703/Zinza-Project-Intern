@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Bell, CheckCheck } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
+import { showToast } from "@/lib/toast";
 
 type NotificationItem = {
   id: number;
@@ -42,6 +43,7 @@ export default function NotificationsContent() {
         setItems(d.notifications);
         setTotalUnread(d.totalUnread);
       })
+      .catch(() => showToast.error("Không tải được thông báo"))
       .finally(() => setLoading(false));
   }, [user]);
 

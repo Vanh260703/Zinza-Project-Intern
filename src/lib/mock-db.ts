@@ -24,6 +24,10 @@ function writeJson<T>(filename: string, data: T[]): void {
 
 export const db = {
   users: {
+    getAll(): User[] {
+      return readJson<User>("users.json");
+    },
+
     findById(id: string): User | undefined {
       return readJson<User>("users.json").find((u) => u.id === id);
     },

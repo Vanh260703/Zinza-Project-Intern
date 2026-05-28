@@ -48,7 +48,7 @@ export default function LoginForm() {
     initLibrary(user.id, history, bookmarks);
     showToast.success("Chào mừng trở lại!", user.name);
 
-    router.push("/");
+    router.push(user.role === "admin" ? "/admin" : "/");
   };
 
   return (

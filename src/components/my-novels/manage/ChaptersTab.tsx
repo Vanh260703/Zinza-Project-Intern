@@ -5,6 +5,7 @@ import { BookOpen, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import type { Chapter } from "@/types/chapter";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import { showToast } from "@/lib/toast";
 
 type Props = { novelId: string };
 
@@ -24,6 +25,7 @@ export default function ChaptersTab({ novelId }: Props) {
     fetch(`/api/novels/${novelId}/chapters`)
       .then((r) => r.json())
       .then(setChapters)
+      .catch(() => showToast.error("Không tải được danh sách chương"))
       .finally(() => setLoading(false));
   }, [novelId]);
 

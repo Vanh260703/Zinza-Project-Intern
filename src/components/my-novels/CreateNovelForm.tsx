@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ImagePlus, X } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
+import { createNovelSchema } from "@/schemas/novel";
+
+const formSchema = createNovelSchema.omit({ userId: true });
+type FormData = z.infer<typeof formSchema>;
 
 const GENRES = ["Huyền Huyễn", "Huyền Nghi", "Kỳ Ảo", "Tiên Hiệp", "Đô Thị"];
 
@@ -58,30 +65,25 @@ function GenreSelector({ selected, onChange }: { selected: string[]; onChange: (
     onChange(selected.includes(genre) ? selected.filter((g) => g !== genre) : [...selected, genre]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-stone-400 text-xs font-medium">
-        Thể loại <span className="text-stone-600">(chọn một hoặc nhiều)</span>
-      </label>
-      <div className="flex flex-wrap gap-2">
-        {GENRES.map((genre) => {
-          const active = selected.includes(genre);
-          return (
-            <button
-              key={genre}
-              type="button"
-              onClick={() => toggle(genre)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-                active
-                  ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
-              }`}
-            >
-              {genre}
-              {active && <X className="w-3 h-3" />}
-            </button>
-          );
-        })}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {GENRES.map((genre) => {
+        const active = selected.includes(genre);
+        return (
+          <button
+            key={genre}
+            type="button"
+            onClick={() => toggle(genre)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
+              active
+                ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
+                : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
+            }`}
+          >
+            {genre}
+            {active && <X className="w-3 h-3" />}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -103,94 +105,77 @@ function Field({ label, required, error, children }: { label: string; required?:
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function CreateNovelForm() {
-  const user = useAuthStore((s) => s.user);
+  const user   = useAuthStore((s) => s.user);
   const router = useRouter();
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
-  const [name, setName]               = useState("");
-  const [author, setAuthor]           = useState("");
-  const [status, setStatus]           = useState<"pending" | "completed">("pending");
-  const [genres, setGenres]           = useState<string[]>([]);
-  const [description, setDescription] = useState("");
-  const [coverFile, setCoverFile]     = useState<File | null>(null);
-  const [loading, setLoading]         = useState(false);
-  const [errors, setErrors]           = useState<Record<string, string>>({});
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { status: "pending", genres: [] },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     if (!user) return;
-    setErrors({});
-    setLoading(true);
-
     try {
       const res = await fetch("/api/novels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, name, author, status, genres, description }),
+        body: JSON.stringify({ ...data, userId: user.id }),
       });
 
-      const data = await res.json();
+      const json = await res.json();
 
       if (!res.ok) {
-        const fieldErrors = data.errors?.fieldErrors ?? {};
-        const mapped: Record<string, string> = {};
-        for (const [k, v] of Object.entries(fieldErrors)) {
-          mapped[k] = (v as string[])[0];
-        }
-        setErrors(mapped);
-        showToast.error(data.message ?? "Đăng truyện thất bại");
+        showToast.error(json.message ?? "Đăng truyện thất bại");
         return;
       }
 
-      // Upload ảnh bìa nếu có
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
-        await fetch(`/api/cover/${data.story.id}`, { method: "POST", body: form });
+        await fetch(`/api/cover/${json.story.id}`, { method: "POST", body: form });
       }
 
       showToast.success("Đăng truyện thành công");
-      setLoading(false);
       router.push("/my-novels");
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
-      setLoading(false);
     }
   };
 
   return (
-    <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Cover */}
         <CoverUpload onChange={setCoverFile} />
 
         {/* Main fields */}
         <div className="flex flex-col gap-4 flex-1">
-          <Field label="Tên truyện" required error={errors.name}>
+          <Field label="Tên truyện" required error={errors.name?.message}>
             <input
+              {...register("name")}
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
               placeholder="Nhập tên truyện..."
               className={inputCls}
             />
           </Field>
 
-          <Field label="Tác giả" required error={errors.author}>
+          <Field label="Tác giả" required error={errors.author?.message}>
             <input
+              {...register("author")}
               type="text"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
               placeholder="Tên tác giả..."
               className={inputCls}
             />
           </Field>
 
           <Field label="Trạng thái">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as "pending" | "completed")}
-              className={inputCls}
-            >
+            <select {...register("status")} className={inputCls}>
               {STATUS_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
@@ -199,15 +184,20 @@ export default function CreateNovelForm() {
         </div>
       </div>
 
-      <Field label="Thể loại" error={errors.genres}>
-        <GenreSelector selected={genres} onChange={setGenres} />
+      <Field label="Thể loại" error={errors.genres?.message}>
+        <Controller
+          name="genres"
+          control={control}
+          render={({ field }) => (
+            <GenreSelector selected={field.value} onChange={field.onChange} />
+          )}
+        />
       </Field>
 
-      <Field label="Mô tả" error={errors.description}>
+      <Field label="Mô tả" error={errors.description?.message}>
         <textarea
+          {...register("description")}
           rows={5}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           placeholder="Nhập mô tả truyện..."
           className={`${inputCls} resize-none leading-relaxed`}
         />
@@ -216,10 +206,10 @@ export default function CreateNovelForm() {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {loading ? "Đang đăng..." : "Đăng truyện"}
+          {isSubmitting ? "Đang đăng..." : "Đăng truyện"}
         </button>
         <button
           type="button"
