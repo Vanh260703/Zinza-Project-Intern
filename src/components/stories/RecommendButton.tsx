@@ -50,9 +50,8 @@ export default function RecommendButton() {
 
             {!user ? (
               <p className="text-stone-400 text-sm text-center py-4">
-                Bạn cần{" "}
-                <span className="text-sky-400 font-semibold">đăng nhập</span>{" "}
-                để đề cử truyện.
+                Bạn cần <span className="text-sky-400 font-semibold">đăng nhập</span> để đề cử
+                truyện.
               </p>
             ) : !hasTicket ? (
               <div className="flex flex-col items-center gap-3 py-4">
@@ -80,8 +79,8 @@ export default function RecommendButton() {
 
                 <div className="px-4 py-3 bg-sky-950/40 border border-sky-900/50 rounded-xl">
                   <p className="text-sky-300/80 text-xs leading-relaxed">
-                    Sử dụng <span className="text-sky-300 font-semibold">1 vé tháng</span> để đề cử truyện này.
-                    Vé đề cử chỉ có hiệu lực trong tháng hiện tại.
+                    Sử dụng <span className="text-sky-300 font-semibold">1 vé tháng</span> để đề cử
+                    truyện này. Vé đề cử chỉ có hiệu lực trong tháng hiện tại.
                   </p>
                 </div>
 

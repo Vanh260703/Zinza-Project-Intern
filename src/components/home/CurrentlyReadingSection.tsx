@@ -3,25 +3,33 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Crown, BookMarked } from "lucide-react";
+import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
 import type { Story } from "@/types/story";
 
 export default function CurrentlyReadingSection() {
   const history = useLibraryStore((s) => s.history);
   const [stories, setStories] = useState<Story[]>([]);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => { setMounted(true); }, []);
+  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
 
   useEffect(() => {
-    if (!mounted || history.length === 0) { setStories([]); return; }
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || history.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStories([]); // reset khi history rỗng — legitimate pattern
+      return;
+    }
     fetch(`/api/novels?ids=${history.slice(0, 5).join(",")}`)
       .then((r) => r.json())
       .then(setStories)
       .catch(() => {});
-  }, [mounted, history]);
+  }, [hydrated, history]);
 
-  if (!mounted || stories.length === 0) return null;
+  if (!hydrated || stories.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-3 mt-5">
@@ -40,7 +48,11 @@ export default function CurrentlyReadingSection() {
             {/* Cover */}
             <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
               {story.poster ? (
-                <img src={`/api/cover/${story.id}`} alt={story.name} className="w-full h-full object-cover" />
+                <img
+                  src={`/api/cover/${story.id}`}
+                  alt={story.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <BookOpen className="w-3.5 h-3.5 text-stone-600" strokeWidth={1.5} />

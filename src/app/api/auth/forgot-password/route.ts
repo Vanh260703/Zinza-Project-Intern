@@ -7,10 +7,7 @@ export async function POST(req: NextRequest) {
 
   const result = forgotPasswordSchema.safeParse(body);
   if (!result.success) {
-    return NextResponse.json(
-      { message: "Email không hợp lệ" },
-      { status: 400 }
-    );
+    return NextResponse.json({ message: "Email không hợp lệ" }, { status: 400 });
   }
 
   await new Promise((r) => setTimeout(r, 800));

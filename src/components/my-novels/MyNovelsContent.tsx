@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/stores/userStore";
-import { PlusCircle, Upload, Search } from "lucide-react";
+import { PlusCircle, Search, Upload } from "lucide-react";
 import { showToast } from "@/lib/toast";
 import Link from "next/link";
 import type { Story } from "@/types/story";
@@ -24,8 +24,9 @@ export default function MyNovelsContent() {
       .finally(() => setLoading(false));
   }, [user]);
 
-  const filtered = useMemo(() =>
-    q.trim() ? novels.filter((n) => n.name.toLowerCase().includes(q.toLowerCase())) : novels,
+  const filtered = useMemo(
+    () =>
+      q.trim() ? novels.filter((n) => n.name.toLowerCase().includes(q.toLowerCase())) : novels,
     [novels, q]
   );
 

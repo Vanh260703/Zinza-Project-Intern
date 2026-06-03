@@ -7,24 +7,26 @@ import { useRouter } from "next/navigation";
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
   const hadUser = useRef(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
+
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    return unsub;
+  }, []);
 
   useEffect(() => {
     if (user) hadUser.current = true;
   }, [user]);
 
   useEffect(() => {
-    // Chỉ redirect nếu user chưa từng login (truy cập trực tiếp khi chưa đăng nhập)
-    // Không redirect nếu đang logout — logout handler tự xử lý navigation
-    if (mounted && !user && !hadUser.current) {
+    if (hydrated && !user && !hadUser.current) {
       router.replace("/unauthorized");
     }
-  }, [mounted, user, router]);
+  }, [hydrated, user, router]);
 
-  if (!mounted || !user) return null;
+  if (!hydrated || !user) return null;
 
   return <>{children}</>;
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpenText, PlusCircle, Upload } from "lucide-react";
+import { BookOpenText, PlusCircle } from "lucide-react";
 
 export default function EmptyState() {
   return (

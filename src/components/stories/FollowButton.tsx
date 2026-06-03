@@ -22,11 +22,7 @@ export default function FollowButton({ storyId }: FollowButtonProps) {
           : "bg-stone-800 hover:bg-stone-700 border-stone-700 hover:border-stone-600 text-stone-300 hover:text-white"
       }`}
     >
-      {isFollowing ? (
-        <BookmarkCheck className="w-4 h-4" />
-      ) : (
-        <Bookmark className="w-4 h-4" />
-      )}
+      {isFollowing ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
       {isFollowing ? "Đã lưu" : "Lưu truyện"}
     </button>
   );

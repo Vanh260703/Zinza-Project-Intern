@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(stories);
 }
 
-
 // POST /api/novels
 export async function POST(req: NextRequest) {
   const body = await req.json();

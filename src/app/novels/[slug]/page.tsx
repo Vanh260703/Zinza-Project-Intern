@@ -4,7 +4,6 @@ import StoryHero from "@/components/stories/StoryHero";
 import StoryTabs from "@/components/stories/StoryTabs";
 import { db } from "@/lib/mock-db";
 import type { Chapter } from "@/types/chapter";
-import type { Review } from "@/types/review";
 
 type Props = {
   params: Promise<{ slug: string }>;

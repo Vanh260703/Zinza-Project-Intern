@@ -9,21 +9,21 @@ type ErrorPageProps = {
 };
 
 const CONFIG: Record<number, { icon: React.ElementType; color: string }> = {
-  401: { icon: ShieldOff,   color: "amber"  },
-  403: { icon: ShieldX,     color: "violet" },
-  500: { icon: ServerCrash, color: "red"    },
+  401: { icon: ShieldOff, color: "amber" },
+  403: { icon: ShieldX, color: "violet" },
+  500: { icon: ServerCrash, color: "red" },
 };
 
 const COLOR_MAP: Record<string, string> = {
-  amber:  "bg-amber-500/10  border-amber-500/20  text-amber-400",
+  amber: "bg-amber-500/10  border-amber-500/20  text-amber-400",
   violet: "bg-violet-500/10 border-violet-500/20 text-violet-400",
-  red:    "bg-red-500/10    border-red-500/20    text-red-400",
+  red: "bg-red-500/10    border-red-500/20    text-red-400",
 };
 
 const TEXT_MAP: Record<string, string> = {
-  amber:  "text-amber-400",
+  amber: "text-amber-400",
   violet: "text-violet-400",
-  red:    "text-red-400",
+  red: "text-red-400",
 };
 
 export default function ErrorPage({ code, title, description, action }: ErrorPageProps) {
@@ -32,7 +32,9 @@ export default function ErrorPage({ code, title, description, action }: ErrorPag
   return (
     <div className="min-h-screen bg-stone-950 flex items-center justify-center px-4">
       <div className="flex flex-col items-center gap-6 text-center max-w-sm">
-        <div className={`w-20 h-20 rounded-2xl border flex items-center justify-center ${COLOR_MAP[color]}`}>
+        <div
+          className={`w-20 h-20 rounded-2xl border flex items-center justify-center ${COLOR_MAP[color]}`}
+        >
           <Icon className="w-9 h-9" strokeWidth={1.5} />
         </div>
 

@@ -15,12 +15,16 @@ export default function SettingsTab({ story }: Props) {
             <Crown className="w-4 h-4 text-amber-400" />
             <p className="text-stone-200 text-sm font-medium">Truyện VIP</p>
           </div>
-          <p className="text-stone-500 text-xs">Đánh dấu truyện là VIP để phân biệt với truyện thường.</p>
+          <p className="text-stone-500 text-xs">
+            Đánh dấu truyện là VIP để phân biệt với truyện thường.
+          </p>
         </div>
         <button
           className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${story.vip ? "bg-amber-500" : "bg-stone-700"}`}
         >
-          <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${story.vip ? "translate-x-5" : "translate-x-0.5"}`} />
+          <span
+            className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${story.vip ? "translate-x-5" : "translate-x-0.5"}`}
+          />
         </button>
       </div>
 
@@ -28,7 +32,9 @@ export default function SettingsTab({ story }: Props) {
       <div className="flex flex-col gap-3 p-4 border rounded-xl bg-stone-800/50 border-stone-700">
         <div className="flex flex-col gap-1">
           <p className="text-stone-200 text-sm font-medium">Giá kẹo mặc định cho chương trả phí</p>
-          <p className="text-stone-500 text-xs">Số kẹo mặc định khi tạo chương mới. Có thể chỉnh riêng từng chương.</p>
+          <p className="text-stone-500 text-xs">
+            Số kẹo mặc định khi tạo chương mới. Có thể chỉnh riêng từng chương.
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <input

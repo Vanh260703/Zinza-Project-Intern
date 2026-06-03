@@ -6,7 +6,8 @@ import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import type { Chapter } from "@/types/chapter";
 
-const inputCls = "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
+const inputCls =
+  "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
 type Props = {
   novelId: string;
@@ -15,14 +16,14 @@ type Props = {
 };
 
 export default function EditChapterForm({ novelId, chapter, initialContent }: Props) {
-  const user   = useAuthStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
   const router = useRouter();
 
-  const [title, setTitle]           = useState(chapter.title);
-  const [content, setContent]       = useState(initialContent);
+  const [title, setTitle] = useState(chapter.title);
+  const [content, setContent] = useState(initialContent);
   const [candyPrice, setCandyPrice] = useState<number>(chapter.candyPrice ?? 0);
-  const [loading, setLoading]       = useState(false);
-  const [errors, setErrors]         = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const wordCount = content.replace(/\s/g, "").length;
 
@@ -72,11 +73,7 @@ export default function EditChapterForm({ novelId, chapter, initialContent }: Pr
         <label className="text-stone-400 text-xs font-medium">
           Tiêu đề chương <span className="text-red-400">*</span>
         </label>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className={inputCls}
-        />
+        <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputCls} />
         {errors.title && <p className="text-red-400 text-xs">{errors.title}</p>}
       </div>
 
