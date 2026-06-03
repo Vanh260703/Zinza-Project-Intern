@@ -6,7 +6,15 @@ type StoryCardProps = {
   story: Story;
 };
 
-function CoverImage({ storyId, hasPoster, name }: { storyId: string; hasPoster: boolean; name: string }) {
+function CoverImage({
+  storyId,
+  hasPoster,
+  name,
+}: {
+  storyId: string;
+  hasPoster: boolean;
+  name: string;
+}) {
   if (!hasPoster) {
     return (
       <div className="w-full h-full bg-linear-to-br from-stone-700 to-stone-800 flex items-center justify-center">
@@ -14,17 +22,12 @@ function CoverImage({ storyId, hasPoster, name }: { storyId: string; hasPoster: 
       </div>
     );
   }
-  return (
-    <img
-      src={`/api/cover/${storyId}`}
-      alt={name}
-      className="w-full h-full object-cover"
-    />
-  );
+  return <img src={`/api/cover/${storyId}`} alt={name} className="w-full h-full object-cover" />;
 }
 
 export default function StoryCard({ story }: StoryCardProps) {
-  const { id, slug, name, poster, author, genres, rating, chapterCount, status, vip, nominations } = story;
+  const { id, slug, name, poster, author, genres, rating, chapterCount, status, vip, nominations } =
+    story;
 
   return (
     <Link href={`/novels/${slug}`} className="group flex flex-col">
@@ -70,9 +73,7 @@ export default function StoryCard({ story }: StoryCardProps) {
         </h3>
 
         {/* Author */}
-        {author && (
-          <p className="text-stone-500 text-xs truncate">{author}</p>
-        )}
+        {author && <p className="text-stone-500 text-xs truncate">{author}</p>}
 
         {/* Rating + chapters */}
         <div className="flex items-center gap-2 mt-0.5">
@@ -93,10 +94,10 @@ export default function StoryCard({ story }: StoryCardProps) {
           <div className="flex gap-1 flex-wrap mt-0.5">
             {genres.slice(0, 2).map((g) => (
               <span
-                key={g}
+                key={g.slug}
                 className="text-[10px] px-1.5 py-0.5 bg-stone-800 text-stone-400 rounded-md border border-stone-700/60"
               >
-                {g}
+                {g.name}
               </span>
             ))}
           </div>

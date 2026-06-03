@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
 import { Mail, User, Venus, Shield, Camera, Lock, Image, KeyRound } from "lucide-react";
 import { showToast } from "@/lib/toast";
+import { updateProfileSchema, resetPasswordSchema } from "@/schemas/auth";
 
-// ── THÔNG TIN tab ─────────────────────────────────────────────────────────────
+// ── Shared ────────────────────────────────────────────────────────────────────
 
 const GENDER_LABEL: Record<string, string> = {
   male: "Nam",
@@ -13,15 +17,10 @@ const GENDER_LABEL: Record<string, string> = {
   other: "Khác",
 };
 
-function Field({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
+const inputCls =
+  "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors";
+
+function Field({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-stone-500 text-xs font-medium flex items-center gap-1.5">
@@ -35,34 +34,40 @@ function Field({
   );
 }
 
+// ── THÔNG TIN tab ─────────────────────────────────────────────────────────────
+
+type InfoFormData = z.infer<typeof updateProfileSchema>;
+
 function InfoTab() {
   const { user, setUser } = useAuthStore();
-  const [name, setName] = useState(user?.name ?? "");
-  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting, isDirty },
+  } = useForm<InfoFormData>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: { userId: user?.id ?? "", name: user?.name ?? "" },
+  });
 
   if (!user) return <p className="text-stone-500 text-sm">Chưa đăng nhập.</p>;
 
-  const handleSave = async () => {
-    const trimmed = name.trim();
-    if (!trimmed || trimmed === user.name) return;
-    setLoading(true);
+  const onSubmit = async (data: InfoFormData) => {
     try {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, name: trimmed }),
+        body: JSON.stringify(data),
       });
-      const data = await res.json();
+      const json = await res.json();
       if (!res.ok) {
-        showToast.error(data.message ?? "Cập nhật thất bại");
+        showToast.error(json.message ?? "Cập nhật thất bại");
         return;
       }
-      setUser(data.user, useAuthStore.getState().token ?? "");
+      setUser(json.user, useAuthStore.getState().token ?? "");
       showToast.success("Đã lưu thay đổi");
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -70,11 +75,7 @@ function InfoTab() {
     <div className="flex flex-col gap-6">
       {/* Read-only fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field
-          label="Email"
-          value={user.email}
-          icon={<Mail className="w-3.5 h-3.5" />}
-        />
+        <Field label="Email" value={user.email} icon={<Mail className="w-3.5 h-3.5" />} />
         <Field
           label="Giới tính"
           value={GENDER_LABEL[user.gender] ?? user.gender}
@@ -89,26 +90,31 @@ function InfoTab() {
 
       <hr className="border-stone-800" />
 
-      {/* Editable display name */}
-      <div className="flex flex-col gap-3 max-w-sm">
-        <label className="text-stone-400 text-xs font-medium flex items-center gap-1.5">
-          <User className="w-3.5 h-3.5" />
-          Tên hiển thị
-        </label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors"
-          placeholder="Nhập tên hiển thị..."
-        />
+      {/* Editable name */}
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3 max-w-sm">
+        <input type="hidden" {...register("userId")} />
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-stone-400 text-xs font-medium flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5" />
+            Tên hiển thị
+          </label>
+          <input
+            {...register("name")}
+            className={`${inputCls} ${errors.name ? "border-red-500/60" : ""}`}
+            placeholder="Nhập tên hiển thị..."
+          />
+          {errors.name && <p className="text-red-400 text-xs">{errors.name.message}</p>}
+        </div>
+
         <button
-          onClick={handleSave}
-          disabled={loading || !name.trim() || name === user.name}
+          type="submit"
+          disabled={isSubmitting || !isDirty}
           className="self-start px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {loading ? "Đang lưu..." : "Lưu thay đổi"}
+          {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
@@ -142,50 +148,58 @@ function AvatarTab() {
 
 // ── BẢO MẬT tab ──────────────────────────────────────────────────────────────
 
+type SecurityFormData = z.infer<typeof resetPasswordSchema>;
+
 function SecurityTab() {
   const user = useAuthStore((s) => s.user);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!user) return;
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<SecurityFormData>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      userId: user?.id ?? "",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const onSubmit = async (data: SecurityFormData) => {
     try {
       const res = await fetch("/api/user/change-password", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, currentPassword, newPassword, confirmPassword }),
+        body: JSON.stringify(data),
       });
-      const data = await res.json();
+      const json = await res.json();
       if (!res.ok) {
-        showToast.error(data.message ?? "Đổi mật khẩu thất bại");
+        showToast.error(json.message ?? "Đổi mật khẩu thất bại");
         return;
       }
       showToast.success("Đổi mật khẩu thành công");
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      reset({ userId: user?.id ?? "", currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
     }
   };
 
-  const fields = [
-    { label: "Mật khẩu hiện tại", value: currentPassword, onChange: setCurrentPassword },
-    { label: "Mật khẩu mới",      value: newPassword,     onChange: setNewPassword },
-    { label: "Xác nhận mật khẩu mới", value: confirmPassword, onChange: setConfirmPassword },
+  const passwordFields = [
+    { name: "currentPassword" as const, label: "Mật khẩu hiện tại" },
+    { name: "newPassword" as const, label: "Mật khẩu mới" },
+    { name: "confirmPassword" as const, label: "Xác nhận mật khẩu mới" },
   ];
 
   return (
-    <div className="flex flex-col gap-4 max-w-sm">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 max-w-sm">
       <p className="text-stone-500 text-sm">Thay đổi mật khẩu tài khoản.</p>
+      <input type="hidden" {...register("userId")} />
 
-      {fields.map(({ label, value, onChange }) => (
-        <div key={label} className="flex flex-col gap-1.5">
+      {passwordFields.map(({ name, label }) => (
+        <div key={name} className="flex flex-col gap-1.5">
           <label className="text-stone-400 text-xs font-medium flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5" />
             {label}
@@ -193,30 +207,30 @@ function SecurityTab() {
           <input
             type="password"
             placeholder="••••••••"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors"
+            {...register(name)}
+            className={`${inputCls} ${errors[name] ? "border-red-500/60" : ""}`}
           />
+          {errors[name] && <p className="text-red-400 text-xs">{errors[name]?.message}</p>}
         </div>
       ))}
 
       <button
-        onClick={handleSubmit}
-        disabled={loading || !currentPassword || !newPassword || !confirmPassword}
+        type="submit"
+        disabled={isSubmitting}
         className="self-start mt-1 px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
       >
-        {loading ? "Đang xử lý..." : "Đổi mật khẩu"}
+        {isSubmitting ? "Đang xử lý..." : "Đổi mật khẩu"}
       </button>
-    </div>
+    </form>
   );
 }
 
 // ── Root component ────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: "info",     label: "THÔNG TIN" , icon: User },
-  { id: "avatar",   label: "ẢNH ĐẠI DIỆN" , icon: Image },
-  { id: "security", label: "BẢO MẬT" , icon: KeyRound },
+  { id: "info", label: "THÔNG TIN", icon: User },
+  { id: "avatar", label: "ẢNH ĐẠI DIỆN", icon: Image },
+  { id: "security", label: "BẢO MẬT", icon: KeyRound },
 ];
 
 export default function ProfileTabs() {
@@ -224,32 +238,30 @@ export default function ProfileTabs() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tab bar */}
       <div className="flex gap-0 border-b border-stone-800">
         {TABS.map(({ id, label, icon }) => {
           const Icon = icon;
           return (
-          <button
-            key={id}
-            onClick={() => setActive(id)}
-            className={`px-4 py-2.5 text-xs font-semibold tracking-wider transition-colors border-b-2 -mb-px ${
-              active === id
-                ? "border-amber-500 text-amber-400"
-                : "border-transparent text-stone-500 hover:text-stone-300"
-            }`}
-          >
-            <span className="flex items-center gap-1.5">
-              <Icon className="w-3.5 h-3.5" />
-              {label}
-            </span>
-          </button>
-        )
+            <button
+              key={id}
+              onClick={() => setActive(id)}
+              className={`px-4 py-2.5 text-xs font-semibold tracking-wider transition-colors border-b-2 -mb-px ${
+                active === id
+                  ? "border-amber-500 text-amber-400"
+                  : "border-transparent text-stone-500 hover:text-stone-300"
+              }`}
+            >
+              <span className="flex items-center gap-1.5">
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </span>
+            </button>
+          );
         })}
       </div>
 
-      {/* Tab content */}
-      {active === "info"     && <InfoTab />}
-      {active === "avatar"   && <AvatarTab />}
+      {active === "info" && <InfoTab />}
+      {active === "avatar" && <AvatarTab />}
       {active === "security" && <SecurityTab />}
     </div>
   );

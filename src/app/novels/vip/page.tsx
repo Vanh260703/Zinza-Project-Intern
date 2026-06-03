@@ -39,8 +39,9 @@ export default async function VipPage({ searchParams }: Props) {
           <div className="flex items-start gap-2.5 max-w-xl px-4 py-3 bg-amber-500/8 border border-amber-500/20 rounded-xl">
             <Crown className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <p className="text-stone-400 text-sm leading-relaxed">
-              <span className="text-amber-400 font-semibold">Truyện VIP</span> là những truyện có một số chương yêu cầu trả phí bằng{" "}
-              <span className="text-amber-400">🍬 kẹo</span> để mở khóa. Các chương miễn phí vẫn có thể đọc bình thường.
+              <span className="text-amber-400 font-semibold">Truyện VIP</span> là những truyện có
+              một số chương yêu cầu trả phí bằng <span className="text-amber-400">🍬 kẹo</span> để
+              mở khóa. Các chương miễn phí vẫn có thể đọc bình thường.
             </p>
           </div>
         </div>
@@ -78,7 +79,8 @@ export default async function VipPage({ searchParams }: Props) {
                 </Link>
 
                 <span className="text-stone-500 text-sm px-2">
-                  Trang <span className="text-white font-semibold">{currentPage}</span> / {totalPages}
+                  Trang <span className="text-white font-semibold">{currentPage}</span> /{" "}
+                  {totalPages}
                 </span>
 
                 <Link

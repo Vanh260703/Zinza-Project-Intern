@@ -8,8 +8,8 @@ import type { Story } from "@/types/story";
 type Period = "day" | "week" | "month";
 
 const TABS: { id: Period; label: string }[] = [
-  { id: "day",   label: "Ngày"  },
-  { id: "week",  label: "Tuần"  },
+  { id: "day", label: "Ngày" },
+  { id: "week", label: "Tuần" },
   { id: "month", label: "Tháng" },
 ];
 
@@ -20,8 +20,8 @@ const RANK_COLORS: Record<number, string> = {
 };
 
 type Props = {
-  day:   Story[];
-  week:  Story[];
+  day: Story[];
+  week: Story[];
   month: Story[];
 };
 
@@ -44,9 +44,7 @@ export default function RankingSection({ day, week, month }: Props) {
               key={id}
               onClick={() => setPeriod(id)}
               className={`px-2.5 py-1 text-[11px] font-semibold rounded-md transition-colors ${
-                period === id
-                  ? "bg-amber-500 text-white"
-                  : "text-stone-400 hover:text-stone-200"
+                period === id ? "bg-amber-500 text-white" : "text-stone-400 hover:text-stone-200"
               }`}
             >
               {label}
@@ -66,16 +64,24 @@ export default function RankingSection({ day, week, month }: Props) {
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800/60 transition-colors border-b border-stone-800/60 last:border-0 group"
             >
               {/* Rank number */}
-              <span className={`w-5 text-center text-sm shrink-0 ${RANK_COLORS[rank] ?? "text-stone-600 font-medium"}`}>
+              <span
+                className={`w-5 text-center text-sm shrink-0 ${RANK_COLORS[rank] ?? "text-stone-600 font-medium"}`}
+              >
                 {rank <= 3 ? (
-                  <span className="text-base">{["🥇","🥈","🥉"][rank - 1]}</span>
-                ) : rank}
+                  <span className="text-base">{["🥇", "🥈", "🥉"][rank - 1]}</span>
+                ) : (
+                  rank
+                )}
               </span>
 
               {/* Cover */}
               <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
                 {story.poster ? (
-                  <img src={`/api/cover/${story.id}`} alt={story.name} className="w-full h-full object-cover" />
+                  <img
+                    src={`/api/cover/${story.id}`}
+                    alt={story.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <BookOpen className="w-3.5 h-3.5 text-stone-600" strokeWidth={1.5} />
@@ -89,12 +95,12 @@ export default function RankingSection({ day, week, month }: Props) {
                   <p className="text-stone-200 text-xs font-semibold line-clamp-1 group-hover:text-amber-400 transition-colors">
                     {story.name}
                   </p>
-                  {story.vip && (
-                    <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                  )}
+                  {story.vip && <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
                 </div>
                 <p className="text-stone-500 text-[11px] truncate">{story.author}</p>
-                <p className="text-stone-600 text-[10px]">{story.nominations.toLocaleString()} đề cử</p>
+                <p className="text-stone-600 text-[10px]">
+                  {story.nominations.toLocaleString()} đề cử
+                </p>
               </div>
             </Link>
           );

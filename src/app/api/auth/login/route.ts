@@ -19,16 +19,20 @@ export async function POST(req: NextRequest) {
 
   const user = db.users.findByEmail(email);
   if (!user || user.password !== password) {
-    return NextResponse.json(
-      { message: "Email hoặc mật khẩu không đúng" },
-      { status: 401 }
-    );
+    return NextResponse.json({ message: "Email hoặc mật khẩu không đúng" }, { status: 401 });
   }
+
+  // DbUser có tất cả field của JSON — tách ra trước khi trả về FE:
+  //   candy, isRead, storiesMark, unlockedChapters → từng bảng riêng trên BE thật
+  //   safeUser → phần còn lại, đúng với User type của FE
+  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } = user;
 
   return NextResponse.json({
     token: `mock-token-${user.id}`,
-    user,
-    history: user.isRead,
-    bookmarks: user.storiesMark,
+    user: safeUser,
+    wallet: { userId: user.id, balance: candy },
+    history: isRead, // → LibraryStore.history
+    bookmarks: storiesMark, // → LibraryStore.bookmarks
+    purchasedChapterIds: unlockedChapters, // → LibraryStore.purchasedChapterIds
   });
 }

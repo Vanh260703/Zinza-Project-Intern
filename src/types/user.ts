@@ -8,12 +8,16 @@ export interface User {
   password: string;
   gender: Gender;
   role: Role;
-  candy: number;
   chaptersRead: number;
   joinedAt?: string;
-  isRead: string[];
-  storiesMark: string[];
-  unlockedChapters: string[];
   monthlyRecommendationTicket: number;
+  // isRead     → LibraryStore / user_story_reads table
+  // storiesMark   → LibraryStore / user_story_bookmarks table
+  // unlockedChapters → chapter_purchases table
 }
 
+// Số dư kẹo — tách khỏi User vì nằm trong bảng user_wallets
+export interface UserWallet {
+  userId: string;
+  balance: number;
+}

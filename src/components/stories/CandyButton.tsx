@@ -9,13 +9,13 @@ import { showToast } from "@/lib/toast";
 const PRESETS = [50, 100, 200, 500];
 
 export default function CandyButton() {
-  const { user, token, setUser } = useAuthStore();
+  const { user, wallet, updateBalance } = useAuthStore();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
 
-  const amount = custom !== "" ? (parseInt(custom) || 0) : selected;
+  const amount = custom !== "" ? parseInt(custom) || 0 : selected;
 
   const handleOpen = () => {
     setSelected(null);
@@ -23,16 +23,21 @@ export default function CandyButton() {
     setOpen(true);
   };
 
+  const balance = wallet?.balance ?? 0;
+
   const handleConfirm = () => {
-    if (!amount || amount <= 0 || !user || !token) return;
-    if (user.candy < amount) return;
-    setUser({ ...user, candy: user.candy - amount }, token);
+    if (!amount || amount <= 0 || !user) return;
+    if (balance < amount) return;
+    updateBalance(-amount);
     setOpen(false);
-    showToast.success(`Đã tặng ${amount} kẹo! 🍬`, `Bạn còn ${(user.candy - amount).toLocaleString()} kẹo`);
+    showToast.success(
+      `Đã tặng ${amount} kẹo! 🍬`,
+      `Bạn còn ${(balance - amount).toLocaleString()} kẹo`
+    );
     router.refresh();
   };
 
-  const notEnough = amount !== null && amount > 0 && user !== null && user.candy < amount;
+  const notEnough = amount !== null && amount > 0 && user !== null && balance < amount;
 
   return (
     <>
@@ -53,7 +58,10 @@ export default function CandyButton() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-white font-bold text-base">Tặng kẹo cho tác giả</h3>
-              <button onClick={() => setOpen(false)} className="text-stone-500 hover:text-white transition-colors">
+              <button
+                onClick={() => setOpen(false)}
+                className="text-stone-500 hover:text-white transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -67,9 +75,7 @@ export default function CandyButton() {
                 {/* Balance */}
                 <div className="flex items-center justify-between px-4 py-3 bg-stone-950 rounded-xl border border-stone-800">
                   <span className="text-stone-400 text-sm">Kẹo của bạn</span>
-                  <span className="text-amber-400 font-bold">
-                    🍬 {user.candy.toLocaleString()}
-                  </span>
+                  <span className="text-amber-400 font-bold">🍬 {balance.toLocaleString()}</span>
                 </div>
 
                 {/* Presets */}
@@ -79,7 +85,10 @@ export default function CandyButton() {
                     {PRESETS.map((n) => (
                       <button
                         key={n}
-                        onClick={() => { setSelected(n); setCustom(""); }}
+                        onClick={() => {
+                          setSelected(n);
+                          setCustom("");
+                        }}
                         className={`py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                           selected === n && custom === ""
                             ? "bg-amber-500 border-amber-400 text-white"
@@ -101,7 +110,10 @@ export default function CandyButton() {
                       type="number"
                       min={1}
                       value={custom}
-                      onChange={(e) => { setCustom(e.target.value); setSelected(null); }}
+                      onChange={(e) => {
+                        setCustom(e.target.value);
+                        setSelected(null);
+                      }}
                       placeholder="Nhập số kẹo..."
                       className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-stone-950 border border-stone-800 text-stone-200 placeholder-stone-600 text-sm focus:outline-none focus:border-stone-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />

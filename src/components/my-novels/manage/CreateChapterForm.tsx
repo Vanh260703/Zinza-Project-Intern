@@ -6,23 +6,24 @@ import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
-const inputCls = "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
+const inputCls =
+  "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
 type Props = { story: Story; nextNumber: number };
 
 export default function CreateChapterForm({ story, nextNumber }: Props) {
-  const user   = useAuthStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
   const router = useRouter();
 
-  const [title, setTitle]       = useState(`Chương ${nextNumber}: `);
-  const [content, setContent]   = useState("");
+  const [title, setTitle] = useState(`Chương ${nextNumber}: `);
+  const [content, setContent] = useState("");
   const [candyPrice, setCandyPrice] = useState<number>(0);
-  const [loading, setLoading]   = useState(false);
-  const [errors, setErrors]     = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!user) return;
     setErrors({});

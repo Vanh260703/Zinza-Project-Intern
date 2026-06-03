@@ -25,7 +25,11 @@ function timeAgo(dateStr: string): string {
   const d = Math.floor(h / 24);
   if (d === 1) return "hôm qua";
   if (d < 7) return `${d} ngày trước`;
-  return new Date(dateStr).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return new Date(dateStr).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export default function NotificationsContent() {
@@ -88,9 +92,10 @@ export default function NotificationsContent() {
             key={t}
             onClick={() => setTab(t)}
             className={`py-3 mr-6 text-sm font-medium border-b-2 transition-colors
-              ${tab === t
-                ? "border-amber-500 text-amber-400"
-                : "border-transparent text-stone-500 hover:text-stone-300"
+              ${
+                tab === t
+                  ? "border-amber-500 text-amber-400"
+                  : "border-transparent text-stone-500 hover:text-stone-300"
               }`}
           >
             {t === "all" ? "Tất cả" : "Chưa đọc"}
@@ -130,7 +135,9 @@ export default function NotificationsContent() {
 
               {/* Body */}
               <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium leading-snug ${!n.isRead ? "text-white" : "text-stone-300"}`}>
+                <p
+                  className={`text-sm font-medium leading-snug ${!n.isRead ? "text-white" : "text-stone-300"}`}
+                >
                   {n.title}
                 </p>
                 <p className="text-stone-500 text-sm mt-1 leading-relaxed">{n.content}</p>

@@ -40,7 +40,7 @@ export default function HeroSection() {
   const [status, setStatus] = useState("");
   const [sort, setSort] = useState("latest");
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
@@ -61,11 +61,14 @@ export default function HeroSection() {
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1.5 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-amber-400 text-xs font-medium">Hơn 10,000 truyện đang chờ bạn</span>
+            <span className="text-amber-400 text-xs font-medium">
+              Hơn 10,000 truyện đang chờ bạn
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3 sm:mb-4">
-            Kho truyện chữ<br />
+            Kho truyện chữ
+            <br />
             <span className="text-amber-400">hàng đầu</span> Việt Nam
           </h1>
 

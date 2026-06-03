@@ -10,14 +10,14 @@ import CurrentlyReadingSection from "@/components/home/CurrentlyReadingSection";
 import { db } from "@/lib/mock-db";
 
 export default async function HomePage() {
-  const allStories   = db.stories.getAll();
-  const newStories   = db.stories.getNew();
-  const hotStories   = db.stories.getHot();
-  const randomStory  = db.stories.getRandom();
-  const vipStories   = db.stories.getVip();
+  const allStories = db.stories.getAll();
+  const newStories = db.stories.getNew();
+  const hotStories = db.stories.getHot();
+  const randomStory = db.stories.getRandom();
+  const vipStories = db.stories.getVip();
 
-  const rankDay   = db.stories.getRanking("day");
-  const rankWeek  = db.stories.getRanking("week");
+  const rankDay = db.stories.getRanking("day");
+  const rankWeek = db.stories.getRanking("week");
   const rankMonth = db.stories.getRanking("month");
 
   return (

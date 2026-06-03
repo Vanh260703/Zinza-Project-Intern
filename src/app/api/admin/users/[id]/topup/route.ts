@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/mock-db";
-import { z } from "zod";
-
-const schema = z.object({
-  amount: z.number().int().positive("Số lượng phải lớn hơn 0"),
-});
+import { topupSchema } from "@/schemas/admin";
 
 type Params = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   const { id } = await params;
-  const parsed = schema.safeParse(await req.json());
+  const parsed = topupSchema.safeParse(await req.json());
   if (!parsed.success) {
     return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
   }

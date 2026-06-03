@@ -3,11 +3,18 @@ import { persist } from "zustand/middleware";
 
 type LibraryStore = {
   userId: string | null;
-  history: string[];    // story ids đã đọc
-  bookmarks: string[];  // story ids đã bookmark
-  init: (userId: string, history: string[], bookmarks: string[]) => void;
+  history: string[]; // story ids đã đọc        → user_story_reads
+  bookmarks: string[]; // story ids đã bookmark   → user_story_bookmarks
+  purchasedChapterIds: string[]; // chapter ids đã mua      → chapter_purchases
+  init: (
+    userId: string,
+    history: string[],
+    bookmarks: string[],
+    purchasedChapterIds: string[]
+  ) => void;
   addHistory: (storyId: string) => void;
   toggleBookmark: (storyId: string) => void;
+  addPurchasedChapter: (chapterId: string) => void;
   clear: () => void;
 };
 
@@ -17,9 +24,10 @@ export const useLibraryStore = create<LibraryStore>()(
       userId: null,
       history: [],
       bookmarks: [],
+      purchasedChapterIds: [],
 
-      init: (userId, history, bookmarks) =>
-        set({ userId, history, bookmarks }),
+      init: (userId, history, bookmarks, purchasedChapterIds) =>
+        set({ userId, history, bookmarks, purchasedChapterIds }),
 
       addHistory: (storyId) => {
         const { history } = get();
@@ -37,7 +45,18 @@ export const useLibraryStore = create<LibraryStore>()(
         });
       },
 
-      clear: () => set({ userId: null, history: [], bookmarks: [] }),
+      addPurchasedChapter: (chapterId) => {
+        const { purchasedChapterIds } = get();
+        if (!purchasedChapterIds.includes(chapterId)) {
+          set({ purchasedChapterIds: [...purchasedChapterIds, chapterId] });
+        }
+      },
+
+      clear: () => {
+        set({ userId: null, history: [], bookmarks: [], purchasedChapterIds: [] });
+        // Persist middleware tự ghi lại sau set() — removeItem ngay sau để override
+        localStorage.removeItem("library");
+      },
     }),
     { name: "library" }
   )

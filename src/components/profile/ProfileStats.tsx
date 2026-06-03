@@ -5,8 +5,9 @@ import { useAuthStore } from "@/stores/userStore";
 
 export default function ProfileStats() {
   const user = useAuthStore((s) => s.user);
+  const wallet = useAuthStore((s) => s.wallet);
 
-  const candy        = user?.candy        ?? 0;
+  const candy = wallet?.balance ?? 0;
   const chaptersRead = user?.chaptersRead ?? 0;
   const monthlyRecommendationTicket = user?.monthlyRecommendationTicket ?? 0;
 
@@ -28,7 +29,9 @@ export default function ProfileStats() {
           <Ticket className="w-3.5 h-3.5 text-sky-400" />
           Vé tháng
         </div>
-        <p className="text-sky-400 text-xl font-bold">{monthlyRecommendationTicket.toLocaleString()}</p>
+        <p className="text-sky-400 text-xl font-bold">
+          {monthlyRecommendationTicket.toLocaleString()}
+        </p>
         <p className="text-stone-600 text-[11px]">Vé</p>
       </div>
 

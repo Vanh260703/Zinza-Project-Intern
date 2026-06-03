@@ -1,19 +1,12 @@
 import { BookOpen } from "lucide-react";
 import type { Story } from "@/types/story";
 import StoryCard from "./StoryCard";
+import { getStoryStatus } from "@/config/statuses";
+import { GENRE_BY_SLUG } from "@/config/genres";
 
-const GENRE_LABELS: Record<string, string> = {
-  "tien-hiep": "Tiên hiệp",
-  "huyen-huyen": "Huyền huyễn",
-  "vo-hiep": "Võ hiệp",
-  "do-thi": "Đô thị",
-  "lich-su": "Lịch sử",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: "Đang ra",
-  completed: "Hoàn thành",
-};
+const GENRE_LABELS: Record<string, string> = Object.fromEntries(
+  Object.entries(GENRE_BY_SLUG).map(([slug, g]) => [slug, g.name])
+);
 
 const SORT_LABELS: Record<string, string> = {
   latest: "Mới nhất",
@@ -39,7 +32,7 @@ export default function SearchResultsSection({
   const activeFilters = [
     q && { label: `"${q}"` },
     genre && { label: GENRE_LABELS[genre] ?? genre },
-    status && { label: STATUS_LABELS[status] ?? status },
+    status && { label: getStoryStatus(status).label },
     sort && sort !== "latest" && { label: SORT_LABELS[sort] ?? sort },
   ].filter(Boolean) as { label: string }[];
 

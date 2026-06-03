@@ -9,9 +9,9 @@ import { useLibraryStore } from "@/stores/libraryStore";
 type NavItem = { href: string; icon: React.ElementType; label: string; exact?: boolean };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/admin",        icon: LayoutDashboard, label: "Tổng quan",      exact: true },
-  { href: "/admin/users",  icon: Users,           label: "Người dùng" },
-  { href: "/admin/novels", icon: BookOpenText,    label: "Tất cả truyện" },
+  { href: "/admin", icon: LayoutDashboard, label: "Tổng quan", exact: true },
+  { href: "/admin/users", icon: Users, label: "Người dùng" },
+  { href: "/admin/novels", icon: BookOpenText, label: "Tất cả truyện" },
 ];
 
 function NavLink({ href, icon: Icon, label, exact, pathname }: NavItem & { pathname: string }) {
@@ -32,12 +32,16 @@ function NavLink({ href, icon: Icon, label, exact, pathname }: NavItem & { pathn
 }
 
 export default function AdminSidebar() {
-  const pathname     = usePathname();
-  const router       = useRouter();
+  const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuthStore();
   const clearLibrary = useLibraryStore((s) => s.clear);
 
-  const handleLogout = () => { logout(); clearLibrary(); router.push("/"); };
+  const handleLogout = () => {
+    logout();
+    clearLibrary();
+    router.push("/");
+  };
 
   return (
     <aside className="w-full lg:w-56 shrink-0">

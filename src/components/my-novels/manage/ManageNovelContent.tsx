@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BookOpen, Crown, ArrowLeft, Settings, PlusCircle, Trash2, CalendarDays } from "lucide-react";
+import {
+  BookOpen,
+  Crown,
+  ArrowLeft,
+  Settings,
+  PlusCircle,
+  Trash2,
+  CalendarDays,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
@@ -13,35 +21,36 @@ import ChaptersTab from "./ChaptersTab";
 import EditTab from "./EditTab";
 import ScheduleTab from "./ScheduleTab";
 
-const STATUS_LABEL: Record<string, { label: string; color: string }> = {
-  completed: { label: "HOÀN THÀNH", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
-  pending:   { label: "ĐANG RA",    color: "text-blue-400   bg-blue-500/10   border-blue-500/20"   },
-};
+import { getStoryStatus } from "@/config/statuses";
 
 const TABS = [
-  { id: "info",     label: "Thông tin truyện"  },
-  { id: "chapters", label: "Danh sách chương"  },
-  { id: "schedule", label: "Lịch mở chương"    },
+  { id: "info", label: "Thông tin truyện" },
+  { id: "chapters", label: "Danh sách chương" },
+  { id: "schedule", label: "Lịch mở chương" },
 ];
 
 function formatDate(date?: Date | string) {
   if (!date) return null;
-  return new Date(date).toLocaleDateString("vi-VN", { day: "numeric", month: "numeric", year: "numeric" });
+  return new Date(date).toLocaleDateString("vi-VN", {
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
 }
 
 type Props = { story: Story };
 
 export default function ManageNovelContent({ story: initialStory }: Props) {
-  const user   = useAuthStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
   const router = useRouter();
 
-  const [story, setStory]           = useState(initialStory);
-  const [active, setActive]         = useState("info");
-  const [showEdit, setShowEdit]     = useState(false);
+  const [story, setStory] = useState(initialStory);
+  const [active, setActive] = useState("info");
+  const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [deleting, setDeleting]     = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-  const status = STATUS_LABEL[story.status];
+  const status = getStoryStatus(story.status);
 
   const handleDelete = async () => {
     if (!user) return;
@@ -53,7 +62,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
         body: JSON.stringify({ userId: user.id }),
       });
       const data = await res.json();
-      if (!res.ok) { showToast.error(data.message ?? "Xóa thất bại"); return; }
+      if (!res.ok) {
+        showToast.error(data.message ?? "Xóa thất bại");
+        return;
+      }
       showToast.success("Đã xóa truyện");
       setDeleting(false);
       setShowDelete(false);
@@ -79,7 +91,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
 
       <div className="flex flex-col gap-5">
         {/* Back */}
-        <Link href="/my-novels" className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 text-sm transition-colors w-fit">
+        <Link
+          href="/my-novels"
+          className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 text-sm transition-colors w-fit"
+        >
           <ArrowLeft className="w-4 h-4" />
           Quay lại danh sách truyện
         </Link>
@@ -90,7 +105,11 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
             {/* Cover */}
             <div className="w-20 h-28 rounded-xl overflow-hidden bg-stone-800 shrink-0">
               {story.poster ? (
-                <img src={`/api/cover/${story.id}`} alt={story.name} className="w-full h-full object-cover" />
+                <img
+                  src={`/api/cover/${story.id}`}
+                  alt={story.name}
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
                   <BookOpen className="w-6 h-6 text-stone-600" strokeWidth={1.5} />
@@ -104,12 +123,15 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
                 <h1 className="text-white font-bold text-lg leading-snug">{story.name}</h1>
                 {story.vip && (
                   <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md">
-                    <Crown className="w-2.5 h-2.5" />VIP
+                    <Crown className="w-2.5 h-2.5" />
+                    VIP
                   </span>
                 )}
                 {status && (
-                  <span className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold tracking-wide ${status.color}`}>
-                    {status.label}
+                  <span
+                    className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold tracking-wide ${status.cls}`}
+                  >
+                    {status.labelUpper}
                   </span>
                 )}
               </div>
@@ -123,7 +145,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
 
               <div className="flex items-center gap-2 flex-wrap mt-1">
                 <button
-                  onClick={() => { setShowEdit(true); setActive("edit"); }}
+                  onClick={() => {
+                    setShowEdit(true);
+                    setActive("edit");
+                  }}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors"
                 >
                   <Settings className="w-3.5 h-3.5" />
@@ -151,26 +176,36 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
         {/* Tabs */}
         <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
           <div className="flex border-b border-stone-800">
-            {[...TABS, ...(showEdit ? [{ id: "edit", label: "Chỉnh sửa" }] : [])].map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => setActive(id)}
-                className={`px-5 py-3.5 text-xs font-semibold transition-colors border-b-2 -mb-px whitespace-nowrap ${
-                  active === id
-                    ? "border-amber-500 text-amber-400"
-                    : "border-transparent text-stone-500 hover:text-stone-300"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            {[...TABS, ...(showEdit ? [{ id: "edit", label: "Chỉnh sửa" }] : [])].map(
+              ({ id, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setActive(id)}
+                  className={`px-5 py-3.5 text-xs font-semibold transition-colors border-b-2 -mb-px whitespace-nowrap ${
+                    active === id
+                      ? "border-amber-500 text-amber-400"
+                      : "border-transparent text-stone-500 hover:text-stone-300"
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            )}
           </div>
 
           <div className="p-5">
-            {active === "info"     && <InfoTab story={story} />}
+            {active === "info" && <InfoTab story={story} />}
             {active === "chapters" && <ChaptersTab novelId={story.id} />}
             {active === "schedule" && <ScheduleTab />}
-            {active === "edit"     && <EditTab story={story} onUpdated={(s) => { setStory(s); setActive("info"); }} />}
+            {active === "edit" && (
+              <EditTab
+                story={story}
+                onUpdated={(s) => {
+                  setStory(s);
+                  setActive("info");
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -10,11 +10,19 @@ import { showToast } from "@/lib/toast";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuthStore } from "@/stores/userStore";
 
 export default function RegisterForm() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      router.replace(user.role === "admin" ? "/admin" : "/");
+    }
+  }, [user, router]);
 
   const {
     register,
@@ -103,7 +111,10 @@ export default function RegisterForm() {
 
       <p className="text-center text-sm text-stone-500">
         Đã có tài khoản?{" "}
-        <Link href="/auth/login" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
+        <Link
+          href="/auth/login"
+          className="text-amber-400 font-medium hover:text-amber-300 transition-colors"
+        >
           Đăng nhập ngay
         </Link>
       </p>

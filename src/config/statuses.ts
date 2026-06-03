@@ -1,0 +1,25 @@
+export type StoryStatus = "pending" | "completed";
+
+export const STORY_STATUS_CONFIG = {
+  pending: {
+    label: "Đang ra", // dùng trong filter chip, text thường
+    labelUpper: "ĐANG RA", // dùng trong badge trên card
+    cls: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+  },
+  completed: {
+    label: "Hoàn thành",
+    labelUpper: "HOÀN THÀNH",
+    cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  },
+} as const;
+
+// Fallback khi status không xác định
+export const STATUS_FALLBACK = {
+  label: "—",
+  labelUpper: "—",
+  cls: "text-stone-400 bg-stone-800 border-stone-700",
+} as const;
+
+export function getStoryStatus(status: string) {
+  return STORY_STATUS_CONFIG[status as StoryStatus] ?? STATUS_FALLBACK;
+}

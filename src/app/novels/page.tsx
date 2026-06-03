@@ -5,14 +5,6 @@ import { db } from "@/lib/mock-db";
 import { removeDiacritics } from "@/utils/removeDiacritics";
 import type { Story } from "@/types/story";
 
-const GENRE_MAP: Record<string, string> = {
-  "tien-hiep": "Tiên hiệp",
-  "huyen-huyen": "Huyền huyễn",
-  "vo-hiep": "Võ hiệp",
-  "do-thi": "Đô thị",
-  "lich-su": "Lịch sử",
-};
-
 type SearchParams = { q?: string; genre?: string; status?: string; sort?: string };
 
 function filterAndSort(stories: Story[], params: SearchParams): Story[] {
@@ -26,8 +18,8 @@ function filterAndSort(stories: Story[], params: SearchParams): Story[] {
   }
 
   if (params.genre) {
-    const genreNorm = removeDiacritics(GENRE_MAP[params.genre] ?? params.genre);
-    result = result.filter((s) => s.genres.some((g) => removeDiacritics(g) === genreNorm));
+    // So sánh trực tiếp theo slug — không cần diacritic removal nữa
+    result = result.filter((s) => s.genres.some((g) => g.slug === params.genre));
   }
 
   if (params.status) {

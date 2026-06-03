@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BookOpen, Search, Menu, Bell, ChevronDown, User, BookMarked, LogOut, BookOpenText, Crown, ShieldCheck } from "lucide-react";
+import {
+  BookOpen,
+  Search,
+  Menu,
+  Bell,
+  ChevronDown,
+  User,
+  BookMarked,
+  LogOut,
+  BookOpenText,
+  ShieldCheck,
+} from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -18,7 +29,7 @@ type SearchResult = {
   name: string;
   author: string;
   poster: string | null;
-  genres: string[];
+  genres: { slug: string; name: string }[];
 };
 
 function SearchBox() {
@@ -40,6 +51,13 @@ function SearchBox() {
     }
     document.addEventListener("mousedown", onClickOutside);
     return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // Hủy debounce timer khi component unmount — tránh fetch sau khi navigate đi
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, []);
 
   const fetchResults = useCallback(async (value: string) => {
@@ -105,7 +123,10 @@ function SearchBox() {
                 <Link
                   key={story.id}
                   href={`/novels/${story.slug}`}
-                  onClick={() => { setOpen(false); setQ(""); }}
+                  onClick={() => {
+                    setOpen(false);
+                    setQ("");
+                  }}
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
                   <div className="w-8 h-10 rounded-md overflow-hidden bg-stone-800 shrink-0">
@@ -127,7 +148,7 @@ function SearchBox() {
                   </div>
                   {story.genres[0] && (
                     <span className="text-[10px] px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-md shrink-0">
-                      {story.genres[0]}
+                      {story.genres[0].name}
                     </span>
                   )}
                 </Link>
@@ -191,7 +212,10 @@ function NotificationDropdown() {
     if (!open || !user) return;
     fetch(`/api/notifications?userId=${user.id}`)
       .then((r) => r.json())
-      .then((d) => { setItems(d.notifications); setTotalUnread(d.totalUnread); });
+      .then((d) => {
+        setItems(d.notifications);
+        setTotalUnread(d.totalUnread);
+      });
   }, [open, user]);
 
   // Số unread trong 4 items đang hiển thị
@@ -199,7 +223,11 @@ function NotificationDropdown() {
   const remainingUnread = totalUnread - shownUnread;
 
   const handleMarkAllRead = async () => {
-    await fetch("/api/notifications", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userId: user?.id }) });
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user?.id }),
+    });
     setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setTotalUnread(0);
   };
@@ -228,7 +256,10 @@ function NotificationDropdown() {
         <div className="flex items-center justify-between px-4 py-3 border-b border-stone-800">
           <span className="text-white text-sm font-semibold">Thông báo</span>
           {totalUnread > 0 && (
-            <button onClick={handleMarkAllRead} className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+            <button
+              onClick={handleMarkAllRead}
+              className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+            >
               Đánh dấu đã đọc
             </button>
           )}
@@ -246,10 +277,16 @@ function NotificationDropdown() {
                   ${!n.isRead ? "bg-amber-500/5" : ""}`}
               >
                 <div className="flex items-start gap-2.5">
-                  {!n.isRead && <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />}
+                  {!n.isRead && (
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                  )}
                   <div className={`flex-1 min-w-0 ${n.isRead ? "pl-4" : ""}`}>
-                    <p className="text-stone-200 text-xs font-medium leading-snug truncate">{n.title}</p>
-                    <p className="text-stone-500 text-xs mt-0.5 line-clamp-2 leading-relaxed">{n.content}</p>
+                    <p className="text-stone-200 text-xs font-medium leading-snug truncate">
+                      {n.title}
+                    </p>
+                    <p className="text-stone-500 text-xs mt-0.5 line-clamp-2 leading-relaxed">
+                      {n.content}
+                    </p>
                     <p className="text-stone-600 text-[10px] mt-1">{timeAgo(n.createdAt)}</p>
                   </div>
                 </div>
@@ -423,9 +460,10 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${pathname === link.href
-                    ? "text-amber-400 bg-amber-500/10"
-                    : "text-stone-300 hover:text-white hover:bg-stone-700/60"
+                  ${
+                    pathname === link.href
+                      ? "text-amber-400 bg-amber-500/10"
+                      : "text-stone-300 hover:text-white hover:bg-stone-700/60"
                   }`}
               >
                 {link.label}
@@ -435,9 +473,10 @@ export default function Navbar() {
               <Link
                 href="/admin"
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${pathname.startsWith("/admin")
-                    ? "text-violet-400 bg-violet-500/10"
-                    : "text-violet-400/70 hover:text-violet-300 hover:bg-violet-500/10"
+                  ${
+                    pathname.startsWith("/admin")
+                      ? "text-violet-400 bg-violet-500/10"
+                      : "text-violet-400/70 hover:text-violet-300 hover:bg-violet-500/10"
                   }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -491,9 +530,10 @@ export default function Navbar() {
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
                 className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors
-                  ${pathname === link.href
-                    ? "text-amber-400 bg-amber-500/10"
-                    : "text-stone-300 hover:text-white hover:bg-stone-700/60"
+                  ${
+                    pathname === link.href
+                      ? "text-amber-400 bg-amber-500/10"
+                      : "text-stone-300 hover:text-white hover:bg-stone-700/60"
                   }`}
               >
                 {link.label}
@@ -515,10 +555,16 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex gap-2 px-4 pt-2">
-                <Link href="/auth/login" className="flex-1 text-center py-2 text-sm text-stone-300 border border-stone-700 rounded-lg hover:border-stone-600 transition-colors">
+                <Link
+                  href="/auth/login"
+                  className="flex-1 text-center py-2 text-sm text-stone-300 border border-stone-700 rounded-lg hover:border-stone-600 transition-colors"
+                >
                   Đăng nhập
                 </Link>
-                <Link href="/auth/register" className="flex-1 text-center py-2 text-sm text-white font-semibold bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors">
+                <Link
+                  href="/auth/register"
+                  className="flex-1 text-center py-2 text-sm text-white font-semibold bg-amber-500 hover:bg-amber-400 rounded-lg transition-colors"
+                >
                   Đăng ký
                 </Link>
               </div>

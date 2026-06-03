@@ -2,12 +2,44 @@ import fs from "fs";
 import path from "path";
 import { generateId } from "@/utils/generateId";
 import { removeDiacritics } from "@/utils/removeDiacritics";
-import { getNew, getHot, getNominated, getRandomStory, getRankingStories, getVipStories, type RankingPeriod } from "@/utils/handleStories";
+import {
+  getNew,
+  getHot,
+  getNominated,
+  getRandomStory,
+  getRankingStories,
+  getVipStories,
+  type RankingPeriod,
+} from "@/utils/handleStories";
 import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import type { Notification } from "@/types/notification";
+import { GENRE_BY_NAME } from "@/config/genres";
 
+// ─── Internal mock DB types ───────────────────────────────────────────────────
+// Phản ánh cấu trúc thực của JSON file — KHÔNG export ra ngoài.
+
+type DbUser = User & {
+  candy: number;
+  isRead: string[];
+  storiesMark: string[];
+  unlockedChapters: string[];
+};
+
+// genres trong JSON lưu dạng string[] (tên thể loại).
+// Khi trả về FE, transform thành Genre[].
+type DbStory = Omit<Story, "genres"> & { genres: string[] };
+
+function toStory(db: DbStory): Story {
+  return {
+    ...db,
+    genres: db.genres.map(
+      (name) =>
+        GENRE_BY_NAME[name] ?? { id: name, name, slug: removeDiacritics(name).replace(/\s+/g, "-") }
+    ),
+  };
+}
 
 const DATA_DIR = path.join(process.cwd(), "src/lib/data");
 const UPLOAD_DIR = path.join(process.cwd(), "upload");
@@ -24,27 +56,27 @@ function writeJson<T>(filename: string, data: T[]): void {
 
 export const db = {
   users: {
-    getAll(): User[] {
-      return readJson<User>("users.json");
+    getAll(): DbUser[] {
+      return readJson<DbUser>("users.json");
     },
 
-    findById(id: string): User | undefined {
-      return readJson<User>("users.json").find((u) => u.id === id);
+    findById(id: string): DbUser | undefined {
+      return readJson<DbUser>("users.json").find((u) => u.id === id);
     },
 
-    findByEmail(email: string): User | undefined {
-      return readJson<User>("users.json").find((u) => u.email === email);
+    findByEmail(email: string): DbUser | undefined {
+      return readJson<DbUser>("users.json").find((u) => u.email === email);
     },
 
-    create(data: Omit<User, "id">): User {
-      const users = readJson<User>("users.json");
-      const user: User = { id: generateId(), ...data };
+    create(data: Omit<DbUser, "id">): DbUser {
+      const users = readJson<DbUser>("users.json");
+      const user: DbUser = { id: generateId(), ...data };
       writeJson("users.json", [...users, user]);
       return user;
     },
 
-    update(id: string, patch: Partial<Omit<User, "id">>): User | null {
-      const users = readJson<User>("users.json");
+    update(id: string, patch: Partial<Omit<DbUser, "id">>): DbUser | null {
+      const users = readJson<DbUser>("users.json");
       const idx = users.findIndex((u) => u.id === id);
       if (idx === -1) return null;
       users[idx] = { ...users[idx], ...patch };
@@ -52,14 +84,17 @@ export const db = {
       return users[idx];
     },
 
-    // Trả kẹo để mở khoá chương
-    unlockChapter(userId: string, chapterId: string, price: number): { user: User } | { error: string } {
-      const users = readJson<User>("users.json");
+    unlockChapter(
+      userId: string,
+      chapterId: string,
+      price: number
+    ): { user: DbUser } | { error: string } {
+      const users = readJson<DbUser>("users.json");
       const idx = users.findIndex((u) => u.id === userId);
       if (idx === -1) return { error: "Không tìm thấy người dùng" };
 
       const user = users[idx];
-      if ((user.unlockedChapters ?? []).includes(chapterId)) return { user }; // already unlocked
+      if ((user.unlockedChapters ?? []).includes(chapterId)) return { user };
       if (user.candy < price) return { error: "Không đủ kẹo" };
 
       users[idx] = {
@@ -74,98 +109,107 @@ export const db = {
 
   stories: {
     getAll(): Story[] {
-      return readJson<Story>("stories.json");
+      return readJson<DbStory>("stories.json").map(toStory);
     },
 
     findById(id: string): Story | undefined {
-      return readJson<Story>("stories.json").find((s) => s.id === id);
+      const s = readJson<DbStory>("stories.json").find((s) => s.id === id);
+      return s ? toStory(s) : undefined;
     },
 
     findBySlug(slug: string): Story | undefined {
-      return readJson<Story>("stories.json").find((s) => s.slug === slug);
+      const s = readJson<DbStory>("stories.json").find((s) => s.slug === slug);
+      return s ? toStory(s) : undefined;
     },
 
-    // Lấy ra 5 truyện mới nhất
-    getNew(limit = 5) : Story[] {
-      return getNew(readJson<Story>("stories.json"), limit)
+    getNew(limit = 5): Story[] {
+      return getNew(readJson<DbStory>("stories.json").map(toStory), limit);
     },
 
-    // Lấy ra 5 truyện hot nhất
     getHot(limit = 5): Story[] {
-      return getHot(readJson<Story>("stories.json"), limit);
+      return getHot(readJson<DbStory>("stories.json").map(toStory), limit);
     },
 
-    // Lấy ra 5 truyện đề cử theo lịch sử đọc
     getNominated(history: string[], limit = 5): Story[] {
-      return getNominated(readJson<Story>("stories.json"), history, limit);
-    },
-    
-    // Lấy ra random truyện
-    getRandom() : Story {
-      return getRandomStory(readJson<Story>("stories.json"));
+      return getNominated(readJson<DbStory>("stories.json").map(toStory), history, limit);
     },
 
-    // Lấy ra ranking truyện theo period
-    getRanking(period: RankingPeriod = "month") : Story[] {
-      return getRankingStories(readJson<Story>("stories.json"), period);
+    getRandom(): Story {
+      return getRandomStory(readJson<DbStory>("stories.json").map(toStory));
     },
 
-    // Lấy ra truyện vip
-    getVip() : Story[] {
-      return getVipStories(readJson<Story>("stories.json"));
+    getRanking(period: RankingPeriod = "month"): Story[] {
+      return getRankingStories(readJson<DbStory>("stories.json").map(toStory), period);
     },
 
-    update(id: string, patch: Partial<Omit<Story, "id">>): Story | null {
-      const stories = readJson<Story>("stories.json");
+    getVip(): Story[] {
+      return getVipStories(readJson<DbStory>("stories.json").map(toStory));
+    },
+
+    // patch.genres nhận string[] (tên thể loại) từ form — lưu thẳng vào JSON
+    update(id: string, patch: Partial<Omit<DbStory, "id">>): Story | null {
+      const stories = readJson<DbStory>("stories.json");
       const idx = stories.findIndex((s) => s.id === id);
       if (idx === -1) return null;
       stories[idx] = { ...stories[idx], ...patch };
       writeJson("stories.json", stories);
-      return stories[idx];
+      return toStory(stories[idx]);
     },
 
-    // Truyện đã đăng bởi user
     getByUser(userId: string): Story[] {
-      return readJson<Story>("stories.json").filter((s) => s.postedBy === userId);
+      return readJson<DbStory>("stories.json")
+        .filter((s) => s.postedBy === userId)
+        .map(toStory);
     },
 
-    create(data: { userId: string; name: string; author: string; status: Story["status"]; genres: string[]; description?: string }): Story {
-      const stories = readJson<Story>("stories.json");
-      const baseSlug = removeDiacritics(data.name).replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const slug = stories.some((s) => s.slug === baseSlug) ? `${baseSlug}-${Date.now()}` : baseSlug;
-      const story: Story = {
-        id:           generateId(),
+    create(data: {
+      userId: string;
+      name: string;
+      author: string;
+      status: Story["status"];
+      genres: string[];
+      description?: string;
+    }): Story {
+      const stories = readJson<DbStory>("stories.json");
+      const baseSlug = removeDiacritics(data.name)
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const slug = stories.some((s) => s.slug === baseSlug)
+        ? `${baseSlug}-${Date.now()}`
+        : baseSlug;
+      const story: DbStory = {
+        id: generateId(),
         slug,
-        name:         data.name,
-        author:       data.author,
-        poster:       null,
-        status:       data.status,
-        genres:       data.genres,
-        tags:         [],
-        description:  data.description ?? "",
-        vip:          false,
-        price:        0,
+        name: data.name,
+        author: data.author,
+        poster: null,
+        status: data.status,
+        genres: data.genres, // lưu string[] vào JSON
+        tags: [],
+        description: data.description ?? "",
+        vip: false,
+        price: 0,
         chapterCount: 0,
-        rating:       0,
-        ratingCount:  0,
+        rating: 0,
+        ratingCount: 0,
         commentCount: 0,
-        nominations:  0,
-        postedBy:     data.userId,
-        updatedAt:    new Date(),
+        nominations: 0,
+        postedBy: data.userId,
+        updatedAt: new Date(),
       };
       writeJson("stories.json", [...stories, story]);
-      return story;
+      return toStory(story);
     },
 
-    delete(id: string): boolean {                                                                                           
-        const stories = readJson<Story>("stories.json");                                                                             
-        const filtered = stories.filter((s) => s.id !== id); 
+    delete(id: string): boolean {
+      const stories = readJson<Story>("stories.json");
+      const filtered = stories.filter((s) => s.id !== id);
 
-        if (filtered.length === stories.length) return false;                                                                        
-        writeJson("stories.json", filtered);       
-                                                                                   
-        return true;                                                                                                                 
-    },   
+      if (filtered.length === stories.length) return false;
+      writeJson("stories.json", filtered);
+
+      return true;
+    },
   },
 
   notifications: {
@@ -187,14 +231,23 @@ export const db = {
 
     markAllRead(userId: string): void {
       const all = readJson<Notification>("notifications.json");
-      writeJson("notifications.json", all.map((n) => n.userId === userId ? { ...n, isRead: true } : n));
+      writeJson(
+        "notifications.json",
+        all.map((n) => (n.userId === userId ? { ...n, isRead: true } : n))
+      );
     },
   },
 
   reviews: {
     getByStory(storyId: string) {
-      return readJson<{ id: string; storyId: string; userName: string; stars: number; text: string; daysAgo: number }>("reviews.json")
-        .filter((r) => r.storyId === storyId);
+      return readJson<{
+        id: string;
+        storyId: string;
+        userName: string;
+        stars: number;
+        text: string;
+        daysAgo: number;
+      }>("reviews.json").filter((r) => r.storyId === storyId);
     },
   },
 
@@ -241,7 +294,7 @@ export const db = {
     // Đồng bộ vip = true nếu có ít nhất 1 chapter trả phí, ngược lại false
     syncVip(story: Story, chapters: Chapter[]): void {
       const hasVip = chapters.some((c) => (c.candyPrice ?? 0) > 0);
-      const stories = readJson<Story>("stories.json");
+      const stories = readJson<DbStory>("stories.json");
       const idx = stories.findIndex((s) => s.id === story.id);
       if (idx !== -1 && stories[idx].vip !== hasVip) {
         stories[idx].vip = hasVip;
@@ -258,8 +311,8 @@ export const db = {
         ? JSON.parse(fs.readFileSync(indexPath, "utf-8"))
         : [];
 
-      const number   = existing.length + 1;
-      const id       = generateId();
+      const number = existing.length + 1;
+      const id = generateId();
       const filename = `${String(number).padStart(5, "0")}_${Date.now()}.txt`;
 
       // Lưu nội dung vào upload/
@@ -269,12 +322,21 @@ export const db = {
 
       const wordCount = data.content.replace(/\s/g, "").length;
       const createdAt = new Date().toISOString();
-      const chapter: Chapter = { id, number, title: data.title, filename, wordCount, views: 0, createdAt, ...(data.candyPrice ? { candyPrice: data.candyPrice } : {}) };
+      const chapter: Chapter = {
+        id,
+        number,
+        title: data.title,
+        filename,
+        wordCount,
+        views: 0,
+        createdAt,
+        ...(data.candyPrice ? { candyPrice: data.candyPrice } : {}),
+      };
       const updated = [...existing, chapter];
       writeJson(`chapters/${story.slug}/index.json`, updated);
 
       // Cập nhật chapterCount + vip trong stories.json
-      const stories = readJson<Story>("stories.json");
+      const stories = readJson<DbStory>("stories.json");
       const idx = stories.findIndex((s) => s.id === story.id);
       if (idx !== -1) {
         stories[idx].chapterCount = number;
@@ -285,7 +347,11 @@ export const db = {
       return chapter;
     },
 
-    update(story: Story, chapterId: string, data: { title?: string; content?: string; candyPrice?: number }): Chapter | null {
+    update(
+      story: Story,
+      chapterId: string,
+      data: { title?: string; content?: string; candyPrice?: number }
+    ): Chapter | null {
       const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
       if (!fs.existsSync(indexPath)) return null;
       const existing: Chapter[] = JSON.parse(fs.readFileSync(indexPath, "utf-8"));

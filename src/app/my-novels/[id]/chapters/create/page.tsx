@@ -12,7 +12,7 @@ export default async function CreateChapterPage({ params }: Props) {
   const story = db.stories.findById(id);
   if (!story) notFound();
 
-  const chapters  = db.chapters.getIndex(story.slug);
+  const chapters = db.chapters.getIndex(story.slug);
   const nextNumber = chapters.length + 1;
 
   return (

@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  User, Bell, BookMarked, CreditCard, LogOut,
-  BookOpenText, PlusCircle, BarChart2, Upload,
-  DollarSign
+  User,
+  Bell,
+  BookMarked,
+  CreditCard,
+  LogOut,
+  BookOpenText,
+  PlusCircle,
+  BarChart2,
+  Upload,
+  DollarSign,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -14,21 +21,21 @@ import { useRouter } from "next/navigation";
 type NavItem = { href: string; icon: React.ElementType; label: string };
 
 const MEMBER_ITEMS: NavItem[] = [
-  { href: "/profile",               icon: User,       label: "Hồ sơ cá nhân" },
-  { href: "/profile/notifications", icon: Bell,       label: "Thông báo" },
-  { href: "/profile/library",       icon: BookMarked, label: "Tủ truyện" },
+  { href: "/profile", icon: User, label: "Hồ sơ cá nhân" },
+  { href: "/profile/notifications", icon: Bell, label: "Thông báo" },
+  { href: "/profile/library", icon: BookMarked, label: "Tủ truyện" },
 ];
 
 const STORY_ITEMS: NavItem[] = [
-  { href: "/my-novels",        icon: BookOpenText, label: "Đã đăng" },
-  { href: "/my-novels/create",    icon: PlusCircle,   label: "Đăng truyện mới" },
-  { href: "/my-novels/import", icon: Upload,       label: "Import ZIP" },
-  { href: "/my-novels/stats",  icon: BarChart2,    label: "Thống kê" },
+  { href: "/my-novels", icon: BookOpenText, label: "Đã đăng" },
+  { href: "/my-novels/create", icon: PlusCircle, label: "Đăng truyện mới" },
+  { href: "/my-novels/import", icon: Upload, label: "Import ZIP" },
+  { href: "/my-novels/stats", icon: BarChart2, label: "Thống kê" },
 ];
 
 const MORE_ITEMS: NavItem[] = [
-  { href: "/profile/payment",  icon: DollarSign, label: "Nạp kẹo" },
-  { href: "/profile/transactions",  icon: CreditCard, label: "Lịch sử giao dịch" },
+  { href: "/profile/payment", icon: DollarSign, label: "Nạp kẹo" },
+  { href: "/profile/transactions", icon: CreditCard, label: "Lịch sử giao dịch" },
 ];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -79,7 +86,9 @@ export default function ProfileSidebar() {
             </span>
           </div>
           <div className="text-center">
-            <p className="text-white font-semibold text-base leading-snug">{user?.name ?? "Người dùng"}</p>
+            <p className="text-white font-semibold text-base leading-snug">
+              {user?.name ?? "Người dùng"}
+            </p>
             <p className="text-stone-500 text-xs mt-0.5">#{user?.id?.slice(0, 8) ?? "--------"}</p>
           </div>
         </div>
