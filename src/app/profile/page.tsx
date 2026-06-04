@@ -4,10 +4,7 @@ import ProfileTabs from "@/components/profile/ProfileTabs";
 export default function ProfilePage() {
   return (
     <div className="flex flex-col gap-5">
-      {/* Stats row */}
       <ProfileStats />
-
-      {/* Info / Avatar / Security tabs */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
         <div className="mb-5">
           <h2 className="text-white font-bold text-lg">Hồ sơ cá nhân</h2>

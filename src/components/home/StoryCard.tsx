@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Star, BookMarked } from "lucide-react";
 import type { Story } from "@/types/story";
+import { getStoryStatus } from "@/config/statuses";
 
 type StoryCardProps = {
   story: Story;
@@ -53,7 +54,7 @@ export default function StoryCard({ story }: StoryCardProps) {
               : "bg-stone-700/90 text-stone-300"
           }`}
         >
-          {status === "completed" ? "Hoàn thành" : "Đang ra"}
+          {getStoryStatus(status).label}
         </span>
 
         {/* Nominations */}

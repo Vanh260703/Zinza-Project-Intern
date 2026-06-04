@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   BookOpen,
@@ -15,6 +15,7 @@ import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import ErrorPage from "@/components/error/ErrorPage";
 import type { Story } from "@/types/story";
 import InfoTab from "./InfoTab";
 import ChaptersTab from "./ChaptersTab";
@@ -43,6 +44,12 @@ type Props = { story: Story };
 export default function ManageNovelContent({ story: initialStory }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const [story, setStory] = useState(initialStory);
   const [active, setActive] = useState("info");
@@ -75,6 +82,29 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
       setDeleting(false);
     }
   };
+
+  // Chưa mount → không hiện gì, tránh flash content
+  if (!mounted) return null;
+
+  // Chưa đăng nhập → redirect về login
+  if (!user) {
+    router.replace("/auth/login");
+    return null;
+  }
+
+  // Đã đăng nhập nhưng không phải người đăng truyện → 403 full screen
+  // dùng fixed inset-0 để phủ lên toàn bộ layout (kể cả ProfileSidebar)
+  if (user.id !== initialStory.postedBy) {
+    return (
+      <div className="fixed inset-0 z-50 bg-stone-950">
+        <ErrorPage
+          code={403}
+          title="Không có quyền truy cập"
+          description="Bạn không phải người đăng truyện này."
+        />
+      </div>
+    );
+  }
 
   return (
     <>

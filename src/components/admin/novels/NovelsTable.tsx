@@ -6,6 +6,7 @@ import { Search, BookOpen, Crown, ChevronLeft, ChevronRight, Star } from "lucide
 import type { Story } from "@/types/story";
 import { showToast } from "@/lib/toast";
 import { getStoryStatus } from "@/config/statuses";
+import { STATUS_OPTIONS } from "@/enums/story";
 
 type StoryRow = Story & { publisherName?: string; publisherEmail?: string };
 
@@ -101,8 +102,11 @@ export default function NovelsTable() {
           className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2.5 outline-none focus:border-violet-500/60 transition-colors"
         >
           <option value="all">Tất cả trạng thái</option>
-          <option value="pending">Đang ra</option>
-          <option value="completed">Hoàn thành</option>
+          {STATUS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </select>
         <select
           value={vip}

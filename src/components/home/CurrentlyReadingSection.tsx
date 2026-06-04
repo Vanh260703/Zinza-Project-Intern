@@ -10,10 +10,10 @@ import type { Story } from "@/types/story";
 export default function CurrentlyReadingSection() {
   const history = useLibraryStore((s) => s.history);
   const [stories, setStories] = useState<Story[]>([]);
-  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist?.hasHydrated() ?? false);
 
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    const unsub = useAuthStore.persist?.onFinishHydration(() => setHydrated(true));
     return unsub;
   }, []);
 

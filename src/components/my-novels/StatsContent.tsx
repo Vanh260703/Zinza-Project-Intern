@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { BarChart2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
@@ -21,7 +22,7 @@ const TABLE_COLS = [
   { key: "nominated", label: "ĐỀ CỬ", align: "text-center" },
   { key: "unlocked", label: "MỞ KHOÁ", align: "text-center" },
   { key: "gifts", label: "QUÀ", align: "text-center" },
-  { key: "revenue", label: "MỞ KHOÁ", align: "text-center" },
+  { key: "revenue", label: "TIỀN MỞ KHOÁ", align: "text-center" },
 ];
 
 type StoryStats = {
@@ -50,10 +51,22 @@ function toStats(story: Story): StoryStats {
 
 export default function StatsContent() {
   const user = useAuthStore((s) => s.user);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [novels, setNovels] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [fromDate, setFromDate] = useState(searchParams.get("from") ?? "");
+  const [toDate, setToDate] = useState(searchParams.get("to") ?? "");
+
+  const syncUrl = (from: string, to: string) => {
+    const params = new URLSearchParams();
+    if (from) params.set("from", from);
+    if (to) params.set("to", to);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname);
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -96,13 +109,19 @@ export default function StatsContent() {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              syncUrl(e.target.value, toDate);
+            }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              syncUrl(fromDate, e.target.value);
+            }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
         </div>

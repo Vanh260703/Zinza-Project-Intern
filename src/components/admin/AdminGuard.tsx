@@ -10,14 +10,12 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const hadUser = useRef(false);
 
-  // Dùng persist.hasHydrated() để check ngay lập tức,
-  // onFinishHydration() callback để set state khi hydration xong —
-  // tránh gọi setState trực tiếp trong effect body (ESLint react-hooks/set-state-in-effect)
-  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
-
+  // mounted đảm bảo Zustand đã hydrate + commit user vào React state
+  // trước khi chúng ta check quyền — tránh race condition với onFinishHydration
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
-    return unsub;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -25,24 +23,17 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!user && !hadUser.current) router.replace("/unauthorized");
-  }, [hydrated, user, router]);
+    if (!mounted) return;
+    if (!user && !hadUser.current) router.replace("/auth/login");
+  }, [mounted, user, router]);
 
-  if (!hydrated) return null;
+  if (!mounted) return null;
 
   // Đã đăng nhập nhưng không phải admin → 403
   if (user && user.role !== "admin") {
-    return (
-      <ErrorPage
-        code={403}
-        title="Không có quyền truy cập"
-        description="Trang này chỉ dành cho quản trị viên."
-      />
-    );
+    return <ErrorPage code={403} title="Không có quyền truy cập" description="" />;
   }
 
-  // Chưa đăng nhập → chờ redirect
   if (!user) return null;
 
   return <>{children}</>;

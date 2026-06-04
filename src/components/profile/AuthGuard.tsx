@@ -9,11 +9,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const hadUser = useRef(false);
 
-  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
-
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
-    return unsub;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -21,12 +20,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   useEffect(() => {
-    if (hydrated && !user && !hadUser.current) {
-      router.replace("/unauthorized");
+    if (mounted && !user && !hadUser.current) {
+      router.replace("/auth/login");
     }
-  }, [hydrated, user, router]);
+  }, [mounted, user, router]);
 
-  if (!hydrated || !user) return null;
+  if (!mounted || !user) return null;
 
   return <>{children}</>;
 }
