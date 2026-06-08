@@ -47,9 +47,3 @@ next-env.d.ts
 
 # Swagger
 swagger.yaml
-
-tests/
-
-# Internal review
-review.md
-test.md

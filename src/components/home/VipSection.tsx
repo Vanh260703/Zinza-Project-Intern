@@ -1,20 +1,35 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Crown } from "lucide-react";
 import type { Story } from "@/types/story";
 import StoryCard from "./StoryCard";
 
-const VIP_LIMIT = 8;
+const LIMIT_DESKTOP = 8;
+const LIMIT_MOBILE = 4;
 
 type VipSectionProps = {
   stories: Story[];
 };
 
 export default function VipSection({ stories }: VipSectionProps) {
-  const visible = stories.slice(0, VIP_LIMIT);
-  const hasMore = stories.length > VIP_LIMIT;
+  // Khởi tạo bằng LIMIT_DESKTOP để SSR và client đồng nhất
+  const [limit, setLimit] = useState(LIMIT_DESKTOP);
+
+  useEffect(() => {
+    const update = () =>
+      setLimit(window.innerWidth < 640 ? LIMIT_MOBILE : LIMIT_DESKTOP);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const visible = stories.slice(0, limit);
+  const hasMore = stories.length > limit;
 
   return (
-    <section className="px-4">
+    <section>
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <div className="flex items-center justify-center w-8 h-8 bg-amber-500/20 rounded-lg">

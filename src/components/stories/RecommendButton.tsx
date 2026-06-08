@@ -50,7 +50,7 @@ export default function RecommendButton() {
 
             {!user ? (
               <p className="text-stone-400 text-sm text-center py-4">
-                Bạn cần <span className="text-sky-400 font-semibold">đăng nhập</span> để đề cử
+                Bạn cần <a href="/auth/login" className="underline decoration-sky-400 underline-offset-4"><span className="text-sky-400 font-semibold">đăng nhập</span></a> để đề cử
                 truyện.
               </p>
             ) : !hasTicket ? (

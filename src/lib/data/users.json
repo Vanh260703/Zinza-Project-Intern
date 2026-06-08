@@ -6,13 +6,15 @@
     "password": "123456",
     "gender": "male",
     "role": "admin",
-    "candy": 999999,
+    "candy": 999989,
     "candySpent": 25550,
     "candyTopUp": 122270,
     "chaptersRead": 1503,
     "isRead": [],
     "storiesMark": [],
-    "unlockedChapters": []
+    "unlockedChapters": [
+      "677a0a1f-65d7-480c-b0e8-ff93e4f6f589"
+    ]
   },
   {
     "id": "2153d5c8-5fb9-42fa-8d40-43abf339a40c",
