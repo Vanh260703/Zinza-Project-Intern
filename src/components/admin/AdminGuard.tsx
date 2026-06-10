@@ -13,10 +13,10 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   // Dùng persist.hasHydrated() để check ngay lập tức,
   // onFinishHydration() callback để set state khi hydration xong —
   // tránh gọi setState trực tiếp trong effect body (ESLint react-hooks/set-state-in-effect)
-  const [hydrated, setHydrated] = useState(useAuthStore.persist.hasHydrated());
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist?.hasHydrated() ?? false);
 
   useEffect(() => {
-    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    const unsub = useAuthStore.persist?.onFinishHydration(() => setHydrated(true));
     return unsub;
   }, []);
 

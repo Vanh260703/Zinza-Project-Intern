@@ -438,8 +438,18 @@ function UserDropdown() {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileQ, setMobileQ] = useState("");
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mobileQ.trim()) return;
+    setMenuOpen(false);
+    setMobileQ("");
+    router.push(`/novels?q=${encodeURIComponent(mobileQ.trim())}`);
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-stone-900/95 backdrop-blur-md border-b border-stone-700/50">
@@ -524,6 +534,20 @@ export default function Navbar() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden border-t border-stone-800 py-3 space-y-1">
+            {/* Search bar */}
+            <form onSubmit={handleMobileSearch} className="px-2 pb-2">
+              <div className="flex items-center gap-2 bg-stone-800/70 border border-stone-700 rounded-xl px-4 py-2.5 focus-within:border-amber-500/60 transition-colors">
+                <Search className="w-4 h-4 shrink-0 text-stone-500" />
+                <input
+                  value={mobileQ}
+                  onChange={(e) => setMobileQ(e.target.value)}
+                  placeholder="Tìm truyện, tác giả..."
+                  className="bg-transparent text-stone-200 text-sm placeholder-stone-500 outline-none w-full"
+                  autoComplete="off"
+                />
+              </div>
+            </form>
+
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
@@ -540,7 +564,7 @@ export default function Navbar() {
               </Link>
             ))}
             {user ? (
-              <div className="flex flex-col gap-1 pt-1">
+              <div className="flex flex-col gap-1 pt-1 border-t border-stone-800 mt-1">
                 {user.role === "admin" && (
                   <Link
                     href="/admin"
@@ -551,7 +575,38 @@ export default function Navbar() {
                     Trang quản lý
                   </Link>
                 )}
-                <div className="px-4 py-1 text-sm text-stone-300">{user.name}</div>
+                <Link
+                  href="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-700/60 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  Hồ sơ cá nhân
+                </Link>
+                <Link
+                  href="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-700/60 transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  Hồ sơ công khai
+                </Link>
+                <Link
+                  href="/profile/library"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-700/60 transition-colors"
+                >
+                  <BookMarked className="w-4 h-4" />
+                  Tủ sách
+                </Link>
+                <Link
+                  href="/my-novels"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-700/60 transition-colors"
+                >
+                  <BookOpenText className="w-4 h-4" />
+                  Truyện của tôi
+                </Link>
               </div>
             ) : (
               <div className="flex gap-2 px-4 pt-2">
