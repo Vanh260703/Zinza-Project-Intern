@@ -37,6 +37,7 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "auth",
+      skipHydration: true,
       onRehydrateStorage: () => () => {
         localStorage.removeItem("user");
         localStorage.removeItem("token");

@@ -2,6 +2,7 @@
 
 import { Candy, BookOpen, Ticket } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
+import DailyTicketCard from "./DailyTicketCard";
 
 export default function ProfileStats() {
   const user = useAuthStore((s) => s.user);
@@ -9,9 +10,10 @@ export default function ProfileStats() {
 
   const candy = wallet?.balance ?? 0;
   const chaptersRead = user?.chaptersRead ?? 0;
-  const monthlyRecommendationTicket = user?.monthlyRecommendationTicket ?? 0;
+  const recommendationTickets = user?.recommendationTickets ?? 0;
 
   return (
+    <div className="flex flex-col gap-3 sm:gap-4">
     <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 grid grid-cols-3 divide-x divide-stone-800">
       {/* Kẹo */}
       <div className="flex flex-col gap-1 px-4 first:pl-0">
@@ -27,10 +29,10 @@ export default function ProfileStats() {
       <div className="flex flex-col gap-1 px-4 first:pl-0">
         <div className="flex items-center gap-1.5 text-stone-500 text-xs">
           <Ticket className="w-3.5 h-3.5 text-sky-400" />
-          Vé tháng
+          Vé đề cử
         </div>
         <p className="text-sky-400 text-xl font-bold">
-          {monthlyRecommendationTicket.toLocaleString()}
+          {recommendationTickets.toLocaleString()}
         </p>
         <p className="text-stone-600 text-[11px]">Vé</p>
       </div>
@@ -44,6 +46,8 @@ export default function ProfileStats() {
         <p className="text-emerald-400 text-xl font-bold">{chaptersRead.toLocaleString()}</p>
         <p className="text-stone-600 text-[11px]">Chương</p>
       </div>
+    </div>
+    <DailyTicketCard />
     </div>
   );
 }

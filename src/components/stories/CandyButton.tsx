@@ -1,19 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useRouter } from "next/navigation";
 import { showToast } from "@/lib/toast";
 
 const PRESETS = [50, 100, 200, 500];
 
-export default function CandyButton() {
-  const { user, wallet, updateBalance } = useAuthStore();
+type Props = {
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+};
+
+export default function CandyButton({ open: controlledOpen, onOpenChange }: Props = {}) {
+  const { user, wallet, setWallet } = useAuthStore();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
+
+  // Controlled mode nếu open/onOpenChange được truyền vào
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (isControlled) onOpenChange?.(v);
+    else setInternalOpen(v);
+  };
 
   const amount = custom !== "" ? parseInt(custom) || 0 : selected;
 
@@ -25,16 +39,34 @@ export default function CandyButton() {
 
   const balance = wallet?.balance ?? 0;
 
-  const handleConfirm = () => {
-    if (!amount || amount <= 0 || !user) return;
+  const handleConfirm = async () => {
+    if (!amount || amount <= 0 || !user || loading) return;
     if (balance < amount) return;
-    updateBalance(-amount);
-    setOpen(false);
-    showToast.success(
-      `Đã tặng ${amount} kẹo! 🍬`,
-      `Bạn còn ${(balance - amount).toLocaleString()} kẹo`
-    );
-    router.refresh();
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/user/wallet/gift", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, amount }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast.error(data.message ?? "Tặng kẹo thất bại");
+        return;
+      }
+      setWallet(data.wallet);
+      setOpen(false);
+      showToast.success(
+        `Đã tặng ${amount} kẹo! 🍬`,
+        `Bạn còn ${data.wallet.balance.toLocaleString()} kẹo`
+      );
+      router.refresh();
+    } catch {
+      showToast.error("Không thể kết nối máy chủ");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const notEnough = amount !== null && amount > 0 && user !== null && balance < amount;
@@ -52,15 +84,16 @@ export default function CandyButton() {
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          onClick={(e) => e.target === e.currentTarget && setOpen(false)}
+          onClick={(e) => e.target === e.currentTarget && !loading && setOpen(false)}
         >
           <div className="w-full max-w-sm bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col gap-5 shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-white font-bold text-base">Tặng kẹo cho tác giả</h3>
               <button
-                onClick={() => setOpen(false)}
-                className="text-stone-500 hover:text-white transition-colors"
+                onClick={() => !loading && setOpen(false)}
+                disabled={loading}
+                className="text-stone-500 hover:text-white transition-colors disabled:opacity-40"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -127,10 +160,19 @@ export default function CandyButton() {
                 {/* Confirm */}
                 <button
                   onClick={handleConfirm}
-                  disabled={!amount || amount <= 0 || !!notEnough}
-                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold text-sm transition-colors"
+                  disabled={!amount || amount <= 0 || !!notEnough || loading}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
                 >
-                  {amount && amount > 0 ? `Tặng ${amount} kẹo` : "Chọn số kẹo"}
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Đang xử lý...
+                    </>
+                  ) : amount && amount > 0 ? (
+                    `Tặng ${amount} kẹo`
+                  ) : (
+                    "Chọn số kẹo"
+                  )}
                 </button>
               </>
             )}

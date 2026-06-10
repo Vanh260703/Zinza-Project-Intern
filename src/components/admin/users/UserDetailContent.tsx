@@ -8,7 +8,7 @@ import {
   Ticket,
   BookOpen,
   Lock,
-  User,
+  User as UserIcon,
   Mail,
   Calendar,
   ShieldCheck,
@@ -16,18 +16,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import TopupDialog from "./TopupDialog";
+import type { User } from "@/types/user";
+import { useAuthStore } from "@/stores/userStore";
 
-type UserDetail = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
+// Admin API trả DbUser (trừ password): User + các field internal bị strip khỏi login
+type UserDetail = User & {
   candy: number;
-  monthlyRecommendationTicket: number;
-  chaptersRead: number;
   unlockedChapters: string[];
   storiesMark: string[];
-  joinedAt?: string;
 };
 
 function StatCard({
@@ -67,9 +63,12 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default function UserDetailContent({ userId }: { userId: string }) {
   const router = useRouter();
+  const currentAdminId = useAuthStore((s) => s.user?.id);
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [showTopup, setShowTopup] = useState(false);
+
+  const isSelf = currentAdminId === userId;
 
   useEffect(() => {
     fetch(`/api/admin/users/${userId}`)
@@ -90,7 +89,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
   if (!user) return null;
 
   const handleTopupSuccess = (newCandy: number) => {
-    setUser((prev) => (prev ? { ...prev, candy: newCandy } : prev));
+    setUser((prev: UserDetail | null) => (prev ? { ...prev, candy: newCandy } : prev));
   };
 
   const formatDate = (d?: string) =>
@@ -148,17 +147,19 @@ export default function UserDetailContent({ userId }: { userId: string }) {
                 Tham gia {formatDate(user.joinedAt)}
               </span>
               <span className="flex items-center gap-2 font-mono text-xs text-stone-600">
-                <User className="w-3.5 h-3.5" />#{user.id}
+                <UserIcon className="w-3.5 h-3.5" />#{user.id}
               </span>
             </div>
           </div>
-          <button
-            onClick={() => setShowTopup(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500/15 border border-amber-500/25 text-amber-400 hover:bg-amber-500/25 transition-colors shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            Nạp kẹo
-          </button>
+          {!isSelf && (
+            <button
+              onClick={() => setShowTopup(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500/15 border border-amber-500/25 text-amber-400 hover:bg-amber-500/25 transition-colors shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              Nạp kẹo
+            </button>
+          )}
         </div>
 
         {/* Stats */}
@@ -172,7 +173,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
           <StatCard
             icon={Ticket}
             label="Vé tháng"
-            value={user.monthlyRecommendationTicket}
+            value={user.recommendationTickets}
             color="bg-sky-500/15 text-sky-400"
           />
           <StatCard
@@ -193,7 +194,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 flex flex-col gap-1">
             <div className="flex items-center gap-2 mb-2">
-              <User className="w-4 h-4 text-stone-500" />
+              <UserIcon className="w-4 h-4 text-stone-500" />
               <p className="text-stone-300 font-semibold text-sm">Thông tin tài khoản</p>
             </div>
             <Row label="Tên hiển thị" value={user.name} />
@@ -231,7 +232,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
             />
             <Row
               label="Vé đề cử tháng"
-              value={<span className="text-sky-400">{user.monthlyRecommendationTicket} vé</span>}
+              value={<span className="text-sky-400">{user.recommendationTickets} vé</span>}
             />
             <Row label="Chương đã mở khoá" value={`${user.unlockedChapters?.length ?? 0} chương`} />
           </div>
