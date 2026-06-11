@@ -30,10 +30,15 @@ export function getNominated(allStories: Story[], history: string[], limit = 5):
   if (!history.length) return byNominations.slice(0, limit);
 
   const readSet = new Set(history);
-  const readGenres = new Set(allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.genres));
+  // Dùng slug (string) thay vì object reference để Set.has() hoạt động đúng
+  const readGenres = new Set(
+    allStories
+      .filter((s) => readSet.has(s.id))
+      .flatMap((s) => s.genres.map((g) => g.slug))
+  );
 
   const recommended = byNominations.filter(
-    (s) => !readSet.has(s.id) && s.genres.some((g) => readGenres.has(g))
+    (s) => !readSet.has(s.id) && s.genres.some((g) => readGenres.has(g.slug))
   );
 
   if (recommended.length < limit) {
@@ -46,7 +51,8 @@ export function getNominated(allStories: Story[], history: string[], limit = 5):
 }
 
 // Lấy ra truyện ngẫu nhiên
-export function getRandomStory(allStories: Story[]): Story {
+export function getRandomStory(allStories: Story[]): Story | null {
+  if (!allStories.length) return null;
   const ratingStories = allStories.filter((s) => s.rating >= 4.5);
   const pool = ratingStories.length ? ratingStories : allStories;
   return pool[Math.floor(Math.random() * pool.length)];

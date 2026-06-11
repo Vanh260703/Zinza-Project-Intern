@@ -57,10 +57,13 @@ export default function ChaptersTab({ novelId }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <p className="text-stone-500 text-sm">{chapters.length} chương</p>
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors">
+          <Link
+            href={`/my-novels/${novelId}/chapters/create`}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
+          >
             <PlusCircle className="w-3.5 h-3.5" />
             Thêm chương
-          </button>
+          </Link>
         </div>
 
         {chapters.length === 0 ? (

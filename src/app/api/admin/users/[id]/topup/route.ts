@@ -12,7 +12,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
   }
 
-  if (body.adminId === id) {
+  if (parsed.data.adminId === id) {
     return NextResponse.json({ message: "Không thể tự nạp kẹo cho chính mình" }, { status: 403 });
   }
 

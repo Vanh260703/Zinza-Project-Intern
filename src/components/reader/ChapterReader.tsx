@@ -386,7 +386,7 @@ function ChapterPaywall({
             <div className="flex flex-col items-center gap-2 w-full">
               <p className="text-red-400 text-sm">Không đủ kẹo để mở khoá</p>
               <Link
-                href="/topup"
+                href="/profile/payment"
                 className="w-full py-3 rounded-xl text-sm font-semibold bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white transition-colors text-center"
               >
                 Nạp thêm kẹo
@@ -396,7 +396,7 @@ function ChapterPaywall({
         </div>
       ) : (
         <Link
-          href="/login"
+          href="/auth/login"
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
         >
           Đăng nhập để đọc

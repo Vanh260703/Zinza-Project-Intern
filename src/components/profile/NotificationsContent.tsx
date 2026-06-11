@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, CheckCheck } from "lucide-react";
+import { Bell, CheckCheck, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 
@@ -38,6 +38,7 @@ export default function NotificationsContent() {
   const [totalUnread, setTotalUnread] = useState(0);
   const [tab, setTab] = useState<Tab>("all");
   const [loading, setLoading] = useState(true);
+  const [marking, setMarking] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -52,6 +53,8 @@ export default function NotificationsContent() {
   }, [user]);
 
   const handleMarkAllRead = async () => {
+    if (marking) return;
+    setMarking(true);
     await fetch("/api/notifications", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -59,6 +62,7 @@ export default function NotificationsContent() {
     });
     setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setTotalUnread(0);
+    setMarking(false);
   };
 
   const displayed = tab === "unread" ? items.filter((n) => !n.isRead) : items;
@@ -76,10 +80,14 @@ export default function NotificationsContent() {
         {totalUnread > 0 && (
           <button
             onClick={handleMarkAllRead}
+            disabled={marking}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20
-              text-amber-400 hover:bg-amber-500/20 text-sm font-medium transition-colors"
+              text-amber-400 hover:bg-amber-500/20 text-sm font-medium transition-colors
+              disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CheckCheck className="w-4 h-4" />
+            {marking
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <CheckCheck className="w-4 h-4" />}
             Đánh dấu đọc tất cả
           </button>
         )}

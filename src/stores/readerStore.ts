@@ -49,6 +49,6 @@ export const useReaderStore = create<ReaderStore>()(
       setFontFamily: (fontFamily) => set({ fontFamily }),
       setTextColor: (textColor) => set({ textColor }),
     }),
-    { name: "reader-settings" }
+    { name: "reader-settings", skipHydration: true }
   )
 );

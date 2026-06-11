@@ -51,30 +51,34 @@ export default function MyNovelsContent() {
           <p className="text-stone-500 text-sm mt-0.5">Quản lý các tác phẩm bạn đã đăng tải</p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
+          {/* Search — full width trên mobile */}
           <div className="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded-xl px-3 py-2 focus-within:border-amber-500/60 transition-colors">
             <Search className="w-3.5 h-3.5 text-stone-500 shrink-0" />
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Tìm kiếm truyện..."
-              className="bg-transparent text-stone-200 text-sm placeholder-stone-600 outline-none w-36"
+              className="bg-transparent text-stone-200 text-sm placeholder-stone-600 outline-none w-full sm:w-36"
             />
           </div>
-          <Link
-            href="/my-novels/import"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-stone-700 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors whitespace-nowrap"
-          >
-            <Upload className="w-4 h-4" />
-            Import ZIP
-          </Link>
-          <Link
-            href="/my-novels/create"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors whitespace-nowrap"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Đăng mới
-          </Link>
+          {/* Buttons — nằm cùng hàng trên mobile */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/my-novels/import"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold border border-stone-700 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors whitespace-nowrap"
+            >
+              <Upload className="w-4 h-4" />
+              Import ZIP
+            </Link>
+            <Link
+              href="/my-novels/create"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors whitespace-nowrap"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Đăng mới
+            </Link>
+          </div>
         </div>
       </div>
 

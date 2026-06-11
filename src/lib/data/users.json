@@ -26,43 +26,17 @@
     "candy": 4250,
     "candySpent": 866,
     "candyTopUp": 9064,
-    "chaptersRead": 80,
+    "chaptersRead": 81,
     "isRead": [],
     "storiesMark": [],
     "follower": 1001,
     "unlockedChapters": [],
     "recommendationTickets": 4,
-    "dailyReadDate": "2026-06-10",
-    "dailyReadCount": 19,
+    "dailyReadDate": "2026-06-11",
+    "dailyReadCount": 1,
     "dailyReadChapterIds": {
-      "101081": {
-        "1": true,
-        "2": true
-      },
-      "103905": {
-        "1": true,
-        "2": true,
-        "3": true
-      },
-      "104789": {
-        "1": true,
-        "2": true,
-        "3": true,
-        "4": true,
-        "5": true,
-        "6": true,
-        "7": true,
-        "8": true,
-        "9": true,
-        "10": true
-      },
-      "108343": {
+      "106686": {
         "1": true
-      },
-      "110212": {
-        "1": true,
-        "7": true,
-        "9": true
       }
     },
     "lastReadChapters": {
@@ -81,6 +55,11 @@
         "title": "Chương 10: Tế đàn",
         "number": 10
       },
+      "106686": {
+        "id": "1",
+        "title": "Chương 1: Lắc xúc xắc mười một năm, một sớm khí vận đỉnh cấp",
+        "number": 1
+      },
       "108343": {
         "id": "1",
         "title": "Chương 01: Thành công giác tỉnh! Hệ thống mở ra!",
@@ -92,7 +71,7 @@
         "number": 9
       }
     },
-    "dailyTicketClaimed": true
+    "dailyTicketClaimed": false
   },
   {
     "id": "01820c35-8d60-4326-9d20-0d95f33b6a9d",

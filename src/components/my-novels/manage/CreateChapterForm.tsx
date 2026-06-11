@@ -55,10 +55,10 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
       }
 
       showToast.success(`Đã đăng chương ${nextNumber}`);
-      setLoading(false);
       router.push(`/my-novels/${story.id}`);
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
+    } finally {
       setLoading(false);
     }
   };

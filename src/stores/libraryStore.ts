@@ -58,6 +58,6 @@ export const useLibraryStore = create<LibraryStore>()(
         localStorage.removeItem("library");
       },
     }),
-    { name: "library" }
+    { name: "library", skipHydration: true }
   )
 );
