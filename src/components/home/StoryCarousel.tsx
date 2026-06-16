@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Story } from "@/types/story";
 import StoryCard from "./StoryCard";
@@ -10,19 +10,46 @@ type StoryCarouselProps = {
   autoMs?: number;
 };
 
-const VISIBLE = 4;
 const TRANSITION_MS = 500;
+
+// Số card hiển thị theo breakpoint
+// Mobile dùng 2 vì 1 card full-width trông quá to
+type CarouselConfig = {
+  visible: number;
+  maxWidth?: string; // giới hạn container width trên mobile để card không quá to
+};
+
+function getConfig(): CarouselConfig {
+  if (typeof window === "undefined") return { visible: 4 };
+  const w = window.innerWidth;
+  if (w >= 1024) return { visible: 4 };                       // desktop: 4 cards full
+  if (w >= 768)  return { visible: 3 };                       // tablet rộng: 3 cards
+  if (w >= 640)  return { visible: 2 };                       // tablet hẹp: 2 cards
+  return { visible: 2, maxWidth: "320px" };                   // mobile: 2 cards, constrain ~160px/card
+}
+
+function useCarouselConfig() {
+  const [config, setConfig] = useState<CarouselConfig | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setConfig(getConfig());
+    const update = () => setConfig(getConfig());
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  return config;
+}
 
 export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselProps) {
   const n = stories.length;
-  // Triple the list: [clone-left | real | clone-right] for seamless infinite loop
   const items = [...stories, ...stories, ...stories];
+  const config = useCarouselConfig();
 
-  const [idx, setIdx] = useState(n); // start at the "real" copy
+  const [idx, setIdx] = useState(n);
   const [jumping, setJumping] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  // Guard: block additional clicks while a slide animation is in progress.
-  // Using a ref (not state) to avoid triggering re-renders and stale closure issues.
   const animatingRef = useRef(false);
 
   const stop = useCallback(() => {
@@ -44,7 +71,15 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
     return stop;
   }, [start, stop]);
 
-  // After slide animation ends: silently jump back into the real range
+  // Reset khi breakpoint thay đổi — dùng useLayoutEffect để reset đồng bộ
+  // trước khi browser paint, tránh flash 1 frame sai position khi resize
+  useLayoutEffect(() => {
+    animatingRef.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setJumping(true);
+    setIdx(n);
+  }, [config, n]);
+
   const onTransitionEnd = useCallback(() => {
     animatingRef.current = false;
     if (idx >= n * 2) {
@@ -56,7 +91,6 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
     }
   }, [idx, n]);
 
-  // Re-enable transition one frame after the silent jump
   useEffect(() => {
     if (!jumping) return;
     const id = requestAnimationFrame(() => requestAnimationFrame(() => setJumping(false)));
@@ -79,10 +113,28 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
     start();
   };
 
-  const translateX = -(idx / VISIBLE) * 100;
+  // Chưa mount → hiển thị skeleton để tránh flash từ SSR → client
+  if (config === null) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="aspect-3/4 rounded-xl bg-stone-800/60 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  const { visible, maxWidth } = config;
+  const itemWidthPct = 100 / visible;
+  const translateX = -(idx * itemWidthPct);
 
   return (
-    <div className="relative" onMouseEnter={stop} onMouseLeave={start}>
+    <div
+      className={maxWidth ? "relative mx-auto" : "relative"}
+      style={maxWidth ? { maxWidth } : undefined}
+      onMouseEnter={stop}
+      onMouseLeave={start}
+    >
       {/* Track */}
       <div className="overflow-hidden">
         <div
@@ -94,31 +146,33 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
           onTransitionEnd={onTransitionEnd}
         >
           {items.map((story, i) => (
-            <div key={`${story.id}-${i}`} className="w-1/4 shrink-0 px-2">
+            <div
+              key={`${story.id}-${i}`}
+              style={{ width: `${itemWidthPct}%` }}
+              className="shrink-0 px-2"
+            >
               <StoryCard story={story} />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Prev button */}
+      {/* Nav buttons — ẩn trên mobile (tránh bị cắt bởi viewport), chỉ hiện từ sm+ */}
       <button
         onClick={goPrev}
         aria-label="Trước"
-        className="absolute left-0 top-[35%] -translate-y-1/2 -translate-x-1/2
-          w-9 h-9 flex items-center justify-center
+        className="hidden sm:flex absolute left-0 top-[35%] -translate-y-1/2 -translate-x-1/2
+          w-9 h-9 items-center justify-center
           bg-stone-800 hover:bg-amber-500 border border-stone-700 hover:border-amber-500
           rounded-full text-stone-300 hover:text-white transition-all shadow-lg z-10"
       >
         <ChevronLeft className="w-4 h-4" />
       </button>
-
-      {/* Next button */}
       <button
         onClick={goNext}
         aria-label="Tiếp"
-        className="absolute right-0 top-[35%] -translate-y-1/2 translate-x-1/2
-          w-9 h-9 flex items-center justify-center
+        className="hidden sm:flex absolute right-0 top-[35%] -translate-y-1/2 translate-x-1/2
+          w-9 h-9 items-center justify-center
           bg-stone-800 hover:bg-amber-500 border border-stone-700 hover:border-amber-500
           rounded-full text-stone-300 hover:text-white transition-all shadow-lg z-10"
       >

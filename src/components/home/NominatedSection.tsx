@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { getNominated } from "@/utils/handleStories";
@@ -17,6 +17,9 @@ type NominatedSectionProps = {
 export default function NominatedSection({ allStories }: NominatedSectionProps) {
   const user = useAuthStore((state) => state.user);
   const history = useLibraryStore((state) => state.history);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const stories = useMemo(
     () => (user ? getNominated(allStories, history) : []),
@@ -27,7 +30,13 @@ export default function NominatedSection({ allStories }: NominatedSectionProps) 
     <section>
       <SectionHeader icon="⭐" title="Truyện đề cử" />
 
-      {user ? (
+      {!mounted ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="aspect-3/4 rounded-xl bg-stone-800/60 animate-pulse" />
+          ))}
+        </div>
+      ) : user ? (
         <StoryCarousel stories={stories} autoMs={2000} />
       ) : (
         <div className="flex flex-col items-center justify-center py-16 text-center">

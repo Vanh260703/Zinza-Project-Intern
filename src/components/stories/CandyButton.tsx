@@ -68,7 +68,7 @@ export default function CandyButton() {
 
             {!user ? (
               <p className="text-stone-400 text-sm text-center py-4">
-                Bạn cần <span className="text-amber-400 font-semibold">đăng nhập</span> để tặng kẹo.
+                Bạn cần <a href="/auth/login" className="underline decoration-amber-400 underline-offset-4"><span className="text-amber-400 font-semibol">đăng nhập</span></a> để tặng kẹo.
               </p>
             ) : (
               <>

@@ -64,7 +64,7 @@ export default function NotificationsContent() {
   const displayed = tab === "unread" ? items.filter((n) => !n.isRead) : items;
 
   return (
-    <div className="flex flex-col gap-0 bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
+    <div className="w-full flex flex-col gap-0 bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-stone-800">
         <div>

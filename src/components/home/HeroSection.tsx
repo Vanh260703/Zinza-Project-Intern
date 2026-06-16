@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
 import { GENRES } from "@/config/genres";
@@ -35,7 +35,10 @@ function FilterSelect({
 
 export default function HeroSection() {
   const user = useAuthStore((state) => state.user);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => setMounted(true), []);
 
   const [q, setQ] = useState("");
   const [genre, setGenre] = useState("");
@@ -85,7 +88,7 @@ export default function HeroSection() {
             >
               Khám phá ngay
             </Link>
-            {!user && (
+            {(!mounted || !user) && (
               <Link
                 href="/auth/register"
                 className="px-6 py-2.5 border border-stone-600 hover:border-stone-500 text-stone-300 hover:text-amber-400 font-semibold rounded-xl text-sm transition-colors"

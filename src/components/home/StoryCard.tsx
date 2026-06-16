@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BookOpen, Star, BookMarked } from "lucide-react";
 import type { Story } from "@/types/story";
 import { getStoryStatus } from "@/config/statuses";
@@ -23,7 +24,16 @@ function CoverImage({
       </div>
     );
   }
-  return <img src={`/api/cover/${storyId}`} alt={name} className="w-full h-full object-cover" />;
+  return (
+    <Image
+      src={`/api/cover/${storyId}`}
+      alt={name}
+      width={300}
+      height={400}
+      className="w-full h-full object-cover"
+      sizes="(max-width: 640px) 160px, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+    />
+  );
 }
 
 export default function StoryCard({ story }: StoryCardProps) {
