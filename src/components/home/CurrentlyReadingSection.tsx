@@ -2,15 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useStoriesByIds } from "@/hooks/useStories";
 import { BookOpen, Crown, BookMarked } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { useLibraryStore } from "@/stores/libraryStore";
-import type { Story } from "@/types/story";
 
 export default function CurrentlyReadingSection() {
-  const history = useLibraryStore((s) => s.history);
   const user = useAuthStore((s) => s.user);
-  const [stories, setStories] = useState<Story[]>([]);
   const [hydrated, setHydrated] = useState(() => useAuthStore.persist?.hasHydrated() ?? false);
 
   useEffect(() => {
@@ -18,17 +15,11 @@ export default function CurrentlyReadingSection() {
     return unsub;
   }, []);
 
-  useEffect(() => {
-    if (!hydrated || history.length === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setStories([]); // reset khi history rỗng — legitimate pattern
-      return;
-    }
-    fetch(`/api/novels?ids=${history.slice(0, 5).join(",")}`)
-      .then((r) => r.json())
-      .then(setStories)
-      .catch(() => {});
-  }, [hydrated, history]);
+  // Dùng lastReadChapters (DB-backed) thay vì history (localStorage only)
+  // → không bị mất sau logout/login
+  const ids = Object.keys(user?.lastReadChapters ?? {}).slice(0, 5);
+
+  const { data: stories = [] } = useStoriesByIds(ids, hydrated && ids.length > 0);
 
   if (!hydrated || stories.length === 0) return null;
 
@@ -52,7 +43,6 @@ export default function CurrentlyReadingSection() {
               href={href}
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800/60 transition-colors border-b border-stone-800/60 last:border-0 group"
             >
-              {/* Cover */}
               <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
                 {story.poster ? (
                   <img
@@ -66,8 +56,6 @@ export default function CurrentlyReadingSection() {
                   </div>
                 )}
               </div>
-
-              {/* Info */}
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                 <div className="flex items-center gap-1">
                   <p className="text-stone-200 text-xs font-semibold line-clamp-1 group-hover:text-amber-400 transition-colors">

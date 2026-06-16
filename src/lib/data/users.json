@@ -23,37 +23,36 @@
     "password": "123456",
     "gender": "male",
     "role": "user",
-    "candy": 4250,
+    "candy": 4750,
     "candySpent": 866,
     "candyTopUp": 9064,
-    "chaptersRead": 81,
+    "chaptersRead": 87,
     "isRead": [],
     "storiesMark": [],
     "follower": 1001,
     "unlockedChapters": [],
-    "recommendationTickets": 4,
-    "dailyReadDate": "2026-06-11",
-    "dailyReadCount": 1,
+    "recommendationTickets": 5,
+    "dailyReadDate": "2026-06-12",
+    "dailyReadCount": 6,
     "dailyReadChapterIds": {
-      "106686": {
+      "114714": {
         "1": true
+      },
+      "120994": {
+        "1": true,
+        "2": true
+      },
+      "d2613561-883d-4568-a558-3e9ceb3216ab": {
+        "4dad3df7-f44d-44c4-8d87-3131fc5d41fc": true,
+        "9b4c8302-d74a-4f44-9eaa-8f0de24de7c4": true,
+        "d0d31d24-6c0a-4d1d-afaf-3cc2cdfd9258": true
       }
     },
     "lastReadChapters": {
-      "101081": {
-        "id": "2",
-        "title": "Chương 2: Lâm thời giảng bài",
-        "number": 2
-      },
       "103905": {
         "id": "3",
         "title": "Chương 3 trang bức, ta cũng sẽ a (cầu đánh giá, )",
         "number": 3
-      },
-      "104789": {
-        "id": "10",
-        "title": "Chương 10: Tế đàn",
-        "number": 10
       },
       "106686": {
         "id": "1",

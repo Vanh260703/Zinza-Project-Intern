@@ -1,60 +1,85 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useStoriesByIds } from "@/hooks/useStories";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { useAuthStore } from "@/stores/userStore";
-import { BookOpen, BookMarked, History, Compass } from "lucide-react";
+import { useRemoveReadingHistory } from "@/hooks/useUser";
+import { BookOpen, BookMarked, History, Compass, X, Loader2 } from "lucide-react";
 import type { User } from "@/types/user";
-import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
 // ── Story card ────────────────────────────────────────────────────────────────
 
 type LastChapter = NonNullable<User["lastReadChapters"]>[string];
 
-function StoryCard({ story, lastChapter }: { story: Story; lastChapter?: LastChapter }) {
+function StoryCard({
+  story,
+  lastChapter,
+  onRemove,
+  removing,
+}: {
+  story: Story;
+  lastChapter?: LastChapter;
+  onRemove?: () => void;
+  removing?: boolean;
+}) {
   const href = lastChapter
     ? `/novels/${story.slug}/chapters/${lastChapter.id}`
     : `/novels/${story.slug}`;
 
   return (
-    <Link
-      href={href}
-      className="flex gap-3 p-3 rounded-xl hover:bg-stone-800 transition-colors group"
-    >
-      <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-        {story.poster ? (
-          <img
-            src={`/api/cover/${story.id}`}
-            alt={story.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-stone-600" />
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-1 min-w-0 justify-center">
-        <p className="text-stone-200 text-sm font-medium truncate group-hover:text-amber-400 transition-colors">
-          {story.name}
-        </p>
-        <p className="text-stone-500 text-xs truncate">{story.author}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-stone-600 text-[11px]">
-            {lastChapter
-              ? `Ch.${lastChapter.number}: ${lastChapter.title}`
-              : `${story.chapterCount} chương`}
-          </span>
-          {story.vip && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
-              VIP
-            </span>
+    <div className="relative group/card">
+      <Link
+        href={href}
+        className="flex gap-3 p-3 rounded-xl hover:bg-stone-800 transition-colors group"
+      >
+        <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
+          {story.poster ? (
+            <img
+              src={`/api/cover/${story.id}`}
+              alt={story.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-stone-600" />
+            </div>
           )}
         </div>
-      </div>
-    </Link>
+        <div className="flex flex-col gap-1 min-w-0 justify-center">
+          <p className="text-stone-200 text-sm font-medium truncate group-hover:text-amber-400 transition-colors">
+            {story.name}
+          </p>
+          <p className="text-stone-500 text-xs truncate">{story.author}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className="text-stone-600 text-[11px]">
+              {lastChapter
+                ? `Ch.${lastChapter.number}: ${lastChapter.title}`
+                : `${story.chapterCount} chương`}
+            </span>
+            {story.vip && (
+              <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
+                VIP
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
+
+      {onRemove && (
+        <button
+          onClick={onRemove}
+          disabled={removing}
+          title="Xóa khỏi lịch sử"
+          className="absolute top-1.5 right-1.5 p-1 rounded-md bg-stone-900/80 text-stone-500
+            hover:text-red-400 hover:bg-stone-800 opacity-0 group-hover/card:opacity-100
+            transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {removing ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -66,12 +91,14 @@ function Section({
   stories,
   emptyText,
   lastReadChapters,
+  removeMutation,
 }: {
   title: string;
   icon: React.ElementType;
   stories: Story[];
   emptyText: string;
   lastReadChapters?: User["lastReadChapters"];
+  removeMutation?: ReturnType<typeof useRemoveReadingHistory>;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -89,6 +116,8 @@ function Section({
               key={story.id}
               story={story}
               lastChapter={lastReadChapters?.[story.id]}
+              onRemove={removeMutation ? () => removeMutation.mutate(story.id) : undefined}
+              removing={removeMutation?.isPending && removeMutation.variables === story.id}
             />
           ))}
         </div>
@@ -100,33 +129,21 @@ function Section({
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function LibraryContent() {
-  const { history, bookmarks } = useLibraryStore();
+  const { bookmarks } = useLibraryStore();
   const lastReadChapters = useAuthStore((s) => s.user?.lastReadChapters);
-  const [historyStories, setHistoryStories] = useState<Story[]>([]);
-  const [bookmarkStories, setBookmarkStories] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
+  const removeMutation = useRemoveReadingHistory();
 
-  const isEmpty = history.length === 0 && bookmarks.length === 0;
+  // Dùng lastReadChapters keys (DB-backed) thay vì history (localStorage only)
+  const readIds = Object.keys(lastReadChapters ?? {});
 
-  useEffect(() => {
-    if (isEmpty) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false);
-      return;
-    }
+  const isEmpty = readIds.length === 0 && bookmarks.length === 0;
+  const allIds = [...new Set([...readIds, ...bookmarks])];
 
-    const allIds = [...new Set([...history, ...bookmarks])];
+  const { data: stories = [], isLoading: loading } = useStoriesByIds(allIds, !isEmpty);
 
-    fetch(`/api/novels?ids=${allIds.join(",")}`)
-      .then((r) => r.json())
-      .then((stories: Story[]) => {
-        const byId = Object.fromEntries(stories.map((s) => [s.id, s]));
-        setHistoryStories(history.map((id) => byId[id]).filter(Boolean));
-        setBookmarkStories(bookmarks.map((id) => byId[id]).filter(Boolean));
-      })
-      .catch(() => showToast.error("Không tải được tủ sách"))
-      .finally(() => setLoading(false));
-  }, [history, bookmarks, isEmpty]);
+  const byId = Object.fromEntries(stories.map((s) => [s.id, s]));
+  const historyStories = readIds.map((id) => byId[id]).filter(Boolean) as Story[];
+  const bookmarkStories = bookmarks.map((id) => byId[id]).filter(Boolean) as Story[];
 
   if (loading) {
     return (
@@ -171,6 +188,7 @@ export default function LibraryContent() {
         stories={historyStories}
         lastReadChapters={lastReadChapters}
         emptyText="Chưa có lịch sử đọc."
+        removeMutation={removeMutation}
       />
     </div>
   );

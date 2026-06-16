@@ -7,7 +7,7 @@ export default function AdminNovelsPage() {
         <h1 className="text-white font-bold text-2xl">Tất cả truyện</h1>
         <p className="text-stone-500 text-sm mt-0.5">Quản lý toàn bộ tác phẩm trên hệ thống</p>
       </div>
-      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6">
+      <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-6">
         <NovelsTable />
       </div>
     </div>

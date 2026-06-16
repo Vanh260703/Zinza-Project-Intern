@@ -43,13 +43,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Cập nhật thất bại" }, { status: 500 });
   }
 
-  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } = updated as typeof updated & {
-    candy: number;
-    isRead: string[];
-    storiesMark: string[];
-    unlockedChapters: string[];
-  };
-  void candy; void isRead; void storiesMark; void unlockedChapters;
+  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } =
+    updated as typeof updated & {
+      candy: number;
+      isRead: string[];
+      storiesMark: string[];
+      unlockedChapters: string[];
+    };
+  void candy;
+  void isRead;
+  void storiesMark;
+  void unlockedChapters;
 
   return NextResponse.json({ user: safeUser });
 }

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useUpdateChapter } from "@/hooks/useChapters";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import ErrorPage from "@/components/error/ErrorPage";
+
 import type { Chapter } from "@/types/chapter";
 
 const inputCls =
@@ -11,59 +13,51 @@ const inputCls =
 
 type Props = {
   novelId: string;
+  postedBy: string;
   chapter: Chapter;
   initialContent: string;
 };
 
-export default function EditChapterForm({ novelId, chapter, initialContent }: Props) {
+export default function EditChapterForm({ novelId, postedBy, chapter, initialContent }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
-
   const [title, setTitle] = useState(chapter.title);
   const [content, setContent] = useState(initialContent);
   const [candyPrice, setCandyPrice] = useState<number>(chapter.candyPrice ?? 0);
-  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const updateMutation = useUpdateChapter(novelId, chapter.id);
+
+  if (user && user.id !== postedBy) {
+    return (
+      <ErrorPage
+        code={403}
+        title="Không có quyền truy cập"
+        description="Bạn không phải tác giả của truyện này."
+        action={{ label: "Truyện của tôi", href: "/my-novels" }}
+      />
+    );
+  }
 
   const wordCount = content.replace(/\s/g, "").length;
 
-  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) return;
     setErrors({});
-    setLoading(true);
-
-    try {
-      const res = await fetch(`/api/novels/${novelId}/chapters/${chapter.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          content,
-          candyPrice,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        const fieldErrors = data.errors?.fieldErrors ?? {};
-        const mapped: Record<string, string> = {};
-        for (const [k, v] of Object.entries(fieldErrors)) {
-          mapped[k] = (v as string[])[0];
-        }
-        setErrors(mapped);
-        showToast.error(data.message ?? "Cập nhật thất bại");
-        return;
+    updateMutation.mutate(
+      { title: title.trim(), content, candyPrice },
+      {
+        onSuccess: () => router.push(`/my-novels/${novelId}`),
+        onError: (e: unknown) => {
+          const d = e as { errors?: { fieldErrors?: Record<string, string[]> }; message?: string };
+          if (d?.errors?.fieldErrors) {
+            const mapped: Record<string, string> = {};
+            for (const [k, v] of Object.entries(d.errors.fieldErrors)) mapped[k] = v[0];
+            setErrors(mapped);
+          }
+        },
       }
-
-      showToast.success("Đã cập nhật chương");
-      router.push(`/my-novels/${novelId}`);
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
-    }
+    );
   };
 
   return (
@@ -114,10 +108,10 @@ export default function EditChapterForm({ novelId, chapter, initialContent }: Pr
       <div className="flex items-center gap-3 pt-1">
         <button
           type="submit"
-          disabled={loading}
+          disabled={updateMutation.isPending}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {loading ? "Đang lưu..." : "Lưu thay đổi"}
+          {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
         <button
           type="button"

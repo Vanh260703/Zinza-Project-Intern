@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+
 import { X, ImagePlus } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
+import { useUpdateNovel } from "@/hooks/useNovels";
 import { showToast } from "@/lib/toast";
+
 import type { Story } from "@/types/story";
 import { GENRES } from "@/config/genres";
 
@@ -29,7 +32,7 @@ export default function EditTab({ story, onUpdated }: Props) {
   const [status, setStatus] = useState(story.status);
   const [genres, setGenres] = useState<string[]>(story.genres.map((g) => g.name));
   const [description, setDescription] = useState(story.description);
-  const [loading, setLoading] = useState(false);
+  const updateMutation = useUpdateNovel(story.id);
 
   // Cover state
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -68,48 +71,36 @@ export default function EditTab({ story, onUpdated }: Props) {
     setCoverPreview(URL.createObjectURL(file));
   };
 
-  const handleSave = async () => {
-    if (!user) return;
-    if (coverError) return;
-    setLoading(true);
-    try {
-      // 1. Cập nhật thông tin truyện
-      const res = await fetch(`/api/novels/${story.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, name, author, status, genres, description }),
+  const saveMutation = {
+    mutateAsync: async () => {
+      if (!user) throw new Error("Chưa đăng nhập");
+      const data = await updateMutation.mutateAsync({
+        userId: user.id,
+        name,
+        author,
+        status,
+        genres,
+        description,
       });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast.error(data.message ?? "Cập nhật thất bại");
-        return;
-      }
-
-      // 2. Upload cover mới nếu có (route tự xóa ảnh cũ)
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
         const coverRes = await fetch(`/api/cover/${story.id}`, { method: "POST", body: form });
         if (!coverRes.ok) {
           const err = await coverRes.json().catch(() => ({}));
-          showToast.error(err.message ?? "Upload ảnh bìa thất bại");
-          // Thông tin truyện đã lưu, chỉ ảnh bị lỗi
           onUpdated(data.story);
-          return;
+          throw new Error(err.message ?? "Upload ảnh bìa thất bại");
         }
         const { poster } = await coverRes.json();
         data.story.poster = poster;
         setCoverFile(null);
         setCoverPreview(null);
       }
-
       showToast.success("Đã lưu thay đổi");
       onUpdated(data.story);
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
-    }
+    },
+    mutate: () => saveMutation.mutateAsync().catch(() => {}),
+    isPending: updateMutation.isPending,
   };
 
   // Preview hiện tại: ảnh mới chọn → ảnh cũ trên server → placeholder
@@ -248,11 +239,11 @@ export default function EditTab({ story, onUpdated }: Props) {
       </div>
 
       <button
-        onClick={handleSave}
-        disabled={loading || !!coverError}
+        onClick={() => saveMutation.mutate()}
+        disabled={saveMutation.isPending || !!coverError}
         className="self-start px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
       >
-        {loading ? "Đang lưu..." : "Lưu thay đổi"}
+        {saveMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
       </button>
     </div>
   );

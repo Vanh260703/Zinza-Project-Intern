@@ -32,9 +32,7 @@ export function getNominated(allStories: Story[], history: string[], limit = 5):
   const readSet = new Set(history);
   // Dùng slug (string) thay vì object reference để Set.has() hoạt động đúng
   const readGenres = new Set(
-    allStories
-      .filter((s) => readSet.has(s.id))
-      .flatMap((s) => s.genres.map((g) => g.slug))
+    allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.genres.map((g) => g.slug))
   );
 
   const recommended = byNominations.filter(

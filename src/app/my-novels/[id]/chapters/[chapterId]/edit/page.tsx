@@ -32,7 +32,12 @@ export default async function EditChapterPage({ params }: Props) {
             {story.name} — Chương {reader.chapter.number}
           </p>
         </div>
-        <EditChapterForm novelId={id} chapter={reader.chapter} initialContent={reader.content} />
+        <EditChapterForm
+          novelId={id}
+          postedBy={story.postedBy}
+          chapter={reader.chapter}
+          initialContent={reader.content}
+        />
       </div>
     </div>
   );

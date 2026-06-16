@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -17,6 +19,7 @@ import {
 import Link from "next/link";
 import TopupDialog from "./TopupDialog";
 import type { User } from "@/types/user";
+import { useAdminUserById } from "@/hooks/useAdmin";
 import { useAuthStore } from "@/stores/userStore";
 
 // Admin API trả DbUser (trừ password): User + các field internal bị strip khỏi login
@@ -64,21 +67,26 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 export default function UserDetailContent({ userId }: { userId: string }) {
   const router = useRouter();
   const currentAdminId = useAuthStore((s) => s.user?.id);
-  const [user, setUser] = useState<UserDetail | null>(null);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [showTopup, setShowTopup] = useState(false);
-
   const isSelf = currentAdminId === userId;
 
-  useEffect(() => {
-    fetch(`/api/admin/users/${userId}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setUser)
-      .catch(() => router.replace("/admin/users"))
-      .finally(() => setLoading(false));
-  }, [userId, router]);
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useAdminUserById(userId) as {
+    data: UserDetail | undefined;
+    isLoading: boolean;
+    isError: boolean;
+  };
 
-  if (loading) {
+  if (isError) {
+    router.replace("/admin/users");
+    return null;
+  }
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 border-2 border-stone-700 border-t-violet-500 rounded-full animate-spin" />
@@ -89,7 +97,9 @@ export default function UserDetailContent({ userId }: { userId: string }) {
   if (!user) return null;
 
   const handleTopupSuccess = (newCandy: number) => {
-    setUser((prev: UserDetail | null) => (prev ? { ...prev, candy: newCandy } : prev));
+    queryClient.setQueryData<UserDetail>(["admin-user", userId], (prev) =>
+      prev ? { ...prev, candy: newCandy } : prev
+    );
   };
 
   const formatDate = (d?: string) =>
@@ -118,43 +128,46 @@ export default function UserDetailContent({ userId }: { userId: string }) {
         </Link>
 
         {/* Header card */}
-        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col sm:flex-row gap-5 items-start">
-          <div className="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-500/30 flex items-center justify-center shrink-0">
-            <span className="text-2xl font-black text-amber-400">
-              {user.name[0]?.toUpperCase()}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0 flex flex-col gap-2">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-white font-bold text-xl">{user.name}</h1>
-              <span
-                className={`text-xs px-2.5 py-0.5 rounded-full border font-semibold ${
-                  user.role === "admin"
-                    ? "text-violet-300 bg-violet-500/15 border-violet-500/25"
-                    : "text-stone-400 bg-stone-800 border-stone-700"
-                }`}
-              >
-                {user.role === "admin" ? "Admin" : "User"}
+        <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-5">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-500/30 flex items-center justify-center shrink-0">
+              <span className="text-xl sm:text-2xl font-black text-amber-400">
+                {user.name[0]?.toUpperCase()}
               </span>
             </div>
-            <div className="flex flex-col gap-1 text-sm text-stone-400">
-              <span className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5" />
-                {user.email}
-              </span>
-              <span className="flex items-center gap-2">
-                <Calendar className="w-3.5 h-3.5" />
-                Tham gia {formatDate(user.joinedAt)}
-              </span>
-              <span className="flex items-center gap-2 font-mono text-xs text-stone-600">
-                <UserIcon className="w-3.5 h-3.5" />#{user.id}
-              </span>
+            <div className="flex-1 min-w-0 flex flex-col gap-2">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h1 className="text-white font-bold text-lg sm:text-xl">{user.name}</h1>
+                <span
+                  className={`text-xs px-2.5 py-0.5 rounded-full border font-semibold ${
+                    user.role === "admin"
+                      ? "text-violet-300 bg-violet-500/15 border-violet-500/25"
+                      : "text-stone-400 bg-stone-800 border-stone-700"
+                  }`}
+                >
+                  {user.role === "admin" ? "Admin" : "User"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 text-sm text-stone-400">
+                <span className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{user.email}</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5 shrink-0" />
+                  Tham gia {formatDate(user.joinedAt)}
+                </span>
+                <span className="flex items-center gap-2 font-mono text-xs text-stone-600">
+                  <UserIcon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">#{user.id}</span>
+                </span>
+              </div>
             </div>
           </div>
           {!isSelf && (
             <button
               onClick={() => setShowTopup(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500/15 border border-amber-500/25 text-amber-400 hover:bg-amber-500/25 transition-colors shrink-0"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500/15 border border-amber-500/25 text-amber-400 hover:bg-amber-500/25 transition-colors self-start sm:self-auto shrink-0"
             >
               <Plus className="w-4 h-4" />
               Nạp kẹo

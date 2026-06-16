@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BarChart2 } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import { useMyNovels } from "@/hooks/useNovels";
 import type { Story } from "@/types/story";
 
 const SUMMARY_STATS = [
@@ -49,20 +48,10 @@ function toStats(story: Story): StoryStats {
 }
 
 export default function StatsContent() {
-  const user = useAuthStore((s) => s.user);
-  const [novels, setNovels] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
-  useEffect(() => {
-    if (!user) return;
-    fetch(`/api/novels?postedBy=${user.id}`)
-      .then((r) => r.json())
-      .then(setNovels)
-      .catch(() => showToast.error("Không tải được dữ liệu thống kê"))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const { data: novels = [], isLoading: loading } = useMyNovels();
 
   const rows = novels.map(toStats);
 

@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BookOpen, Eye, Candy, Crown } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import { useDeleteNovel } from "@/hooks/useNovels";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import type { Story } from "@/types/story";
 import { getStoryStatus } from "@/config/statuses";
@@ -18,37 +17,12 @@ function formatDate(date?: Date | string) {
   });
 }
 
-type Props = { story: Story; onDelete: (id: string) => void };
+type Props = { story: Story };
 
-export default function NovelCard({ story, onDelete }: Props) {
-  const user = useAuthStore((s) => s.user);
+export default function NovelCard({ story }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const status = getStoryStatus(story.status);
-
-  const handleDelete = async () => {
-    if (!user) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/novels/${story.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast.error(data.message ?? "Xóa thất bại");
-        return;
-      }
-      showToast.success("Đã xóa truyện");
-      onDelete(story.id);
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setDeleting(false);
-      setShowConfirm(false);
-    }
-  };
+  const deleteMutation = useDeleteNovel(() => setShowConfirm(false));
 
   return (
     <>
@@ -57,8 +31,8 @@ export default function NovelCard({ story, onDelete }: Props) {
           title="Xóa truyện này?"
           description={`"${story.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
           confirmLabel="Xóa truyện"
-          loading={deleting}
-          onConfirm={handleDelete}
+          loading={deleteMutation.isPending}
+          onConfirm={() => deleteMutation.mutate(story.id)}
           onCancel={() => setShowConfirm(false)}
         />
       )}

@@ -1,29 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAdminDashboard } from "@/hooks/useAdmin";
 import { Users, BookOpenText, BookOpen, Candy, Crown, TrendingUp, Clock } from "lucide-react";
-import { showToast } from "@/lib/toast";
-
-type Stats = {
-  totalUsers: number;
-  totalNovels: number;
-  totalChapters: number;
-  totalCandy: number;
-  vipNovels: number;
-  novelsByStatus: { pending: number; completed: number };
-  recentUsers: { id: string; name: string; email: string; role: string; joinedAt?: string }[];
-  recentNovels: {
-    id: string;
-    name: string;
-    author: string;
-    status: string;
-    chapterCount: number;
-    vip: boolean;
-    poster: string | null;
-    updatedAt?: string;
-  }[];
-};
 
 function StatCard({
   icon: Icon,
@@ -72,18 +51,9 @@ function formatDate(d?: string | Date) {
 }
 
 export default function DashboardContent() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: stats, isLoading } = useAdminDashboard();
 
-  useEffect(() => {
-    fetch("/api/admin/stats")
-      .then((r) => r.json())
-      .then(setStats)
-      .catch(() => showToast.error("Không tải được dữ liệu thống kê"))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
+  if (isLoading || !stats) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 border-2 border-stone-700 border-t-violet-500 rounded-full animate-spin" />

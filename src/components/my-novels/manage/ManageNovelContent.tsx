@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   BookOpen,
@@ -11,10 +12,10 @@ import {
   Trash2,
   CalendarDays,
 } from "lucide-react";
+import { useDeleteNovel } from "@/hooks/useNovels";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
-import { useRouter } from "next/navigation";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import ErrorPage from "@/components/error/ErrorPage";
 import type { Story } from "@/types/story";
 import InfoTab from "./InfoTab";
 import ChaptersTab from "./ChaptersTab";
@@ -41,40 +42,40 @@ function formatDate(date?: Date | string) {
 type Props = { story: Story };
 
 export default function ManageNovelContent({ story: initialStory }: Props) {
-  const user = useAuthStore((s) => s.user);
-  const router = useRouter();
-
   const [story, setStory] = useState(initialStory);
   const [active, setActive] = useState("info");
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
-  const status = getStoryStatus(story.status);
+  const user = useAuthStore((s) => s.user);
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist?.hasHydrated() ?? false);
 
-  const handleDelete = async () => {
-    if (!user) return;
-    setDeleting(true);
-    try {
-      const res = await fetch(`/api/novels/${story.id}`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast.error(data.message ?? "Xóa thất bại");
-        return;
-      }
-      showToast.success("Đã xóa truyện");
-      setDeleting(false);
-      setShowDelete(false);
-      router.push("/my-novels");
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-      setDeleting(false);
+  useEffect(() => {
+    if (useAuthStore.persist?.hasHydrated()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setHydrated(true);
+      return;
     }
-  };
+    const unsub = useAuthStore.persist?.onFinishHydration(() => setHydrated(true));
+    return unsub;
+  }, []);
+
+  const router = useRouter();
+  const status = getStoryStatus(story.status);
+  const deleteMutation = useDeleteNovel();
+
+  if (!hydrated) return null;
+
+  if (!user || user.id !== story.postedBy) {
+    return (
+      <ErrorPage
+        code={403}
+        title="Không có quyền truy cập"
+        description="Bạn không phải tác giả của truyện này."
+        action={{ label: "Truyện của tôi", href: "/my-novels" }}
+      />
+    );
+  }
 
   return (
     <>
@@ -83,8 +84,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
           title="Xóa truyện này?"
           description={`"${story.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
           confirmLabel="Xóa truyện"
-          loading={deleting}
-          onConfirm={handleDelete}
+          loading={deleteMutation.isPending}
+          onConfirm={() =>
+            deleteMutation.mutate(story.id, { onSuccess: () => router.push("/my-novels") })
+          }
           onCancel={() => setShowDelete(false)}
         />
       )}

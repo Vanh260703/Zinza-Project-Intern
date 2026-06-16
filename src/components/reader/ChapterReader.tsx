@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useUnlockChapter, useTrackDailyRead } from "@/hooks/useChapters";
 import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
   AlignJustify,
-  Gift,
   Bookmark,
   BookmarkCheck,
   Settings,
@@ -20,7 +20,6 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import CandyButton from "@/components/stories/CandyButton";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { useAuthStore } from "@/stores/userStore";
 import {
@@ -315,37 +314,21 @@ function ChapterPaywall({
   chapter: Chapter;
   onUnlocked: (content: string) => void;
 }) {
-  const { user, wallet, setWallet } = useAuthStore();
-  const addPurchasedChapter = useLibraryStore((s) => s.addPurchasedChapter);
-  const [loading, setLoading] = useState(false);
+  const { user, wallet } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
 
   const price = chapter.candyPrice!;
   const hasEnough = (wallet?.balance ?? 0) >= price;
 
-  async function handleUnlock() {
+  const unlockMutation = useUnlockChapter(story.id, chapter.id);
+
+  function handleUnlock() {
     if (!user) return;
-    setLoading(true);
     setError(null);
-    try {
-      const res = await fetch(`/api/novels/${story.id}/chapters/${chapter.id}/unlock`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.message ?? "Mở khoá thất bại");
-        return;
-      }
-      setWallet(data.wallet);
-      addPurchasedChapter(chapter.id);
-      onUnlocked(data.content);
-    } catch {
-      setError("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
-    }
+    unlockMutation.mutate(undefined, {
+      onSuccess: (data) => onUnlocked(data.content),
+      onError: () => setError("Lỗi kết nối, thử lại sau"),
+    });
   }
 
   return (
@@ -377,10 +360,10 @@ function ChapterPaywall({
           {hasEnough ? (
             <button
               onClick={handleUnlock}
-              disabled={loading}
+              disabled={unlockMutation.isPending}
               className="w-full py-3 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors"
             >
-              {loading ? "Đang mở khoá..." : `Dùng ${price} kẹo để đọc`}
+              {unlockMutation.isPending ? "Đang mở khoá..." : `Dùng ${price} kẹo để đọc`}
             </button>
           ) : (
             <div className="flex flex-col items-center gap-2 w-full">
@@ -421,7 +404,6 @@ export default function ChapterReader({
   const { fontSize, lineHeight, fontFamily, textColor } = useReaderStore();
   const user = useAuthStore((s) => s.user);
   const token = useAuthStore((s) => s.token);
-  const setUser = useAuthStore((s) => s.setUser);
 
   const [showToc, setShowToc] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -430,7 +412,6 @@ export default function ChapterReader({
   const bookmarks = useLibraryStore((s) => s.bookmarks);
   const toggleBookmark = useLibraryStore((s) => s.toggleBookmark);
   const isBookmarked = bookmarks.includes(story.id);
-  const [showCandyDialog, setShowCandyDialog] = useState(false);
   const [showFloating, setShowFloating] = useState(true);
 
   // Nội dung thực (có thể được set sau khi unlock)
@@ -438,8 +419,12 @@ export default function ChapterReader({
 
   // Với BE thật: server kiểm tra chapter_purchases và không trả content nếu chưa mua.
   // Mock mode: check purchasedChapterIds từ LibraryStore (persist qua localStorage).
+  const isOwner = !!user && user.id === story.postedBy;
   const isLocked =
-    (chapter.candyPrice ?? 0) > 0 && !purchasedChapterIds.includes(chapter.id) && !unlockedContent;
+    !isOwner &&
+    (chapter.candyPrice ?? 0) > 0 &&
+    !purchasedChapterIds.includes(chapter.id) &&
+    !unlockedContent;
 
   const displayContent = unlockedContent ?? content;
 
@@ -448,26 +433,17 @@ export default function ChapterReader({
   }, [story.id, addHistory]);
 
   // Track daily reading — chỉ đếm chapter chưa bị lock, dedup theo storyId-chapterId
+  const trackMutation = useTrackDailyRead();
+
   useEffect(() => {
-    if (!user || !token) return;
-    if (isLocked) return;
-    fetch("/api/user/daily-read", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.id,
-        storyId: story.id,
-        chapterId: chapter.id,
-        chapterTitle: chapter.title,
-        chapterNumber: chapter.number,
-      }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.user) setUser(data.user, token);
-      })
-      .catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!user || !token || isLocked) return;
+    trackMutation.mutate({
+      storyId: story.id,
+      chapterId: chapter.id,
+      chapterTitle: chapter.title,
+      chapterNumber: chapter.number,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapter.id, user?.id]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -554,36 +530,29 @@ export default function ChapterReader({
         <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
       </div>
 
-      {/* Candy dialog (controlled) */}
-      <CandyButton open={showCandyDialog} onOpenChange={setShowCandyDialog} />
-
       {/* Floating buttons */}
       <div className="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-30">
-
         {/* Toggle — chỉ hiện trên mobile */}
         <button
           title={showFloating ? "Ẩn" : "Hiện công cụ"}
           onClick={() => setShowFloating((v) => !v)}
           className="sm:hidden w-7 h-7 flex items-center justify-center rounded-full bg-stone-900/80 border border-stone-700 text-stone-500 hover:text-white transition-colors shadow-md"
         >
-          {showFloating
-            ? <ChevronRight className="w-3.5 h-3.5" />
-            : <ChevronLeft className="w-3.5 h-3.5" />}
+          {showFloating ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronLeft className="w-3.5 h-3.5" />
+          )}
         </button>
 
         {/* Action buttons — luôn hiện trên desktop, ẩn/hiện trên mobile */}
-        <div className={`flex flex-col gap-2 transition-all duration-200 ${
-          showFloating ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none sm:opacity-100 sm:pointer-events-auto"
-        }`}>
-          {/* Tặng quà */}
-          <button
-            title="Tặng quà"
-            onClick={() => setShowCandyDialog(true)}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700 text-stone-400 hover:text-amber-400 hover:bg-stone-700 transition-colors shadow-lg"
-          >
-            <Gift className="w-4 h-4" />
-          </button>
-
+        <div
+          className={`flex flex-col gap-2 transition-all duration-200 ${
+            showFloating
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none sm:opacity-100 sm:pointer-events-auto"
+          }`}
+        >
           {/* Lưu truyện */}
           <button
             title={isBookmarked ? "Đã lưu" : "Lưu truyện"}
@@ -594,7 +563,11 @@ export default function ChapterReader({
                 : "bg-stone-800 border-stone-700 text-stone-400 hover:text-amber-400 hover:bg-stone-700"
             }`}
           >
-            {isBookmarked ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+            {isBookmarked ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
+            )}
           </button>
 
           {/* Settings */}

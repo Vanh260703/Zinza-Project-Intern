@@ -15,8 +15,12 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   const chapter = db.chapters.getOne(story.slug, chapterId);
   if (!chapter) return NextResponse.json({ message: "Không tìm thấy chương" }, { status: 404 });
 
-  const price = chapter.candyPrice ?? 0;
-  if (price === 0) return NextResponse.json({ message: "Chương miễn phí" }, { status: 400 });
+  const isOwner = story.postedBy === userId;
+  const price = isOwner ? 0 : (chapter.candyPrice ?? 0);
+
+  if (!isOwner && price === 0) {
+    return NextResponse.json({ message: "Chương miễn phí" }, { status: 400 });
+  }
 
   const result = db.users.unlockChapter(userId, chapterId, price);
   if ("error" in result) {

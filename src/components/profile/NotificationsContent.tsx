@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNotifications, useMarkAllRead } from "@/hooks/useUser";
 import { Bell, CheckCheck, Loader2 } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
 
 type NotificationItem = {
   id: number;
@@ -33,37 +32,15 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function NotificationsContent() {
-  const user = useAuthStore((s) => s.user);
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [totalUnread, setTotalUnread] = useState(0);
   const [tab, setTab] = useState<Tab>("all");
-  const [loading, setLoading] = useState(true);
-  const [marking, setMarking] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    fetch(`/api/notifications?userId=${user.id}&all=true`)
-      .then((r) => r.json())
-      .then((d) => {
-        setItems(d.notifications);
-        setTotalUnread(d.totalUnread);
-      })
-      .catch(() => showToast.error("Không tải được thông báo"))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const { data, isLoading: loading } = useNotifications();
+  const markMutation = useMarkAllRead();
 
-  const handleMarkAllRead = async () => {
-    if (marking) return;
-    setMarking(true);
-    await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.id }),
-    });
-    setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    setTotalUnread(0);
-    setMarking(false);
-  };
+  const items: NotificationItem[] =
+    (data as { notifications: NotificationItem[]; totalUnread: number } | undefined)
+      ?.notifications ?? [];
+  const totalUnread = (data as { totalUnread: number } | undefined)?.totalUnread ?? 0;
 
   const displayed = tab === "unread" ? items.filter((n) => !n.isRead) : items;
 
@@ -79,15 +56,17 @@ export default function NotificationsContent() {
         </div>
         {totalUnread > 0 && (
           <button
-            onClick={handleMarkAllRead}
-            disabled={marking}
+            onClick={() => markMutation.mutate()}
+            disabled={markMutation.isPending}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20
               text-amber-400 hover:bg-amber-500/20 text-sm font-medium transition-colors
               disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {marking
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : <CheckCheck className="w-4 h-4" />}
+            {markMutation.isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <CheckCheck className="w-4 h-4" />
+            )}
             Đánh dấu đọc tất cả
           </button>
         )}

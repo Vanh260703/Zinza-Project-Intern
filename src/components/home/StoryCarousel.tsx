@@ -22,10 +22,10 @@ type CarouselConfig = {
 function getConfig(): CarouselConfig {
   if (typeof window === "undefined") return { visible: 4 };
   const w = window.innerWidth;
-  if (w >= 1024) return { visible: 4 };                       // desktop: 4 cards full
-  if (w >= 768)  return { visible: 3 };                       // tablet rộng: 3 cards
-  if (w >= 640)  return { visible: 2 };                       // tablet hẹp: 2 cards
-  return { visible: 2, maxWidth: "320px" };                   // mobile: 2 cards, constrain ~160px/card
+  if (w >= 1024) return { visible: 4 }; // desktop: 4 cards full
+  if (w >= 768) return { visible: 3 }; // tablet rộng: 3 cards
+  if (w >= 640) return { visible: 2 }; // tablet hẹp: 2 cards
+  return { visible: 2, maxWidth: "320px" }; // mobile: 2 cards, constrain ~160px/card
 }
 
 function useCarouselConfig() {

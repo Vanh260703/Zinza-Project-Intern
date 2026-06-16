@@ -18,8 +18,7 @@ export default function VipSection({ stories }: VipSectionProps) {
   const [limit, setLimit] = useState(LIMIT_DESKTOP);
 
   useEffect(() => {
-    const update = () =>
-      setLimit(window.innerWidth < 640 ? LIMIT_MOBILE : LIMIT_DESKTOP);
+    const update = () => setLimit(window.innerWidth < 640 ? LIMIT_MOBILE : LIMIT_DESKTOP);
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);

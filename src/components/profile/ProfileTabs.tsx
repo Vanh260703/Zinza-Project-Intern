@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useUpdateProfile, useChangePassword } from "@/hooks/useUser";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
 import { Mail, User, Venus, Shield, Camera, Lock, Image, KeyRound } from "lucide-react";
-import { showToast } from "@/lib/toast";
+
 import { updateProfileSchema, resetPasswordSchema } from "@/schemas/auth";
 
 // ── Shared ────────────────────────────────────────────────────────────────────
@@ -39,12 +40,13 @@ function Field({ label, value, icon }: { label: string; value: string; icon: Rea
 type InfoFormData = z.infer<typeof updateProfileSchema>;
 
 function InfoTab() {
-  const { user, setUser } = useAuthStore();
+  const { user } = useAuthStore();
+  const updateMutation = useUpdateProfile();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isDirty },
   } = useForm<InfoFormData>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: { userId: user?.id ?? "", name: user?.name ?? "" },
@@ -52,24 +54,7 @@ function InfoTab() {
 
   if (!user) return <p className="text-stone-500 text-sm">Chưa đăng nhập.</p>;
 
-  const onSubmit = async (data: InfoFormData) => {
-    try {
-      const res = await fetch("/api/user/profile", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        showToast.error(json.message ?? "Cập nhật thất bại");
-        return;
-      }
-      setUser(json.user, useAuthStore.getState().token ?? "");
-      showToast.success("Đã lưu thay đổi");
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    }
-  };
+  const onSubmit = (data: InfoFormData) => updateMutation.mutate(data);
 
   return (
     <div className="flex flex-col gap-6">
@@ -109,10 +94,10 @@ function InfoTab() {
 
         <button
           type="submit"
-          disabled={isSubmitting || !isDirty}
+          disabled={updateMutation.isPending || !isDirty}
           className="self-start px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+          {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
       </form>
     </div>
@@ -152,12 +137,13 @@ type SecurityFormData = z.infer<typeof resetPasswordSchema>;
 
 function SecurityTab() {
   const user = useAuthStore((s) => s.user);
+  const changePwMutation = useChangePassword();
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SecurityFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -168,24 +154,16 @@ function SecurityTab() {
     },
   });
 
-  const onSubmit = async (data: SecurityFormData) => {
-    try {
-      const res = await fetch("/api/user/change-password", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        showToast.error(json.message ?? "Đổi mật khẩu thất bại");
-        return;
-      }
-      showToast.success("Đổi mật khẩu thành công");
-      reset({ userId: user?.id ?? "", currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    }
-  };
+  const onSubmit = (data: SecurityFormData) =>
+    changePwMutation.mutate(data, {
+      onSuccess: () =>
+        reset({
+          userId: user?.id ?? "",
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        }),
+    });
 
   const passwordFields = [
     { name: "currentPassword" as const, label: "Mật khẩu hiện tại" },
@@ -216,10 +194,10 @@ function SecurityTab() {
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={changePwMutation.isPending}
         className="self-start mt-1 px-5 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
       >
-        {isSubmitting ? "Đang xử lý..." : "Đổi mật khẩu"}
+        {changePwMutation.isPending ? "Đang xử lý..." : "Đổi mật khẩu"}
       </button>
     </form>
   );

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useTopupUser } from "@/hooks/useAdmin";
 import { Candy, CheckCircle, XCircle } from "lucide-react";
-import { showToast } from "@/lib/toast";
 import { useAuthStore } from "@/stores/userStore";
 
 type User = { id: string; name: string; email: string; candy: number };
@@ -24,27 +24,23 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
   const isValid = !isNaN(parsed) && parsed > 0;
   const after = user.candy + (isValid ? parsed : 0);
 
-  const submit = async () => {
+  const topupMutation = useTopupUser(user.id);
+
+  const submit = () => {
     setStep("loading");
-    try {
-      const res = await fetch(`/api/admin/users/${user.id}/topup`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parsed, adminId }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setErrMsg(data.message ?? "Thất bại");
-        setStep("error");
-        return;
+    topupMutation.mutate(
+      { amount: parsed, adminId: adminId! },
+      {
+        onSuccess: (data) => {
+          setStep("success");
+          onSuccess(data.user.candy);
+        },
+        onError: (e: Error) => {
+          setErrMsg(e.message ?? "Lỗi kết nối, thử lại sau");
+          setStep("error");
+        },
       }
-      setStep("success");
-      onSuccess(data.user.candy);
-      showToast.success(`Đã nạp ${parsed.toLocaleString()} kẹo cho ${user.name}`);
-    } catch {
-      setErrMsg("Lỗi kết nối, thử lại sau");
-      setStep("error");
-    }
+    );
   };
 
   return (
@@ -70,7 +66,9 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
                 <span className="text-stone-300">{user.name}</span> nhận{" "}
                 <span className="text-amber-400 font-bold">+{parsed.toLocaleString()} kẹo</span>
               </p>
-              <p className="text-stone-600 text-xs mt-1">Số dư mới: {user.candy.toLocaleString()} kẹo</p>
+              <p className="text-stone-600 text-xs mt-1">
+                Số dư mới: {user.candy.toLocaleString()} kẹo
+              </p>
             </div>
             <button
               onClick={onClose}
