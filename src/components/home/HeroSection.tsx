@@ -5,6 +5,8 @@ import { Search, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
+import { GENRES } from "@/config/genres";
+import { STATUS_OPTIONS } from "@/enums/story";
 
 function FilterSelect({
   value,
@@ -119,17 +121,20 @@ export default function HeroSection() {
           <div className="grid grid-cols-3 sm:contents gap-2">
             <FilterSelect value={genre} onChange={setGenre}>
               <option value="">Thể loại</option>
-              <option value="tien-hiep">Tiên hiệp</option>
-              <option value="huyen-huyen">Huyền huyễn</option>
-              <option value="vo-hiep">Võ hiệp</option>
-              <option value="do-thi">Đô thị</option>
-              <option value="lich-su">Lịch sử</option>
+              {GENRES.map((g) => (
+                <option key={g.slug} value={g.slug}>
+                  {g.name}
+                </option>
+              ))}
             </FilterSelect>
 
             <FilterSelect value={status} onChange={setStatus}>
               <option value="">Trạng thái</option>
-              <option value="pending">Đang ra</option>
-              <option value="completed">Hoàn thành</option>
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </FilterSelect>
 
             <FilterSelect value={sort} onChange={setSort}>

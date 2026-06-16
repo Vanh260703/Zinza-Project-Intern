@@ -21,12 +21,12 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   useEffect(() => {
-    if (hydrated && !user && !hadUser.current) {
-      router.replace("/unauthorized");
+    if (mounted && !user && !hadUser.current) {
+      router.replace("/auth/login");
     }
-  }, [hydrated, user, router]);
+  }, [mounted, user, router]);
 
-  if (!hydrated || !user) return null;
+  if (!mounted || !user) return null;
 
   return <>{children}</>;
 }

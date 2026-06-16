@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpen, Star, BookMarked, Play } from "lucide-react";
 import type { Story } from "@/types/story";
+import { getStoryStatus } from "@/config/statuses";
 import SectionHeader from "./SectionHeader";
 
 type RandomSectionProps = {
@@ -82,7 +83,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
                 : "bg-stone-700/90 text-stone-300"
             }`}
           >
-            {status === "completed" ? "Hoàn thành" : "Đang ra"}
+            {getStoryStatus(status).label}
           </span>
         </Link>
 

@@ -10,14 +10,10 @@ import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import { createNovelSchema } from "@/schemas/novel";
 import { GENRES } from "@/config/genres";
+import { STATUS_OPTIONS } from "@/enums/story";
 
 const formSchema = createNovelSchema.omit({ userId: true });
 type FormData = z.infer<typeof formSchema>;
-
-const STATUS_OPTIONS = [
-  { label: "Đang ra", value: "pending" },
-  { label: "Hoàn thành", value: "completed" },
-];
 
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";

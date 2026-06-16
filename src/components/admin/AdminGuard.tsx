@@ -25,24 +25,17 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }, [user]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    if (!user && !hadUser.current) router.replace("/unauthorized");
-  }, [hydrated, user, router]);
+    if (!mounted) return;
+    if (!user && !hadUser.current) router.replace("/auth/login");
+  }, [mounted, user, router]);
 
-  if (!hydrated) return null;
+  if (!mounted) return null;
 
   // Đã đăng nhập nhưng không phải admin → 403
   if (user && user.role !== "admin") {
-    return (
-      <ErrorPage
-        code={403}
-        title="Không có quyền truy cập"
-        description="Trang này chỉ dành cho quản trị viên."
-      />
-    );
+    return <ErrorPage code={403} title="Không có quyền truy cập" description="" />;
   }
 
-  // Chưa đăng nhập → chờ redirect
   if (!user) return null;
 
   return <>{children}</>;

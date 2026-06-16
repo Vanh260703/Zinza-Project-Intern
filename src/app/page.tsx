@@ -1,21 +1,12 @@
-import Footer from "@/components/layout/Footer";
-import HeroSection from "@/components/home/HeroSection";
-import RandomSection from "@/components/home/RandomSection";
-import NewSection from "@/components/home/NewSection";
-import HotSection from "@/components/home/HotSection";
-import NominatedSection from "@/components/home/NominatedSection";
-import VipSection from "@/components/home/VipSection";
-import RankingSection from "@/components/home/RankingSection";
-import CurrentlyReadingSection from "@/components/home/CurrentlyReadingSection";
 import { db } from "@/lib/mock-db";
+import HomePage from "@/components/home/HomePage";
 
-export default async function HomePage() {
+export default async function Page() {
   const allStories = db.stories.getAll();
   const newStories = db.stories.getNew();
   const hotStories = db.stories.getHot();
   const randomStory = db.stories.getRandom();
   const vipStories = db.stories.getVip();
-
   const rankDay = db.stories.getRanking("day");
   const rankWeek = db.stories.getRanking("week");
   const rankMonth = db.stories.getRanking("month");
