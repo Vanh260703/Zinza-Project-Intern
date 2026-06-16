@@ -8,4 +8,3 @@ export interface Chapter {
   views?: number;
   createdAt?: string;
 }
-

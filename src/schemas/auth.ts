@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Login 
+// Login
 
 export const loginSchema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -9,7 +9,7 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// Register 
+// Register
 
 export const registerSchema = z
   .object({
@@ -39,12 +39,11 @@ export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export const updateProfileSchema = z.object({
   userId: z.string().min(1),
   name: z.string().min(2, "Tên tối thiểu 2 ký tự").max(50).trim().optional(),
-})
+});
 
 export type UpdateProfileSchema = z.infer<typeof updateProfileSchema>;
 
-
-// Reset password 
+// Reset password
 
 export const resetPasswordSchema = z
   .object({
@@ -59,4 +58,3 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>;
-

@@ -5,6 +5,7 @@ import { BookOpen, PlusCircle } from "lucide-react";
 import Link from "next/link";
 import type { Chapter } from "@/types/chapter";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import { showToast } from "@/lib/toast";
 
 type Props = { novelId: string };
 
@@ -15,15 +16,16 @@ function formatDate(iso?: string) {
 }
 
 export default function ChaptersTab({ novelId }: Props) {
-  const [chapters, setChapters]       = useState<Chapter[]>([]);
-  const [loading, setLoading]         = useState(true);
-  const [deletingId, setDeletingId]   = useState<string | null>(null);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmChapter, setConfirmChapter] = useState<Chapter | null>(null);
 
   useEffect(() => {
     fetch(`/api/novels/${novelId}/chapters`)
       .then((r) => r.json())
       .then(setChapters)
+      .catch(() => showToast.error("Không tải được danh sách chương"))
       .finally(() => setLoading(false));
   }, [novelId]);
 
@@ -31,7 +33,9 @@ export default function ChaptersTab({ novelId }: Props) {
     if (!confirmChapter) return;
     setDeletingId(confirmChapter.id);
     try {
-      const res = await fetch(`/api/novels/${novelId}/chapters/${confirmChapter.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/novels/${novelId}/chapters/${confirmChapter.id}`, {
+        method: "DELETE",
+      });
       if (res.ok) setChapters((prev) => prev.filter((c) => c.id !== confirmChapter.id));
     } finally {
       setDeletingId(null);
@@ -107,7 +111,9 @@ export default function ChaptersTab({ novelId }: Props) {
                     </td>
                     <td className="px-4 py-3 text-center">
                       {ch.candyPrice ? (
-                        <span className="text-amber-400 text-sm font-medium">{ch.candyPrice} kẹo</span>
+                        <span className="text-amber-400 text-sm font-medium">
+                          {ch.candyPrice} kẹo
+                        </span>
                       ) : (
                         <span className="text-amber-500/80 text-sm">Miễn phí</span>
                       )}

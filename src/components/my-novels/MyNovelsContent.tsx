@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { useAuthStore } from "@/stores/userStore";
-import { PlusCircle, Upload, Search } from "lucide-react";
+import { PlusCircle, Search, Upload } from "lucide-react";
+import { showToast } from "@/lib/toast";
 import Link from "next/link";
 import type { Story } from "@/types/story";
 import NovelCard from "./NovelCard";
@@ -19,16 +20,17 @@ export default function MyNovelsContent() {
     fetch(`/api/novels?postedBy=${user.id}`)
       .then((r) => r.json())
       .then(setNovels)
+      .catch(() => showToast.error("Không tải được danh sách truyện"))
       .finally(() => setLoading(false));
   }, [user]);
 
-  const filtered = useMemo(() =>
-    q.trim() ? novels.filter((n) => n.name.toLowerCase().includes(q.toLowerCase())) : novels,
+  const filtered = useMemo(
+    () =>
+      q.trim() ? novels.filter((n) => n.name.toLowerCase().includes(q.toLowerCase())) : novels,
     [novels, q]
   );
 
   const handleDelete = (id: string) => {
-    // TODO: gọi API xóa
     setNovels((prev) => prev.filter((n) => n.id !== id));
   };
 

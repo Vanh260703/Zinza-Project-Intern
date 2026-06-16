@@ -4,13 +4,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BookOpen, Star, BookMarked, Play } from "lucide-react";
 import type { Story } from "@/types/story";
+import { getStoryStatus } from "@/config/statuses";
 import SectionHeader from "./SectionHeader";
 
 type RandomSectionProps = {
   story: Story;
 };
 
-function CoverImage({ storyId, hasPoster, name }: { storyId: string; hasPoster: boolean; name: string }) {
+function CoverImage({
+  storyId,
+  hasPoster,
+  name,
+}: {
+  storyId: string;
+  hasPoster: boolean;
+  name: string;
+}) {
   if (!hasPoster) {
     return (
       <div className="w-full h-full bg-linear-to-br from-stone-700 to-stone-800 flex items-center justify-center">
@@ -18,18 +27,26 @@ function CoverImage({ storyId, hasPoster, name }: { storyId: string; hasPoster: 
       </div>
     );
   }
-  return (
-    <img
-      src={`/api/cover/${storyId}`}
-      alt={name}
-      className="w-full h-full object-cover"
-    />
-  );
+  return <img src={`/api/cover/${storyId}`} alt={name} className="w-full h-full object-cover" />;
 }
 
 export default function RandomSection({ story }: RandomSectionProps) {
   const router = useRouter();
-  const { id, slug, name, poster, author, genres, rating, ratingCount, chapterCount, status, vip, nominations, description } = story;
+  const {
+    id,
+    slug,
+    name,
+    poster,
+    author,
+    genres,
+    rating,
+    ratingCount,
+    chapterCount,
+    status,
+    vip,
+    nominations,
+    description,
+  } = story;
 
   return (
     <section>
@@ -66,7 +83,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
                 : "bg-stone-700/90 text-stone-300"
             }`}
           >
-            {status === "completed" ? "Hoàn thành" : "Đang ra"}
+            {getStoryStatus(status).label}
           </span>
         </Link>
 
@@ -79,9 +96,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
               </h3>
             </Link>
 
-            {author && (
-              <p className="text-stone-400 text-sm text-center sm:text-left">{author}</p>
-            )}
+            {author && <p className="text-stone-400 text-sm text-center sm:text-left">{author}</p>}
 
             {/* Stats row */}
             <div className="flex items-center justify-center sm:justify-start gap-3 flex-wrap">
@@ -111,10 +126,10 @@ export default function RandomSection({ story }: RandomSectionProps) {
               <div className="flex gap-1.5 flex-wrap justify-center sm:justify-start">
                 {genres.slice(0, 3).map((g) => (
                   <span
-                    key={g}
+                    key={g.slug}
                     className="text-xs px-2 py-0.5 bg-stone-800 text-stone-400 rounded-full border border-stone-700/60"
                   >
-                    {g}
+                    {g.name}
                   </span>
                 ))}
               </div>
@@ -126,11 +141,16 @@ export default function RandomSection({ story }: RandomSectionProps) {
                 {description.length > 200 ? (
                   <>
                     {description.slice(0, 200).trimEnd()}…{" "}
-                    <Link href={`/novels/${slug}`} className="text-amber-400 hover:text-amber-300 transition-colors font-medium">
+                    <Link
+                      href={`/novels/${slug}`}
+                      className="text-amber-400 hover:text-amber-300 transition-colors font-medium"
+                    >
                       Xem thêm
                     </Link>
                   </>
-                ) : description}
+                ) : (
+                  description
+                )}
               </p>
             )}
           </div>

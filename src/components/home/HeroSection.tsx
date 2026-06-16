@@ -5,6 +5,8 @@ import { Search, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
+import { GENRES } from "@/config/genres";
+import { STATUS_OPTIONS } from "@/enums/story";
 
 function FilterSelect({
   value,
@@ -40,7 +42,7 @@ export default function HeroSection() {
   const [status, setStatus] = useState("");
   const [sort, setSort] = useState("latest");
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSearch = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q.trim()) params.set("q", q.trim());
@@ -61,11 +63,14 @@ export default function HeroSection() {
         <div className="max-w-xl">
           <div className="inline-flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-full px-3 py-1.5 mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-amber-400 text-xs font-medium">Hơn 10,000 truyện đang chờ bạn</span>
+            <span className="text-amber-400 text-xs font-medium">
+              Hơn 10,000 truyện đang chờ bạn
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-3 sm:mb-4">
-            Kho truyện chữ<br />
+            Kho truyện chữ
+            <br />
             <span className="text-amber-400">hàng đầu</span> Việt Nam
           </h1>
 
@@ -113,17 +118,20 @@ export default function HeroSection() {
           <div className="grid grid-cols-3 sm:contents gap-2">
             <FilterSelect value={genre} onChange={setGenre}>
               <option value="">Thể loại</option>
-              <option value="tien-hiep">Tiên hiệp</option>
-              <option value="huyen-huyen">Huyền huyễn</option>
-              <option value="vo-hiep">Võ hiệp</option>
-              <option value="do-thi">Đô thị</option>
-              <option value="lich-su">Lịch sử</option>
+              {GENRES.map((g) => (
+                <option key={g.slug} value={g.slug}>
+                  {g.name}
+                </option>
+              ))}
             </FilterSelect>
 
             <FilterSelect value={status} onChange={setStatus}>
               <option value="">Trạng thái</option>
-              <option value="pending">Đang ra</option>
-              <option value="completed">Hoàn thành</option>
+              {STATUS_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
             </FilterSelect>
 
             <FilterSelect value={sort} onChange={setSort}>

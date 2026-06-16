@@ -19,7 +19,6 @@ type StoryTabsProps = {
 const RATING_LABELS = ["", "Tệ", "Không hay", "Bình thường", "Hay", "Tuyệt vời"];
 const PAGE_SIZE = 30;
 
-
 function TabBar({
   active,
   onChange,
@@ -71,7 +70,9 @@ function ReviewTab({ description, reviews }: { description: string; reviews: Rev
       {/* Description */}
       <div className="bg-stone-900 rounded-2xl p-5 border border-stone-800">
         <h3 className="text-white font-bold text-base mb-3">Giới thiệu</h3>
-        <p className="text-stone-400 text-sm leading-relaxed whitespace-pre-line">{description || "Chưa có giới thiệu."}</p>
+        <p className="text-stone-400 text-sm leading-relaxed whitespace-pre-line">
+          {description || "Chưa có giới thiệu."}
+        </p>
       </div>
 
       {/* Reader reviews */}
@@ -93,10 +94,15 @@ function ReviewTab({ description, reviews }: { description: string; reviews: Rev
                   <span className="text-stone-300 text-sm font-medium">{review.userName}</span>
                   <div className="flex items-center gap-0.5 ml-1">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className={`w-3 h-3 ${s <= review.stars ? "text-amber-400 fill-amber-400" : "text-stone-600"}`} />
+                      <Star
+                        key={s}
+                        className={`w-3 h-3 ${s <= review.stars ? "text-amber-400 fill-amber-400" : "text-stone-600"}`}
+                      />
                     ))}
                   </div>
-                  <span className="ml-auto text-stone-600 text-xs">{formatDaysAgo(review.daysAgo)}</span>
+                  <span className="ml-auto text-stone-600 text-xs">
+                    {formatDaysAgo(review.daysAgo)}
+                  </span>
                 </div>
                 <p className="text-stone-400 text-sm">{review.text}</p>
               </div>
@@ -198,7 +204,6 @@ function ChaptersTab({ slug, chapters }: { slug: string; chapters: Chapter[] }) 
   );
 }
 
-
 function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: number }) {
   const [hovered, setHovered] = useState(0);
   const [selected, setSelected] = useState(0);
@@ -237,7 +242,9 @@ function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: numbe
               <div className="flex-1 h-1.5 bg-stone-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-400 rounded-full"
-                  style={{ width: `${s === Math.round(rating) ? 60 : s === Math.round(rating) - 1 ? 25 : s > Math.round(rating) ? 10 : 5}%` }}
+                  style={{
+                    width: `${s === Math.round(rating) ? 60 : s === Math.round(rating) - 1 ? 25 : s > Math.round(rating) ? 10 : 5}%`,
+                  }}
                 />
               </div>
             </div>
@@ -256,7 +263,11 @@ function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: numbe
             </div>
             <p className="text-stone-300 text-sm font-medium">Cảm ơn bạn đã đánh giá!</p>
             <button
-              onClick={() => { setSubmitted(false); setSelected(0); setText(""); }}
+              onClick={() => {
+                setSubmitted(false);
+                setSelected(0);
+                setText("");
+              }}
               className="text-stone-500 text-xs hover:text-stone-300 transition-colors"
             >
               Đánh giá lại
@@ -277,15 +288,15 @@ function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: numbe
                   >
                     <Star
                       className={`w-8 h-8 transition-colors ${
-                        s <= display
-                          ? "text-amber-400 fill-amber-400"
-                          : "text-stone-700"
+                        s <= display ? "text-amber-400 fill-amber-400" : "text-stone-700"
                       }`}
                     />
                   </button>
                 ))}
               </div>
-              <span className={`text-sm font-medium transition-colors ${display ? "text-amber-400" : "text-stone-600"}`}>
+              <span
+                className={`text-sm font-medium transition-colors ${display ? "text-amber-400" : "text-stone-600"}`}
+              >
                 {display ? RATING_LABELS[display] : "Chọn số sao"}
               </span>
             </div>
@@ -316,7 +327,9 @@ function RatingTab({ rating, ratingCount }: { rating: number; ratingCount: numbe
 function CommentsTab({ commentCount }: { commentCount: number }) {
   return (
     <div className="text-center py-16 text-stone-600">
-      <p className="text-sm">{commentCount > 0 ? `${commentCount.toLocaleString()} bình luận` : "Chưa có bình luận nào"}</p>
+      <p className="text-sm">
+        {commentCount > 0 ? `${commentCount.toLocaleString()} bình luận` : "Chưa có bình luận nào"}
+      </p>
     </div>
   );
 }

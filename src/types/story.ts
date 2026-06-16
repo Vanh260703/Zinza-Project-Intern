@@ -1,4 +1,7 @@
 import type { Status } from "@/enums/story";
+import type { Genre } from "@/config/genres";
+
+export type { Genre };
 
 export interface Story {
   id: string;
@@ -13,10 +16,10 @@ export interface Story {
   nominations: number;
   author: string;
   postedBy: string;
-  genres: string[];
+  genres: Genre[];
   tags: string[];
   description: string;
   vip: boolean;
   price: number;
-updatedAt?: Date; 
+  updatedAt?: Date;
 }

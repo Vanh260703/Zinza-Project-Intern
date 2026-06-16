@@ -8,15 +8,23 @@ import { loginSchema, type LoginFormData } from "@/schemas/auth";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { showToast } from "@/lib/toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
 
 export default function LoginForm() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
+  const setWallet = useAuthStore((state) => state.setWallet);
+  const user = useAuthStore((state) => state.user);
   const initLibrary = useLibraryStore((state) => state.init);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      router.replace(user.role === "admin" ? "/admin" : "/");
+    }
+  }, [user, router]);
 
   const {
     register,
@@ -43,12 +51,13 @@ export default function LoginForm() {
       return;
     }
 
-    const { token, user, history, bookmarks } = await res.json();
+    const { token, user, wallet, history, bookmarks, purchasedChapterIds } = await res.json();
     setUser(user, token);
-    initLibrary(user.id, history, bookmarks);
+    setWallet(wallet);
+    initLibrary(user.id, history, bookmarks, purchasedChapterIds);
     showToast.success("Chào mừng trở lại!", user.name);
 
-    router.push("/");
+    router.push(user.role === "admin" ? "/admin" : "/");
   };
 
   return (
@@ -70,7 +79,10 @@ export default function LoginForm() {
           placeholder="Nhập mật khẩu"
           error={errors.password?.message}
           labelRight={
-            <Link href="/auth/forgot-password" className="text-xs text-amber-400 hover:text-amber-300 transition-colors">
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs text-amber-400 hover:text-amber-300 transition-colors"
+            >
               Quên mật khẩu?
             </Link>
           }
@@ -96,7 +108,10 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-stone-500">
         Chưa có tài khoản?{" "}
-        <Link href="/auth/register" className="text-amber-400 font-medium hover:text-amber-300 transition-colors">
+        <Link
+          href="/auth/register"
+          className="text-amber-400 font-medium hover:text-amber-300 transition-colors"
+        >
           Đăng ký ngay
         </Link>
       </p>

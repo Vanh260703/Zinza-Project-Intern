@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { BookOpen, BookMarked, History, Compass } from "lucide-react";
+import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
 // ── Story card ────────────────────────────────────────────────────────────────
@@ -35,7 +36,9 @@ function StoryCard({ story }: { story: Story }) {
         <div className="flex items-center gap-2 mt-0.5">
           <span className="text-stone-600 text-[11px]">{story.chapterCount} chương</span>
           {story.vip && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">VIP</span>
+            <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
+              VIP
+            </span>
           )}
         </div>
       </div>
@@ -87,7 +90,11 @@ export default function LibraryContent() {
   const isEmpty = history.length === 0 && bookmarks.length === 0;
 
   useEffect(() => {
-    if (isEmpty) { setLoading(false); return; }
+    if (isEmpty) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLoading(false);
+      return;
+    }
 
     const allIds = [...new Set([...history, ...bookmarks])];
 
@@ -98,6 +105,7 @@ export default function LibraryContent() {
         setHistoryStories(history.map((id) => byId[id]).filter(Boolean));
         setBookmarkStories(bookmarks.map((id) => byId[id]).filter(Boolean));
       })
+      .catch(() => showToast.error("Không tải được tủ sách"))
       .finally(() => setLoading(false));
   }, [history, bookmarks, isEmpty]);
 

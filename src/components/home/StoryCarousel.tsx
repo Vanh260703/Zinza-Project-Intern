@@ -21,6 +21,9 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
   const [idx, setIdx] = useState(n); // start at the "real" copy
   const [jumping, setJumping] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Guard: block additional clicks while a slide animation is in progress.
+  // Using a ref (not state) to avoid triggering re-renders and stale closure issues.
+  const animatingRef = useRef(false);
 
   const stop = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -28,7 +31,12 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
 
   const start = useCallback(() => {
     stop();
-    timerRef.current = setInterval(() => setIdx((i) => i + 1), autoMs);
+    timerRef.current = setInterval(() => {
+      if (!animatingRef.current) {
+        animatingRef.current = true;
+        setIdx((i) => i + 1);
+      }
+    }, autoMs);
   }, [autoMs, stop]);
 
   useEffect(() => {
@@ -38,6 +46,7 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
 
   // After slide animation ends: silently jump back into the real range
   const onTransitionEnd = useCallback(() => {
+    animatingRef.current = false;
     if (idx >= n * 2) {
       setJumping(true);
       setIdx(idx - n);
@@ -50,14 +59,25 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
   // Re-enable transition one frame after the silent jump
   useEffect(() => {
     if (!jumping) return;
-    const id = requestAnimationFrame(() =>
-      requestAnimationFrame(() => setJumping(false))
-    );
+    const id = requestAnimationFrame(() => requestAnimationFrame(() => setJumping(false)));
     return () => cancelAnimationFrame(id);
   }, [jumping]);
 
-  const goNext = () => { stop(); setIdx((i) => i + 1); start(); };
-  const goPrev = () => { stop(); setIdx((i) => i - 1); start(); };
+  const goNext = () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+    stop();
+    setIdx((i) => i + 1);
+    start();
+  };
+
+  const goPrev = () => {
+    if (animatingRef.current) return;
+    animatingRef.current = true;
+    stop();
+    setIdx((i) => i - 1);
+    start();
+  };
 
   const translateX = -(idx / VISIBLE) * 100;
 
@@ -110,9 +130,13 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
         {stories.map((_, i) => (
           <button
             key={i}
-            onClick={() => { stop(); setIdx(n + i); start(); }}
+            onClick={() => {
+              stop();
+              setIdx(n + i);
+              start();
+            }}
             className={`h-1.5 rounded-full transition-all ${
-              ((idx - n + n * 10) % n) === i
+              (idx - n + n * 10) % n === i
                 ? "w-4 bg-amber-500"
                 : "w-1.5 bg-stone-700 hover:bg-stone-500"
             }`}

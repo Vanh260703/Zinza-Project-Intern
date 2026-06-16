@@ -4,7 +4,7 @@ import { updateProfileSchema } from "@/schemas/auth";
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
-  
+
   const result = updateProfileSchema.safeParse(body);
   if (!result.success) {
     return NextResponse.json(

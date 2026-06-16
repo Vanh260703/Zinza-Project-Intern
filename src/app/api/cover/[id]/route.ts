@@ -9,16 +9,13 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 
 const MIME: Record<string, string> = {
-  ".jpg":  "image/jpeg",
+  ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
-  ".png":  "image/png",
+  ".png": "image/png",
   ".webp": "image/webp",
 };
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const story = db.stories.findById(id);
 
@@ -44,10 +41,7 @@ export async function GET(
   });
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const story = db.stories.findById(id);
   if (!story) {
@@ -74,6 +68,13 @@ export async function POST(
   const dir = path.join(UPLOAD_DIR, `${story.id}_${story.slug}`);
 
   fs.mkdirSync(dir, { recursive: true });
+
+  // Xóa cover cũ nếu tồn tại (extension có thể khác)
+  if (story.poster) {
+    const oldPath = path.join(dir, story.poster);
+    if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+  }
+
   const buffer = Buffer.from(await file.arrayBuffer());
   fs.writeFileSync(path.join(dir, filename), buffer);
 

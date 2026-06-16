@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/mock-db";
-import { z } from "zod";
+import { updateChapterSchema } from "@/schemas/chapter";
 
 type Params = Promise<{ id: string; chapterId: string }>;
 
-const updateChapterSchema = z.object({
-  title:      z.string().min(1, "Tiêu đề không được để trống").max(200).trim().optional(),
-  content:    z.string().min(1, "Nội dung không được để trống").trim().optional(),
-  candyPrice: z.number().int().min(0).optional(),
-});
-
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Params }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Params }) {
   const { id, chapterId } = await params;
   const story = db.stories.findById(id);
   if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
@@ -24,10 +15,7 @@ export async function GET(
   return NextResponse.json({ chapter: reader.chapter, content: reader.content });
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Params }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const { id, chapterId } = await params;
   const body = await req.json();
 
@@ -48,10 +36,7 @@ export async function PATCH(
   return NextResponse.json({ chapter });
 }
 
-export async function DELETE(
-  _req: NextRequest,
-  { params }: { params: Params }
-) {
+export async function DELETE(_req: NextRequest, { params }: { params: Params }) {
   const { id, chapterId } = await params;
   const story = db.stories.findById(id);
   if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });

@@ -33,9 +33,7 @@ export default function ChapterList({ slug, chapters }: ChapterListProps) {
                 {ch.title}
               </span>
               {ch.candyPrice && ch.candyPrice > 0 && (
-                <span className="ml-auto text-xs text-amber-400 shrink-0">
-                  🍬 {ch.candyPrice}
-                </span>
+                <span className="ml-auto text-xs text-amber-400 shrink-0">🍬 {ch.candyPrice}</span>
               )}
             </Link>
           ))}

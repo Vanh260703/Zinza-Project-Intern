@@ -14,7 +14,7 @@ function readTitle(filePath: string): string {
   const bytesRead = fs.readSync(fd, buf, 0, 200, 0);
   fs.closeSync(fd);
 
-  // Lấy dòng đầu tiên của file text 
+  // Lấy dòng đầu tiên của file text
   return buf.slice(0, bytesRead).toString("utf-8").split("\n")[0].trim();
 }
 
@@ -48,11 +48,7 @@ export function processChapters(): void {
 
     const outDir = path.join(CHAPTERS_DIR, slug);
     fs.mkdirSync(outDir, { recursive: true });
-    fs.writeFileSync(
-      path.join(outDir, "index.json"),
-      JSON.stringify(chapters, null, 2),
-      "utf-8"
-    );
+    fs.writeFileSync(path.join(outDir, "index.json"), JSON.stringify(chapters, null, 2), "utf-8");
   }
 
   console.log(`Seeded chapters for ${storyFolders.length} stories → src/lib/data/chapters/`);

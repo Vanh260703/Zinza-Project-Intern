@@ -1,36 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { ImagePlus, X } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
+import { createNovelSchema } from "@/schemas/novel";
+import { GENRES } from "@/config/genres";
+import { STATUS_OPTIONS } from "@/enums/story";
 
-const GENRES = ["Huyền Huyễn", "Huyền Nghi", "Kỳ Ảo", "Tiên Hiệp", "Đô Thị"];
-
-const STATUS_OPTIONS = [
-  { label: "Đang ra",    value: "pending"   },
-  { label: "Hoàn thành", value: "completed" },
-];
+const formSchema = createNovelSchema.omit({ userId: true });
+type FormData = z.infer<typeof formSchema>;
 
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
 // ── Cover Upload ──────────────────────────────────────────────────────────────
 
-function CoverUpload({ onChange }: { onChange: (file: File | null) => void }) {
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_SIZE_MB = 2;
+const MAX_SIZE_BYTE = MAX_SIZE_MB * 1024 * 1024;
+
+function CoverUpload({ onChange }: { onChange: (file: File | null, error?: string) => void }) {
   const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Revoke blob URL khi preview thay đổi hoặc component unmount
+  // cleanup chạy trước mỗi lần effect re-run → tự động hủy URL cũ khi đổi ảnh
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  const clearFile = () => {
+    setPreview(null);
+    setError(null);
+    onChange(null);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
+    e.target.value = "";
+
+    if (!file) {
+      setPreview(null);
+      setError(null);
+      onChange(null);
+      return;
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setPreview(null);
+      setError("Chỉ hỗ trợ JPG, PNG, WebP");
+      onChange(file, "Chỉ hỗ trợ JPG, PNG, WebP");
+      return;
+    }
+
+    if (file.size > MAX_SIZE_BYTE) {
+      setPreview(null);
+      setError(`Ảnh tối đa ${MAX_SIZE_MB}MB`);
+      onChange(file, `Ảnh tối đa ${MAX_SIZE_MB}MB`);
+      return;
+    }
+
+    setError(null);
+    setPreview(URL.createObjectURL(file)); // useEffect cleanup sẽ revoke URL cũ trước khi set cái mới
     onChange(file);
-    setPreview(file ? URL.createObjectURL(file) : null);
   };
 
   return (
     <div className="flex flex-col gap-2">
       <label className="text-stone-400 text-xs font-medium">Ảnh bìa</label>
-      <label className="relative cursor-pointer group w-36 h-48 rounded-xl overflow-hidden border-2 border-dashed border-stone-700 hover:border-amber-500/50 transition-colors flex items-center justify-center bg-stone-800/50">
+      <label
+        className={`relative cursor-pointer group w-36 h-48 rounded-xl overflow-hidden border-2 border-dashed transition-colors flex items-center justify-center bg-stone-800/50 ${
+          error ? "border-red-500/60" : "border-stone-700 hover:border-amber-500/50"
+        }`}
+      >
         {preview ? (
           <>
             <img src={preview} alt="preview" className="w-full h-full object-cover" />
@@ -44,55 +93,85 @@ function CoverUpload({ onChange }: { onChange: (file: File | null) => void }) {
             <span className="text-xs text-center px-2">Tải ảnh lên</span>
           </div>
         )}
-        <input type="file" accept="image/*" className="hidden" onChange={handleChange} />
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleChange}
+        />
       </label>
-      <p className="text-stone-600 text-[11px]">JPG, PNG — tối đa 2MB</p>
+      {error ? (
+        <div className="flex items-center gap-2">
+          <p className="text-red-400 text-xs flex-1">{error}</p>
+          <button
+            type="button"
+            onClick={clearFile}
+            className="text-xs text-stone-500 hover:text-white transition-colors shrink-0"
+          >
+            Xóa
+          </button>
+        </div>
+      ) : (
+        <p className="text-stone-600 text-[11px]">JPG, PNG — tối đa {MAX_SIZE_MB}MB</p>
+      )}
     </div>
   );
 }
 
 // ── Genre Selector ────────────────────────────────────────────────────────────
 
-function GenreSelector({ selected, onChange }: { selected: string[]; onChange: (g: string[]) => void }) {
-  const toggle = (genre: string) =>
-    onChange(selected.includes(genre) ? selected.filter((g) => g !== genre) : [...selected, genre]);
+function GenreSelector({
+  selected,
+  onChange,
+}: {
+  selected: string[];
+  onChange: (g: string[]) => void;
+}) {
+  const toggle = (name: string) =>
+    onChange(selected.includes(name) ? selected.filter((g) => g !== name) : [...selected, name]);
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-stone-400 text-xs font-medium">
-        Thể loại <span className="text-stone-600">(chọn một hoặc nhiều)</span>
-      </label>
-      <div className="flex flex-wrap gap-2">
-        {GENRES.map((genre) => {
-          const active = selected.includes(genre);
-          return (
-            <button
-              key={genre}
-              type="button"
-              onClick={() => toggle(genre)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-                active
-                  ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                  : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
-              }`}
-            >
-              {genre}
-              {active && <X className="w-3 h-3" />}
-            </button>
-          );
-        })}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {GENRES.map((genre) => {
+        const active = selected.includes(genre.name);
+        return (
+          <button
+            key={genre.slug}
+            type="button"
+            onClick={() => toggle(genre.name)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
+              active
+                ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
+                : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
+            }`}
+          >
+            {genre.name}
+            {active && <X className="w-3 h-3" />}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
 // ── Field wrapper ─────────────────────────────────────────────────────────────
 
-function Field({ label, required, error, children }: { label: string; required?: boolean; error?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-2">
       <label className="text-stone-400 text-xs font-medium">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+        {label}
+        {required && <span className="text-red-400 ml-0.5">*</span>}
       </label>
       {children}
       {error && <p className="text-red-400 text-xs">{error}</p>}
@@ -105,109 +184,111 @@ function Field({ label, required, error, children }: { label: string; required?:
 export default function CreateNovelForm() {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverError, setCoverError] = useState<string | null>(null);
 
-  const [name, setName]               = useState("");
-  const [author, setAuthor]           = useState("");
-  const [status, setStatus]           = useState<"pending" | "completed">("pending");
-  const [genres, setGenres]           = useState<string[]>([]);
-  const [description, setDescription] = useState("");
-  const [coverFile, setCoverFile]     = useState<File | null>(null);
-  const [loading, setLoading]         = useState(false);
-  const [errors, setErrors]           = useState<Record<string, string>>({});
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { status: "pending", genres: [] },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     if (!user) return;
-    setErrors({});
-    setLoading(true);
-
+    if (coverError) return; // ảnh không hợp lệ, không cho submit
     try {
       const res = await fetch("/api/novels", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, name, author, status, genres, description }),
+        body: JSON.stringify({ ...data, userId: user.id }),
       });
 
-      const data = await res.json();
+      const json = await res.json();
 
       if (!res.ok) {
-        const fieldErrors = data.errors?.fieldErrors ?? {};
-        const mapped: Record<string, string> = {};
-        for (const [k, v] of Object.entries(fieldErrors)) {
-          mapped[k] = (v as string[])[0];
-        }
-        setErrors(mapped);
-        showToast.error(data.message ?? "Đăng truyện thất bại");
+        showToast.error(json.message ?? "Đăng truyện thất bại");
         return;
       }
 
-      // Upload ảnh bìa nếu có
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
-        await fetch(`/api/cover/${data.story.id}`, { method: "POST", body: form });
+        const coverRes = await fetch(`/api/cover/${json.story.id}`, { method: "POST", body: form });
+        if (!coverRes.ok) {
+          const err = await coverRes.json().catch(() => ({}));
+          showToast.error(err.message ?? "Upload ảnh bìa thất bại");
+          // Truyện đã tạo thành công, chỉ ảnh bìa bị lỗi
+          router.push("/my-novels");
+          return;
+        }
       }
 
       showToast.success("Đăng truyện thành công");
-      setLoading(false);
       router.push("/my-novels");
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
-      setLoading(false);
     }
   };
 
   return (
-    <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
+    <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Cover */}
-        <CoverUpload onChange={setCoverFile} />
+        <CoverUpload
+          onChange={(file, err) => {
+            setCoverFile(file);
+            setCoverError(err ?? null);
+          }}
+        />
 
         {/* Main fields */}
         <div className="flex flex-col gap-4 flex-1">
-          <Field label="Tên truyện" required error={errors.name}>
+          <Field label="Tên truyện" required error={errors.name?.message}>
             <input
+              {...register("name")}
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
               placeholder="Nhập tên truyện..."
               className={inputCls}
             />
           </Field>
 
-          <Field label="Tác giả" required error={errors.author}>
+          <Field label="Tác giả" required error={errors.author?.message}>
             <input
+              {...register("author")}
               type="text"
-              value={author}
-              onChange={(e) => setAuthor(e.target.value)}
               placeholder="Tên tác giả..."
               className={inputCls}
             />
           </Field>
 
           <Field label="Trạng thái">
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as "pending" | "completed")}
-              className={inputCls}
-            >
+            <select {...register("status")} className={inputCls}>
               {STATUS_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </Field>
         </div>
       </div>
 
-      <Field label="Thể loại" error={errors.genres}>
-        <GenreSelector selected={genres} onChange={setGenres} />
+      <Field label="Thể loại" error={errors.genres?.message}>
+        <Controller
+          name="genres"
+          control={control}
+          render={({ field }) => <GenreSelector selected={field.value} onChange={field.onChange} />}
+        />
       </Field>
 
-      <Field label="Mô tả" error={errors.description}>
+      <Field label="Mô tả" error={errors.description?.message}>
         <textarea
+          {...register("description")}
           rows={5}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           placeholder="Nhập mô tả truyện..."
           className={`${inputCls} resize-none leading-relaxed`}
         />
@@ -216,10 +297,10 @@ export default function CreateNovelForm() {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting || !!coverError}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {loading ? "Đang đăng..." : "Đăng truyện"}
+          {isSubmitting ? "Đang đăng..." : "Đăng truyện"}
         </button>
         <button
           type="button"

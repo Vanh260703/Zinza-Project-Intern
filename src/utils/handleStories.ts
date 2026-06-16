@@ -30,9 +30,7 @@ export function getNominated(allStories: Story[], history: string[], limit = 5):
   if (!history.length) return byNominations.slice(0, limit);
 
   const readSet = new Set(history);
-  const readGenres = new Set(
-    allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.genres)
-  );
+  const readGenres = new Set(allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.genres));
 
   const recommended = byNominations.filter(
     (s) => !readSet.has(s.id) && s.genres.some((g) => readGenres.has(g))
@@ -57,18 +55,25 @@ export function getRandomStory(allStories: Story[]): Story {
 // Lấy ra ranking truyện theo ngày, tuần, tháng (hiện tại mock data)
 export type RankingPeriod = "day" | "week" | "month";
 
-export function getRankingStories(allStories: Story[], period: RankingPeriod = "month", limit = 5): Story[] {
+export function getRankingStories(
+  allStories: Story[],
+  period: RankingPeriod = "month",
+  limit = 5
+): Story[] {
   const score = (s: Story): number => {
     switch (period) {
-      case "day":   return s.nominations * 0.5 + s.rating * 10;
-      case "week":  return s.nominations * 0.7 + s.commentCount * 2;
-      case "month": return s.nominations + s.commentCount;
+      case "day":
+        return s.nominations * 0.5 + s.rating * 10;
+      case "week":
+        return s.nominations * 0.7 + s.commentCount * 2;
+      case "month":
+        return s.nominations + s.commentCount;
     }
   };
   return [...allStories].sort((a, b) => score(b) - score(a)).slice(0, limit);
 }
 
 // Lấy ra truyện VIP
-export function getVipStories(allStories: Story[]) : Story[] {
-  return allStories.filter(s => s.vip);
+export function getVipStories(allStories: Story[]): Story[] {
+  return allStories.filter((s) => s.vip);
 }

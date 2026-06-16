@@ -3,10 +3,7 @@ import { db } from "@/lib/mock-db";
 
 type Params = Promise<{ id: string; chapterId: string }>;
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Params }
-) {
+export async function POST(req: NextRequest, { params }: { params: Params }) {
   const { id, chapterId } = await params;
   const { userId } = await req.json();
 
@@ -28,5 +25,8 @@ export async function POST(
 
   // Trả về nội dung chương sau khi mở khoá
   const content = db.chapters.getContent(story.id, story.slug, chapter.filename);
-  return NextResponse.json({ user: result.user, content });
+  return NextResponse.json({
+    wallet: { userId, balance: (result.user as typeof result.user & { candy: number }).candy },
+    content,
+  });
 }

@@ -1,81 +1,82 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
+import { createChapterFormSchema } from "@/schemas/chapter";
 
-const inputCls = "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
+type FormData = z.infer<typeof createChapterFormSchema>;
+
+const inputCls =
+  "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
 type Props = { story: Story; nextNumber: number };
 
 export default function CreateChapterForm({ story, nextNumber }: Props) {
-  const user   = useAuthStore((s) => s.user);
+  const user = useAuthStore((s) => s.user);
   const router = useRouter();
 
-  const [title, setTitle]       = useState(`Chương ${nextNumber}: `);
-  const [content, setContent]   = useState("");
-  const [candyPrice, setCandyPrice] = useState<number>(0);
-  const [loading, setLoading]   = useState(false);
-  const [errors, setErrors]     = useState<Record<string, string>>({});
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>({
+    resolver: zodResolver(createChapterFormSchema),
+    defaultValues: {
+      title: `Chương ${nextNumber}: `,
+      content: "",
+      candyPrice: 0,
+    },
+  });
 
+  const content = useWatch({ control, name: "content" }) ?? "";
+  const candyPrice = useWatch({ control, name: "candyPrice" }) ?? 0;
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     if (!user) return;
-    setErrors({});
-    setLoading(true);
-
     try {
       const res = await fetch(`/api/novels/${story.id}/chapters`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user.id,
-          title: title.trim(),
-          content,
-          ...(candyPrice > 0 ? { candyPrice } : {}),
+          ...data,
+          ...(data.candyPrice === 0 ? { candyPrice: undefined } : {}),
         }),
       });
 
-      const data = await res.json();
-
+      const json = await res.json();
       if (!res.ok) {
-        const fieldErrors = data.errors?.fieldErrors ?? {};
-        const mapped: Record<string, string> = {};
-        for (const [k, v] of Object.entries(fieldErrors)) {
-          mapped[k] = (v as string[])[0];
-        }
-        setErrors(mapped);
-        showToast.error(data.message ?? "Đăng chương thất bại");
+        showToast.error(json.message ?? "Đăng chương thất bại");
         return;
       }
 
       showToast.success(`Đã đăng chương ${nextNumber}`);
-      setLoading(false);
       router.push(`/my-novels/${story.id}`);
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
-      setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       {/* Tiêu đề */}
       <div className="flex flex-col gap-2">
         <label className="text-stone-400 text-xs font-medium">
           Tiêu đề chương <span className="text-red-400">*</span>
         </label>
         <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          {...register("title")}
           placeholder={`Chương ${nextNumber}: Tiêu đề...`}
-          className={inputCls}
+          className={`${inputCls} ${errors.title ? "border-red-500/60" : ""}`}
         />
-        {errors.title && <p className="text-red-400 text-xs">{errors.title}</p>}
+        {errors.title && <p className="text-red-400 text-xs">{errors.title.message}</p>}
       </div>
 
       {/* Nội dung */}
@@ -87,13 +88,12 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
           <span className="text-stone-600 text-xs">{wordCount.toLocaleString()} từ</span>
         </div>
         <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
+          {...register("content")}
           placeholder="Nhập nội dung chương tại đây..."
           rows={20}
-          className={`${inputCls} resize-y leading-relaxed font-mono text-[13px]`}
+          className={`${inputCls} resize-y leading-relaxed font-mono text-[13px] ${errors.content ? "border-red-500/60" : ""}`}
         />
-        {errors.content && <p className="text-red-400 text-xs">{errors.content}</p>}
+        {errors.content && <p className="text-red-400 text-xs">{errors.content.message}</p>}
       </div>
 
       {/* Giá kẹo */}
@@ -103,23 +103,23 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
           <input
             type="number"
             min={0}
-            value={candyPrice}
-            onChange={(e) => setCandyPrice(Number(e.target.value))}
+            {...register("candyPrice", { valueAsNumber: true })}
             className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo</span>
           {candyPrice === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}
         </div>
+        {errors.candyPrice && <p className="text-red-400 text-xs">{errors.candyPrice.message}</p>}
       </div>
 
       {/* Actions */}
       <div className="flex items-center gap-3 pt-1">
         <button
           type="submit"
-          disabled={loading}
+          disabled={isSubmitting}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {loading ? "Đang đăng..." : "Đăng chương"}
+          {isSubmitting ? "Đang đăng..." : "Đăng chương"}
         </button>
         <button
           type="button"

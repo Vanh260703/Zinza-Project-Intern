@@ -4,19 +4,27 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, FileArchive, X, Info, CheckCircle } from "lucide-react";
 import { showToast } from "@/lib/toast";
+import { importZip } from "@/lib/services/import";
+
+const MAX_SIZE_MB = 50;
+const MAX_SIZE_BYTE = MAX_SIZE_MB * 1024 * 1024;
 
 const INSTRUCTIONS = [
   "File ZIP chứa các chương theo định dạng .txt hoặc .html",
   "Tên file mỗi chương nên theo dạng: 001.txt, 002.txt,...",
-  "Dung lượng tối đa 50MB",
+  `Dung lượng tối đa ${MAX_SIZE_MB}MB`,
 ];
 
-const STEPS = [
-  "Đang giải nén file...",
-  "Đang phân tích chương...",
-  "Đang lưu dữ liệu...",
-  "Hoàn tất!",
-];
+// Phase 1 (0–70%): upload  |  Phase 2 (70–100%): server xử lý
+type Phase = "upload" | "processing" | "done";
+
+const PHASE_LABEL: Record<Phase, string> = {
+  upload: "Đang tải file lên...",
+  processing: "Đang phân tích và lưu dữ liệu...",
+  done: "Hoàn tất!",
+};
+
+// ── DropZone ──────────────────────────────────────────────────────────────────
 
 function DropZone({
   file,
@@ -66,7 +74,10 @@ function DropZone({
 
   return (
     <label
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragging(true);
+      }}
       onDragLeave={() => setDragging(false)}
       onDrop={handleDrop}
       className={`flex flex-col items-center gap-3 py-12 px-6 rounded-2xl border-2 border-dashed cursor-pointer transition-colors text-center ${
@@ -75,67 +86,136 @@ function DropZone({
           : "border-stone-700 hover:border-stone-600 bg-stone-800/30"
       }`}
     >
-      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
-        dragging ? "bg-amber-500/15 border border-amber-500/20" : "bg-stone-800 border border-stone-700"
-      }`}>
-        <Upload className={`w-6 h-6 ${dragging ? "text-amber-400" : "text-stone-500"}`} strokeWidth={1.5} />
+      <div
+        className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
+          dragging
+            ? "bg-amber-500/15 border border-amber-500/20"
+            : "bg-stone-800 border border-stone-700"
+        }`}
+      >
+        <Upload
+          className={`w-6 h-6 ${dragging ? "text-amber-400" : "text-stone-500"}`}
+          strokeWidth={1.5}
+        />
       </div>
       <div>
         <p className="text-stone-300 text-sm font-medium">Kéo thả file ZIP vào đây</p>
         <p className="text-stone-600 text-xs mt-1">hoặc click để chọn file</p>
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".zip"
-        className="hidden"
-        onChange={handleChange}
-      />
+      <input ref={inputRef} type="file" accept=".zip" className="hidden" onChange={handleChange} />
     </label>
   );
 }
 
+// ── Root ──────────────────────────────────────────────────────────────────────
+
 export default function ImportZipForm() {
   const router = useRouter();
   const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [stepIndex, setStepIndex] = useState(0);
   const [importing, setImporting] = useState(false);
-  const [done, setDone] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState<Phase>("upload");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) { showToast.error("Vui lòng chọn file ZIP"); return; }
-
-    setImporting(true);
-    setProgress(0);
-    setStepIndex(0);
-    setDone(false);
-
-    // Mock progress: fast 0→80%, slow 80→100% — total ~3.5s
-    await new Promise<void>((resolve) => {
-      let current = 0;
+  // Phase 2: fake processing animation 70→100%
+  const runProcessingAnimation = () =>
+    new Promise<void>((resolve) => {
+      let pct = 70;
       const tick = () => {
-        if (current >= 100) { resolve(); return; }
-        const increment = current < 80
-          ? Math.random() * 5 + 3   // 3–8% nhanh
-          : Math.random() * 2 + 0.5; // 0.5–2.5% chậm dần
-        current = Math.min(current + increment, 100);
-        const floored = Math.floor(current);
-        setProgress(floored);
-        if (floored >= 30) setStepIndex(1);
-        if (floored >= 65) setStepIndex(2);
-        if (floored >= 92) setStepIndex(3);
-        setTimeout(tick, current < 80 ? 90 : 180);
+        if (pct >= 100) {
+          setProgress(100);
+          resolve();
+          return;
+        }
+        pct = Math.min(pct + Math.random() * 2 + 0.5, 100);
+        setProgress(Math.floor(pct));
+        setTimeout(tick, 150);
       };
-      setTimeout(tick, 60);
+      setTimeout(tick, 100);
     });
 
-    setDone(true);
-    await new Promise((r) => setTimeout(r, 600));
-    showToast.success("Import thành công! 🎉");
-    router.push("/my-novels");
+  const reset = () => {
+    setImporting(false);
+    setProgress(0);
+    setPhase("upload");
+    setError(null);
   };
+
+  const handleSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!file) {
+      showToast.error("Vui lòng chọn file ZIP");
+      return;
+    }
+
+    // Client-side size check — dừng ở 50–60% trước khi gửi request
+    if (file.size > MAX_SIZE_BYTE) {
+      const stopAt = Math.floor(Math.random() * 11) + 50; // 50–60%
+      setImporting(true);
+      setPhase("upload");
+      setProgress(0);
+      setError(null);
+
+      // Chạy progress đến stopAt rồi dừng
+      await new Promise<void>((resolve) => {
+        let pct = 0;
+        const tick = () => {
+          if (pct >= stopAt) {
+            setProgress(stopAt);
+            resolve();
+            return;
+          }
+          pct = Math.min(pct + Math.random() * 5 + 3, stopAt);
+          setProgress(Math.floor(pct));
+          setTimeout(tick, 90);
+        };
+        setTimeout(tick, 60);
+      });
+
+      setError(`File vượt quá ${MAX_SIZE_MB}MB (${(file.size / 1024 / 1024).toFixed(1)}MB)`);
+      return;
+    }
+
+    // ── Flow chính ────────────────────────────────────────────────────────────
+    setImporting(true);
+    setProgress(0);
+    setPhase("upload");
+    setError(null);
+
+    try {
+      // Phase 1 (0–70%): upload
+      // onUploadProgress nhận ratio 0→1, map sang 0→70%
+      await importZip(file, "", (ratio) => {
+        setProgress(Math.min(Math.floor(ratio * 70), 70));
+      });
+
+      // Phase 2 (70–100%): server processing
+      setPhase("processing");
+      await runProcessingAnimation();
+
+      setPhase("done");
+      await new Promise((r) => setTimeout(r, 400));
+      showToast.success("Import thành công! 🎉");
+      router.push("/my-novels");
+    } catch (err) {
+      // Lỗi từ BE (413, validation...): progress đứng tại vị trí hiện tại
+      const msg = err instanceof Error ? err.message : "Import thất bại";
+      setError(msg);
+    }
+  };
+
+  // Màu theo trạng thái
+  const barColor = error ? "bg-red-500" : phase === "done" ? "bg-emerald-500" : "bg-amber-500";
+  const textColor = error
+    ? "text-red-400"
+    : phase === "done"
+      ? "text-emerald-400"
+      : "text-stone-400";
+  const pctColor = error
+    ? "text-red-400"
+    : phase === "done"
+      ? "text-emerald-400"
+      : "text-amber-400";
 
   return (
     <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
@@ -155,47 +235,55 @@ export default function ImportZipForm() {
         </ul>
       </div>
 
-      {/* Drop zone — ẩn khi đang import */}
-      {!importing && (
-        <DropZone file={file} onFile={setFile} onClear={() => setFile(null)} />
-      )}
+      {/* Drop zone */}
+      {!importing && <DropZone file={file} onFile={setFile} onClear={() => setFile(null)} />}
 
-      {/* Progress panel — hiện khi đang import */}
+      {/* Progress panel */}
       {importing && (
         <div className="flex flex-col gap-4 p-5 bg-stone-800/50 border border-stone-700 rounded-2xl">
-          {/* File info */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
               <FileArchive className="w-5 h-5 text-amber-400" strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-stone-200 text-sm font-medium truncate">{file?.name}</p>
-              <p className="text-stone-500 text-xs">{file ? (file.size / 1024 / 1024).toFixed(2) + " MB" : ""}</p>
+              <p className="text-stone-500 text-xs">
+                {file ? (file.size / 1024 / 1024).toFixed(2) + " MB" : ""}
+              </p>
             </div>
-            {done && <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />}
+            {phase === "done" && !error && (
+              <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+            )}
+            {error && <X className="w-5 h-5 text-red-400    shrink-0" />}
           </div>
 
-          {/* Progress bar */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <span className={`text-xs transition-colors ${done ? "text-emerald-400" : "text-stone-400"}`}>
-                {STEPS[stepIndex]}
+              <span className={`text-xs transition-colors ${textColor}`}>
+                {error ? error : PHASE_LABEL[phase]}
               </span>
-              <span className={`text-xs font-bold tabular-nums transition-colors ${done ? "text-emerald-400" : "text-amber-400"}`}>
-                {progress}%
-              </span>
+              <span className={`text-xs font-bold tabular-nums ${pctColor}`}>{progress}%</span>
             </div>
             <div className="h-2 bg-stone-800 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-100 ease-out ${done ? "bg-emerald-500" : "bg-amber-500"}`}
+                className={`h-full rounded-full transition-all duration-150 ease-out ${barColor}`}
                 style={{ width: `${progress}%` }}
               />
             </div>
+            {error && (
+              <button
+                type="button"
+                onClick={reset}
+                className="self-start text-xs text-stone-400 hover:text-white transition-colors mt-1"
+              >
+                ← Chọn file khác
+              </button>
+            )}
           </div>
         </div>
       )}
 
-      {/* Actions — ẩn khi đang import */}
+      {/* Actions */}
       {!importing && (
         <div className="flex items-center gap-3">
           <button
