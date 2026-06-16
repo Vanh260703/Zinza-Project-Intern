@@ -1,28 +1,16 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
-import { useAuthStore } from "@/stores/userStore";
+import { useMemo, useState } from "react";
 import { PlusCircle, Search, Upload } from "lucide-react";
-import { showToast } from "@/lib/toast";
 import Link from "next/link";
-import type { Story } from "@/types/story";
+import { useMyNovels } from "@/hooks/useNovels";
 import NovelCard from "./NovelCard";
 import EmptyState from "./EmptyState";
 
 export default function MyNovelsContent() {
-  const user = useAuthStore((s) => s.user);
-  const [novels, setNovels] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    if (!user) return;
-    fetch(`/api/novels?postedBy=${user.id}`)
-      .then((r) => r.json())
-      .then(setNovels)
-      .catch(() => showToast.error("Không tải được danh sách truyện"))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const { data: novels = [], isLoading } = useMyNovels();
 
   const filtered = useMemo(
     () =>
@@ -30,11 +18,7 @@ export default function MyNovelsContent() {
     [novels, q]
   );
 
-  const handleDelete = (id: string) => {
-    setNovels((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-16">
         <div className="w-5 h-5 border-2 border-stone-700 border-t-amber-500 rounded-full animate-spin" />
@@ -52,7 +36,6 @@ export default function MyNovelsContent() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
-          {/* Search — full width trên mobile */}
           <div className="flex items-center gap-2 bg-stone-800 border border-stone-700 rounded-xl px-3 py-2 focus-within:border-amber-500/60 transition-colors">
             <Search className="w-3.5 h-3.5 text-stone-500 shrink-0" />
             <input
@@ -62,7 +45,6 @@ export default function MyNovelsContent() {
               className="bg-transparent text-stone-200 text-sm placeholder-stone-600 outline-none w-full sm:w-36"
             />
           </div>
-          {/* Buttons — nằm cùng hàng trên mobile */}
           <div className="flex items-center gap-2">
             <Link
               href="/my-novels/import"
@@ -92,7 +74,7 @@ export default function MyNovelsContent() {
       ) : (
         <div className="flex flex-col gap-3">
           {filtered.map((novel) => (
-            <NovelCard key={novel.id} story={novel} onDelete={handleDelete} />
+            <NovelCard key={novel.id} story={novel} />
           ))}
         </div>
       )}

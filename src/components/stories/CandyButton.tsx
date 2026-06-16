@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useGiftCandy } from "@/hooks/useUser";
 import { X, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { useRouter } from "next/navigation";
-import { showToast } from "@/lib/toast";
 
 const PRESETS = [50, 100, 200, 500];
 
@@ -14,10 +13,8 @@ type Props = {
 };
 
 export default function CandyButton({ open: controlledOpen, onOpenChange }: Props = {}) {
-  const { user, wallet, setWallet } = useAuthStore();
-  const router = useRouter();
+  const { user, wallet } = useAuthStore();
   const [internalOpen, setInternalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
 
@@ -39,34 +36,12 @@ export default function CandyButton({ open: controlledOpen, onOpenChange }: Prop
 
   const balance = wallet?.balance ?? 0;
 
-  const handleConfirm = async () => {
-    if (!amount || amount <= 0 || !user || loading) return;
-    if (balance < amount) return;
+  const giftMutation = useGiftCandy();
 
-    setLoading(true);
-    try {
-      const res = await fetch("/api/user/wallet/gift", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, amount }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast.error(data.message ?? "Tặng kẹo thất bại");
-        return;
-      }
-      setWallet(data.wallet);
-      setOpen(false);
-      showToast.success(
-        `Đã tặng ${amount} kẹo! 🍬`,
-        `Bạn còn ${data.wallet.balance.toLocaleString()} kẹo`
-      );
-      router.refresh();
-    } catch {
-      showToast.error("Không thể kết nối máy chủ");
-    } finally {
-      setLoading(false);
-    }
+  const handleConfirm = () => {
+    if (!amount || amount <= 0 || !user || giftMutation.isPending) return;
+    if (balance < amount) return;
+    giftMutation.mutate(amount, { onSuccess: () => setOpen(false) });
   };
 
   const notEnough = amount !== null && amount > 0 && user !== null && balance < amount;
@@ -84,15 +59,15 @@ export default function CandyButton({ open: controlledOpen, onOpenChange }: Prop
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-          onClick={(e) => e.target === e.currentTarget && !loading && setOpen(false)}
+          onClick={(e) => e.target === e.currentTarget && !giftMutation.isPending && setOpen(false)}
         >
           <div className="w-full max-w-sm bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col gap-5 shadow-2xl">
             {/* Header */}
             <div className="flex items-center justify-between">
               <h3 className="text-white font-bold text-base">Tặng kẹo cho tác giả</h3>
               <button
-                onClick={() => !loading && setOpen(false)}
-                disabled={loading}
+                onClick={() => !giftMutation.isPending && setOpen(false)}
+                disabled={giftMutation.isPending}
                 className="text-stone-500 hover:text-white transition-colors disabled:opacity-40"
               >
                 <X className="w-5 h-5" />
@@ -101,7 +76,11 @@ export default function CandyButton({ open: controlledOpen, onOpenChange }: Prop
 
             {!user ? (
               <p className="text-stone-400 text-sm text-center py-4">
-                Bạn cần <a href="/auth/login" className="underline decoration-amber-400 underline-offset-4"><span className="text-amber-400 font-semibol">đăng nhập</span></a> để tặng kẹo.
+                Bạn cần{" "}
+                <a href="/auth/login" className="underline decoration-amber-400 underline-offset-4">
+                  <span className="text-amber-400 font-semibol">đăng nhập</span>
+                </a>{" "}
+                để tặng kẹo.
               </p>
             ) : (
               <>
@@ -160,10 +139,10 @@ export default function CandyButton({ open: controlledOpen, onOpenChange }: Prop
                 {/* Confirm */}
                 <button
                   onClick={handleConfirm}
-                  disabled={!amount || amount <= 0 || !!notEnough || loading}
+                  disabled={!amount || amount <= 0 || !!notEnough || giftMutation.isPending}
                   className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2"
                 >
-                  {loading ? (
+                  {giftMutation.isPending ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
                       Đang xử lý...

@@ -1,11 +1,13 @@
 "use client";
 
+import { useUpdateChapter } from "@/hooks/useChapters";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import ErrorPage from "@/components/error/ErrorPage";
+
 import type { Chapter } from "@/types/chapter";
 import { editChapterFormSchema } from "@/schemas/chapter";
 
@@ -16,19 +18,21 @@ const inputCls =
 
 type Props = {
   novelId: string;
+  postedBy: string;
   chapter: Chapter;
   initialContent: string;
 };
 
-export default function EditChapterForm({ novelId, chapter, initialContent }: Props) {
+export default function EditChapterForm({ novelId, postedBy, chapter, initialContent }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
+  const updateMutation = useUpdateChapter(novelId, chapter.id);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isDirty },
   } = useForm<FormData>({
     resolver: zodResolver(editChapterFormSchema),
     defaultValues: {
@@ -42,26 +46,22 @@ export default function EditChapterForm({ novelId, chapter, initialContent }: Pr
   const candyPrice = useWatch({ control, name: "candyPrice" }) ?? 0;
   const wordCount = content.replace(/\s/g, "").length;
 
-  const onSubmit = async (data: FormData) => {
-    if (!user) return;
-    try {
-      const res = await fetch(`/api/novels/${novelId}/chapters/${chapter.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+  if (user && user.id !== postedBy) {
+    return (
+      <ErrorPage
+        code={403}
+        title="Không có quyền truy cập"
+        description="Bạn không phải tác giả của truyện này."
+        action={{ label: "Truyện của tôi", href: "/my-novels" }}
+      />
+    );
+  }
 
-      const json = await res.json();
-      if (!res.ok) {
-        showToast.error(json.message ?? "Cập nhật thất bại");
-        return;
-      }
-
-      showToast.success("Đã cập nhật chương");
-      router.push(`/my-novels/${novelId}`);
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    }
+  const onSubmit = (data: FormData) => {
+    updateMutation.mutate(
+      { title: data.title.trim(), content: data.content, candyPrice: data.candyPrice },
+      { onSuccess: () => router.push(`/my-novels/${novelId}`) }
+    );
   };
 
   return (
@@ -114,10 +114,10 @@ export default function EditChapterForm({ novelId, chapter, initialContent }: Pr
       <div className="flex items-center gap-3 pt-1">
         <button
           type="submit"
-          disabled={isSubmitting || !isDirty}
+          disabled={updateMutation.isPending || !isDirty}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+          {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
         </button>
         <button
           type="button"

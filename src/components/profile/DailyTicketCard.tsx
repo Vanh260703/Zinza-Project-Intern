@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useClaimDailyTicket } from "@/hooks/useUser";
 import { Ticket, BookOpen, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
 
 const REQUIRED = 10;
 
@@ -13,9 +12,7 @@ function today(): string {
 
 export default function DailyTicketCard() {
   const user = useAuthStore((s) => s.user);
-  const setUser = useAuthStore((s) => s.setUser);
-  const token = useAuthStore((s) => s.token);
-  const [claiming, setClaiming] = useState(false);
+  const claimMutation = useClaimDailyTicket();
 
   if (!user) return null;
 
@@ -25,29 +22,6 @@ export default function DailyTicketCard() {
   const claimed = isToday && !!user.dailyTicketClaimed;
   const pct = Math.min((count / REQUIRED) * 100, 100);
   const remaining = Math.max(REQUIRED - count, 0);
-
-  const handleClaim = async () => {
-    if (claiming || claimed || count < REQUIRED) return;
-    setClaiming(true);
-    try {
-      const res = await fetch("/api/user/daily-ticket/claim", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        showToast.error(data.message ?? "Có lỗi xảy ra");
-        return;
-      }
-      setUser(data.user, token!);
-      showToast.success("Nhận vé thành công! 🎫");
-    } catch {
-      showToast.error("Không thể kết nối máy chủ");
-    } finally {
-      setClaiming(false);
-    }
-  };
 
   return (
     <div className="bg-stone-900 border border-stone-800 rounded-2xl p-4 sm:p-5">
@@ -61,9 +35,7 @@ export default function DailyTicketCard() {
             <p className="text-white font-semibold text-sm sm:text-base leading-tight">
               Vé đề cử hàng ngày
             </p>
-            <p className="text-stone-500 text-xs mt-0.5">
-              Đọc {REQUIRED} chương/ngày để nhận 1 vé
-            </p>
+            <p className="text-stone-500 text-xs mt-0.5">Đọc {REQUIRED} chương/ngày để nhận 1 vé</p>
           </div>
         </div>
 
@@ -96,9 +68,7 @@ export default function DailyTicketCard() {
         <div className="h-2 sm:h-2.5 w-full bg-stone-800 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              count >= REQUIRED
-                ? "bg-emerald-500"
-                : "bg-gradient-to-r from-sky-500 to-sky-400"
+              count >= REQUIRED ? "bg-emerald-500" : "bg-gradient-to-r from-sky-500 to-sky-400"
             }`}
             style={{ width: `${pct}%` }}
           />
@@ -109,27 +79,27 @@ export default function DailyTicketCard() {
           {claimed
             ? "Hoàn thành! Quay lại vào ngày mai để nhận thêm vé."
             : count >= REQUIRED
-            ? "Đủ điều kiện — nhận vé ngay!"
-            : `Còn ${remaining} chương nữa để mở khóa vé`}
+              ? "Đủ điều kiện — nhận vé ngay!"
+              : `Còn ${remaining} chương nữa để mở khóa vé`}
         </p>
       </div>
 
       {/* Claim button + mobile badge */}
       <div className="flex items-center gap-3">
         <button
-          onClick={handleClaim}
-          disabled={claimed || count < REQUIRED || claiming}
+          onClick={() => claimMutation.mutate()}
+          disabled={claimed || count < REQUIRED || claimMutation.isPending}
           className={`flex-1 sm:flex-none sm:w-auto flex items-center justify-center gap-2
             px-4 py-2 sm:py-2.5 rounded-xl text-sm font-semibold transition-all
             ${
               claimed
                 ? "bg-stone-800 text-stone-600 cursor-not-allowed border border-stone-700"
                 : count >= REQUIRED
-                ? "bg-sky-500 hover:bg-sky-400 text-white shadow-lg shadow-sky-500/20 active:scale-95"
-                : "bg-stone-800 text-stone-600 cursor-not-allowed border border-stone-700"
+                  ? "bg-sky-500 hover:bg-sky-400 text-white shadow-lg shadow-sky-500/20 active:scale-95"
+                  : "bg-stone-800 text-stone-600 cursor-not-allowed border border-stone-700"
             }`}
         >
-          {claiming ? (
+          {claimMutation.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : claimed ? (
             <>

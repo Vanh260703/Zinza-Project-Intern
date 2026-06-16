@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/stores/userStore";
+import { useNotifications, useMarkAllRead } from "@/hooks/useUser";
 import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
@@ -194,11 +195,15 @@ type NotificationItem = {
 };
 
 function NotificationDropdown() {
-  const user = useAuthStore((s) => s.user);
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<NotificationItem[]>([]);
-  const [totalUnread, setTotalUnread] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+
+  const { data } = useNotifications();
+  const markMutation = useMarkAllRead();
+
+  const items: NotificationItem[] =
+    (data as { notifications: NotificationItem[] } | undefined)?.notifications?.slice(0, 4) ?? [];
+  const totalUnread = (data as { totalUnread: number } | undefined)?.totalUnread ?? 0;
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -208,29 +213,10 @@ function NotificationDropdown() {
     return () => document.removeEventListener("mousedown", onClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (!open || !user) return;
-    fetch(`/api/notifications?userId=${user.id}`)
-      .then((r) => r.json())
-      .then((d) => {
-        setItems(d.notifications);
-        setTotalUnread(d.totalUnread);
-      });
-  }, [open, user]);
-
-  // Số unread trong 4 items đang hiển thị
   const shownUnread = items.filter((n) => !n.isRead).length;
   const remainingUnread = totalUnread - shownUnread;
 
-  const handleMarkAllRead = async () => {
-    await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.id }),
-    });
-    setItems((prev) => prev.map((n) => ({ ...n, isRead: true })));
-    setTotalUnread(0);
-  };
+  const handleMarkAllRead = () => markMutation.mutate();
 
   return (
     <div className="relative" ref={ref}>

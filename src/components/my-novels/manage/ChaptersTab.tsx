@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useChapters, useDeleteChapter } from "@/hooks/useChapters";
+
 import { BookOpen, PlusCircle } from "lucide-react";
 import Link from "next/link";
-import type { Chapter } from "@/types/chapter";
+
 import ConfirmModal from "@/components/ui/ConfirmModal";
-import { showToast } from "@/lib/toast";
+import type { Chapter } from "@/types/chapter";
 
 type Props = { novelId: string };
 
@@ -16,34 +18,12 @@ function formatDate(iso?: string) {
 }
 
 export default function ChaptersTab({ novelId }: Props) {
-  const [chapters, setChapters] = useState<Chapter[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmChapter, setConfirmChapter] = useState<Chapter | null>(null);
 
-  useEffect(() => {
-    fetch(`/api/novels/${novelId}/chapters`)
-      .then((r) => r.json())
-      .then(setChapters)
-      .catch(() => showToast.error("Không tải được danh sách chương"))
-      .finally(() => setLoading(false));
-  }, [novelId]);
+  const { data: chapters = [], isLoading } = useChapters(novelId);
+  const deleteMutation = useDeleteChapter(novelId);
 
-  async function confirmDelete() {
-    if (!confirmChapter) return;
-    setDeletingId(confirmChapter.id);
-    try {
-      const res = await fetch(`/api/novels/${novelId}/chapters/${confirmChapter.id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) setChapters((prev) => prev.filter((c) => c.id !== confirmChapter.id));
-    } finally {
-      setDeletingId(null);
-      setConfirmChapter(null);
-    }
-  }
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="w-5 h-5 border-2 border-stone-700 border-t-amber-500 rounded-full animate-spin" />
@@ -54,7 +34,6 @@ export default function ChaptersTab({ novelId }: Props) {
   return (
     <>
       <div className="flex flex-col gap-4">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <p className="text-stone-500 text-sm">{chapters.length} chương</p>
           <Link
@@ -148,14 +127,16 @@ export default function ChaptersTab({ novelId }: Props) {
         )}
       </div>
 
-      {/* Confirm delete modal */}
       {confirmChapter && (
         <ConfirmModal
           title="Xóa chương này?"
           description={`"${confirmChapter.title}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
           confirmLabel="Xóa chương"
-          loading={deletingId === confirmChapter.id}
-          onConfirm={confirmDelete}
+          loading={deleteMutation.isPending}
+          onConfirm={() => {
+            deleteMutation.mutate(confirmChapter.id);
+            setConfirmChapter(null);
+          }}
           onCancel={() => setConfirmChapter(null)}
         />
       )}

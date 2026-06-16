@@ -21,8 +21,9 @@ export async function POST(req: NextRequest) {
   const isNewDay = user.dailyReadDate !== todayStr;
 
   // { storyId: { chapterId: true, ... }, ... }
-  const currentMap: Record<string, Record<string, true>> =
-    isNewDay ? {} : (user.dailyReadChapterIds ?? {});
+  const currentMap: Record<string, Record<string, true>> = isNewDay
+    ? {}
+    : (user.dailyReadChapterIds ?? {});
 
   // Dedup: O(1) — chapter này của story này đã đọc hôm nay chưa?
   if (currentMap[storyId]?.[chapterId]) {
@@ -32,7 +33,10 @@ export async function POST(req: NextRequest) {
       storiesMark: string[];
       unlockedChapters: string[];
     };
-    void candy; void isRead; void storiesMark; void unlockedChapters;
+    void candy;
+    void isRead;
+    void storiesMark;
+    void unlockedChapters;
     return NextResponse.json({ user: safeUser });
   }
 
@@ -64,13 +68,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Cập nhật thất bại" }, { status: 500 });
   }
 
-  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } = updated as typeof updated & {
-    candy: number;
-    isRead: string[];
-    storiesMark: string[];
-    unlockedChapters: string[];
-  };
-  void candy; void isRead; void storiesMark; void unlockedChapters;
+  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } =
+    updated as typeof updated & {
+      candy: number;
+      isRead: string[];
+      storiesMark: string[];
+      unlockedChapters: string[];
+    };
+  void candy;
+  void isRead;
+  void storiesMark;
+  void unlockedChapters;
 
   return NextResponse.json({ user: safeUser });
 }

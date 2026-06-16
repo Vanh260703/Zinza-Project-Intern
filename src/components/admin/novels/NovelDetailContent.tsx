@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAdminNovelDetail } from "@/hooks/useAdmin";
+import { useAuthStore } from "@/stores/userStore";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,18 +16,6 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
-import type { Story } from "@/types/story";
-import type { Chapter } from "@/types/chapter";
-import { useAuthStore } from "@/stores/userStore";
-import { getStoryStatus } from "@/config/statuses";
-
-type ChapterStats = { total: number; paid: number; totalWords: number };
-
-type StoryDetail = Story & {
-  publisherName?: string;
-  publisherEmail?: string;
-  publisherId?: string;
-};
 
 function StatCard({
   icon: Icon,
@@ -63,49 +52,15 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
 
 export default function NovelDetailContent({ novelId }: { novelId: string }) {
   const router = useRouter();
-  const currentUser = useAuthStore((s) => s.user);
-  const [novel, setNovel] = useState<StoryDetail | null>(null);
-  const [chStats, setChStats] = useState<ChapterStats>({
-    total: 0,
-    paid: 0,
-    totalWords: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const user = useAuthStore((s) => s.user);
+  const { data, isLoading, isError } = useAdminNovelDetail(novelId);
 
-  useEffect(() => {
-    Promise.all([
-      fetch(`/api/novels?ids=${novelId}`).then((r) => r.json()),
-      fetch(`/api/admin/users`).then((r) => r.json()),
-      fetch(`/api/novels/${novelId}/chapters`).then((r) => r.json()),
-    ])
-      .then(([stories, users, chs]) => {
-        const story = (stories as Story[])[0];
-        if (!story) {
-          router.replace("/admin/novels");
-          return;
-        }
-        const map: Record<string, { name: string; email: string }> = {};
-        (users as { id: string; name: string; email: string }[]).forEach((u) => {
-          map[u.id] = u;
-        });
-        setNovel({
-          ...story,
-          publisherName: map[story.postedBy]?.name,
-          publisherEmail: map[story.postedBy]?.email,
-          publisherId: story.postedBy,
-        });
-        const list = chs as Chapter[];
-        setChStats({
-          total: story.chapterCount,  // dùng sẵn từ story, không cần đếm lại
-          paid: list.filter((c) => (c.candyPrice ?? 0) > 0).length,
-          totalWords: list.reduce((s, c) => s + (c.wordCount ?? 0), 0),
-        });
-      })
-      .catch(() => router.replace("/admin/novels"))
-      .finally(() => setLoading(false));
-  }, [novelId, router]);
+  if (isError) {
+    router.replace("/admin/novels");
+    return null;
+  }
 
-  if (loading) {
+  if (isLoading || !data) {
     return (
       <div className="flex items-center justify-center py-32">
         <div className="w-6 h-6 border-2 border-stone-700 border-t-violet-500 rounded-full animate-spin" />
@@ -113,7 +68,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
     );
   }
 
-  if (!novel) return null;
+  const { novel, chStats } = data;
 
   const formatDate = (d?: Date | string) =>
     d
@@ -216,7 +171,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
               <ExternalLink className="w-3.5 h-3.5" />
               Xem trang truyện
             </Link>
-            {currentUser?.id === novel.publisherId && (
+            {user?.id === novel.postedBy && (
               <Link
                 href={`/my-novels/${novel.id}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-500/15 border border-violet-500/25 text-violet-400 hover:bg-violet-500/25 transition-colors"

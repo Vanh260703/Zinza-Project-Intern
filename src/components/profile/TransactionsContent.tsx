@@ -21,16 +21,24 @@ const FILTER_OPTIONS = [
 type Transaction = {
   id: string;
   type: "topup" | "unlock" | "gift";
-  amount: number;       // kẹo (+/-)
+  amount: number; // kẹo (+/-)
   description: string;
   createdAt: string;
   status?: PaymentStatus;
 };
 
 const STATUS_CONFIG = {
-  completed: { label: "Thành công", icon: CheckCircle2, cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
-  pending:   { label: "Đang chờ",   icon: Clock,         cls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
-  failed:    { label: "Thất bại",   icon: XCircle,       cls: "text-red-400 bg-red-500/10 border-red-500/20" },
+  completed: {
+    label: "Thành công",
+    icon: CheckCircle2,
+    cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+  },
+  pending: {
+    label: "Đang chờ",
+    icon: Clock,
+    cls: "text-amber-400 bg-amber-500/10 border-amber-500/20",
+  },
+  failed: { label: "Thất bại", icon: XCircle, cls: "text-red-400 bg-red-500/10 border-red-500/20" },
 } as const;
 
 function formatVND(n: number) {
@@ -80,7 +88,7 @@ export default function TransactionsContent() {
       if (toDate && t.createdAt > toDate) return false;
       return true;
     });
-  }, [filter, fromDate, toDate]);
+  }, [allTransactions, filter, fromDate, toDate]);
 
   const total = filtered.reduce((sum, t) => sum + t.amount, 0);
 
@@ -232,16 +240,19 @@ export default function TransactionsContent() {
                     {t.amount.toLocaleString()}
                   </td>
                   <td className="hidden sm:table-cell px-4 py-3.5 text-center">
-                    {t.status && (() => {
-                      const s = STATUS_CONFIG[t.status];
-                      const Icon = s.icon;
-                      return (
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${s.cls}`}>
-                          <Icon className="w-3 h-3" />
-                          {s.label}
-                        </span>
-                      );
-                    })()}
+                    {t.status &&
+                      (() => {
+                        const s = STATUS_CONFIG[t.status];
+                        const Icon = s.icon;
+                        return (
+                          <span
+                            className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${s.cls}`}
+                          >
+                            <Icon className="w-3 h-3" />
+                            {s.label}
+                          </span>
+                        );
+                      })()}
                   </td>
                   <td className="px-4 py-3.5 text-stone-500 text-sm text-right">
                     {new Date(t.createdAt).toLocaleDateString("vi-VN")}

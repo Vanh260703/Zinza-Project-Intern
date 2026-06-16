@@ -31,6 +31,7 @@ Thumbs.db
 .idea/
 
 # Playwright (local test only - không commit)
+tests/
 e2e/
 playwright.config.ts
 playwright-report/

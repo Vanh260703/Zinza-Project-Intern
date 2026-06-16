@@ -1,11 +1,13 @@
 "use client";
 
+import { useCreateChapter } from "@/hooks/useChapters";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import ErrorPage from "@/components/error/ErrorPage";
+
 import type { Story } from "@/types/story";
 import { createChapterFormSchema } from "@/schemas/chapter";
 
@@ -19,12 +21,13 @@ type Props = { story: Story; nextNumber: number };
 export default function CreateChapterForm({ story, nextNumber }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
+  const createMutation = useCreateChapter(story.id, nextNumber);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(createChapterFormSchema),
     defaultValues: {
@@ -38,32 +41,28 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
   const candyPrice = useWatch({ control, name: "candyPrice" }) ?? 0;
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
-  const onSubmit = async (data: FormData) => {
+  if (user && user.id !== story.postedBy) {
+    return (
+      <ErrorPage
+        code={403}
+        title="Không có quyền truy cập"
+        description="Bạn không phải tác giả của truyện này."
+        action={{ label: "Truyện của tôi", href: "/my-novels" }}
+      />
+    );
+  }
+
+  const onSubmit = (data: FormData) => {
     if (!user) return;
-    try {
-      const res = await fetch(`/api/novels/${story.id}/chapters`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: user.id,
-          ...data,
-          ...(data.candyPrice === 0 ? { candyPrice: undefined } : {}),
-        }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) {
-        showToast.error(json.message ?? "Đăng chương thất bại");
-        return;
-      }
-
-      showToast.success(`Đã đăng chương ${nextNumber}`);
-      router.push(`/my-novels/${story.id}`);
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    } finally {
-      setLoading(false);
-    }
+    createMutation.mutate(
+      {
+        userId: user.id,
+        title: data.title.trim(),
+        content: data.content,
+        ...(data.candyPrice > 0 ? { candyPrice: data.candyPrice } : {}),
+      },
+      { onSuccess: () => router.push(`/my-novels/${story.id}`) }
+    );
   };
 
   return (
@@ -118,10 +117,10 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
       <div className="flex items-center gap-3 pt-1">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={createMutation.isPending}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {isSubmitting ? "Đang đăng..." : "Đăng chương"}
+          {createMutation.isPending ? "Đang đăng..." : "Đăng chương"}
         </button>
         <button
           type="button"

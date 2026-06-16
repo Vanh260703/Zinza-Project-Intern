@@ -159,7 +159,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
               Đọc ngay
             </Link>
             <FollowButton storyId={id} />
-            <RecommendButton storyId={id} />
+            <RecommendButton storyId={id} postedBy={postedBy} />
             <CandyButton />
           </div>
         </div>

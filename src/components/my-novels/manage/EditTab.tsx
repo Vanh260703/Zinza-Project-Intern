@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { X, ImagePlus } from "lucide-react";
-import { useState } from "react";
 import { useAuthStore } from "@/stores/userStore";
+import { useUpdateNovel } from "@/hooks/useNovels";
 import { showToast } from "@/lib/toast";
+
 import type { Story } from "@/types/story";
 import { GENRES } from "@/config/genres";
 import { STATUS_OPTIONS } from "@/enums/story";
@@ -26,12 +27,13 @@ type Props = { story: Story; onUpdated: (s: Story) => void };
 export default function EditTab({ story, onUpdated }: Props) {
   const user = useAuthStore((s) => s.user);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const updateMutation = useUpdateNovel(story.id);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isDirty },
   } = useForm<EditNovelFormData>({
     resolver: zodResolver(editNovelFormSchema),
     defaultValues: {
@@ -79,21 +81,9 @@ export default function EditTab({ story, onUpdated }: Props) {
 
   const onSubmit = async (data: EditNovelFormData) => {
     if (!user || coverError) return;
-
     try {
-      // 1. Cập nhật thông tin truyện
-      const res = await fetch(`/api/novels/${story.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, ...data }),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        showToast.error(json.message ?? "Cập nhật thất bại");
-        return;
-      }
+      const result = await updateMutation.mutateAsync({ userId: user.id, ...data });
 
-      // 2. Upload cover mới nếu có
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
@@ -101,17 +91,17 @@ export default function EditTab({ story, onUpdated }: Props) {
         if (!coverRes.ok) {
           const err = await coverRes.json().catch(() => ({}));
           showToast.error(err.message ?? "Upload ảnh bìa thất bại");
-          onUpdated(json.story);
+          onUpdated(result.story);
           return;
         }
         const { poster } = await coverRes.json();
-        json.story.poster = poster;
+        result.story.poster = poster;
         setCoverFile(null);
         setCoverPreview(null);
       }
 
       showToast.success("Đã lưu thay đổi");
-      onUpdated(json.story);
+      onUpdated(result.story);
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
     }
@@ -267,10 +257,10 @@ export default function EditTab({ story, onUpdated }: Props) {
 
       <button
         type="submit"
-        disabled={isSubmitting || !!coverError || (!isDirty && !coverFile)}
+        disabled={updateMutation.isPending || !!coverError || (!isDirty && !coverFile)}
         className="self-start px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
       >
-        {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
+        {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
       </button>
     </form>
   );

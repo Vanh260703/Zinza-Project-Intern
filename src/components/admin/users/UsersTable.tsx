@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useAdminUsers } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
+
 import {
   Search,
   Candy,
@@ -11,18 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { showToast } from "@/lib/toast";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  candy: number;
-  recommendationTickets: number;
-  joinedAt?: string;
-};
-
 type SortKey = "name" | "candy" | "recommendationTickets" | "joinedAt";
 type SortDir = "asc" | "desc";
 
@@ -72,21 +62,13 @@ function formatDate(d?: string) {
 
 export default function UsersTable() {
   const router = useRouter();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [role, setRole] = useState("all");
   const [sortKey, setSortKey] = useState<SortKey>("joinedAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    fetch("/api/admin/users")
-      .then((r) => r.json())
-      .then(setUsers)
-      .catch(() => showToast.error("Không tải được danh sách người dùng"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: users = [], isLoading: loading } = useAdminUsers();
 
   const handleSort = (k: SortKey) => {
     if (sortKey === k) setSortDir((d) => (d === "asc" ? "desc" : "asc"));

@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { ImagePlus, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import { useCreateNovel } from "@/hooks/useNovels";
 import { createNovelSchema } from "@/schemas/novel";
 import { GENRES } from "@/config/genres";
 import { STATUS_OPTIONS } from "@/enums/story";
@@ -184,54 +185,26 @@ function Field({
 export default function CreateNovelForm() {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
-  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverError, setCoverError] = useState<string | null>(null);
+  const coverFileRef = useRef<File | null>(null);
+
+  const createMutation = useCreateNovel(coverFileRef);
 
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { status: "pending", genres: [] },
   });
 
-  const onSubmit = async (data: FormData) => {
-    if (!user) return;
-    if (coverError) return; // ảnh không hợp lệ, không cho submit
-    try {
-      const res = await fetch("/api/novels", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...data, userId: user.id }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        showToast.error(json.message ?? "Đăng truyện thất bại");
-        return;
-      }
-
-      if (coverFile) {
-        const form = new FormData();
-        form.append("cover", coverFile);
-        const coverRes = await fetch(`/api/cover/${json.story.id}`, { method: "POST", body: form });
-        if (!coverRes.ok) {
-          const err = await coverRes.json().catch(() => ({}));
-          showToast.error(err.message ?? "Upload ảnh bìa thất bại");
-          // Truyện đã tạo thành công, chỉ ảnh bìa bị lỗi
-          router.push("/my-novels");
-          return;
-        }
-      }
-
-      showToast.success("Đăng truyện thành công");
-      router.push("/my-novels");
-    } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
-    }
+  const onSubmit = (data: FormData) => {
+    if (!user || coverError) return;
+    createMutation.mutate({ ...data, userId: user.id } as FormData & { userId: string }, {
+      onSuccess: () => router.push("/my-novels"),
+    });
   };
 
   return (
@@ -240,7 +213,7 @@ export default function CreateNovelForm() {
         {/* Cover */}
         <CoverUpload
           onChange={(file, err) => {
-            setCoverFile(file);
+            coverFileRef.current = file;
             setCoverError(err ?? null);
           }}
         />
@@ -297,10 +270,10 @@ export default function CreateNovelForm() {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={isSubmitting || !!coverError}
+          disabled={createMutation.isPending || !!coverError}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
-          {isSubmitting ? "Đang đăng..." : "Đăng truyện"}
+          {createMutation.isPending ? "Đang đăng..." : "Đăng truyện"}
         </button>
         <button
           type="button"

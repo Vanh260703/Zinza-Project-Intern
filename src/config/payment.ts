@@ -20,4 +20,3 @@ export const BANK_CONFIG = {
 
 // Prefix nội dung chuyển khoản để SePay auto-match
 export const TRANSFER_PREFIX = "NAPKEO";
-

@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/mock-db";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: storyId } = await params;
   const { userId } = await req.json();
 
@@ -20,6 +17,13 @@ export async function POST(
   const user = db.users.findById(userId);
   if (!user) {
     return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
+  }
+
+  if (story.postedBy === userId) {
+    return NextResponse.json(
+      { message: "Bạn không thể đề cử truyện của chính mình" },
+      { status: 403 }
+    );
   }
 
   if ((user.recommendationTickets ?? 0) < 1) {
@@ -45,7 +49,10 @@ export async function POST(
       storiesMark: string[];
       unlockedChapters: string[];
     };
-  void candy; void isRead; void storiesMark; void unlockedChapters;
+  void candy;
+  void isRead;
+  void storiesMark;
+  void unlockedChapters;
 
   return NextResponse.json({ user: safeUser, nominations: story.nominations + 1 });
 }

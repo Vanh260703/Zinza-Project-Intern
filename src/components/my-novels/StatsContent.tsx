@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useState } from "react";
 import { BarChart2 } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
-import { showToast } from "@/lib/toast";
+import { useMyNovels } from "@/hooks/useNovels";
 import type { Story } from "@/types/story";
 
 const SUMMARY_STATS = [
@@ -50,32 +48,10 @@ function toStats(story: Story): StoryStats {
 }
 
 export default function StatsContent() {
-  const user = useAuthStore((s) => s.user);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-  const [novels, setNovels] = useState<Story[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [fromDate, setFromDate] = useState(searchParams.get("from") ?? "");
-  const [toDate, setToDate] = useState(searchParams.get("to") ?? "");
-
-  const syncUrl = (from: string, to: string) => {
-    const params = new URLSearchParams();
-    if (from) params.set("from", from);
-    if (to) params.set("to", to);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname);
-  };
-
-  useEffect(() => {
-    if (!user) return;
-    fetch(`/api/novels?postedBy=${user.id}`)
-      .then((r) => r.json())
-      .then(setNovels)
-      .catch(() => showToast.error("Không tải được dữ liệu thống kê"))
-      .finally(() => setLoading(false));
-  }, [user]);
+  const { data: novels = [], isLoading: loading } = useMyNovels();
 
   const rows = novels.map(toStats);
 

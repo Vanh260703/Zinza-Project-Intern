@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useAdminNovels } from "@/hooks/useAdmin";
 import { useRouter } from "next/navigation";
+
 import { Search, BookOpen, Crown, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import type { Story } from "@/types/story";
-import { showToast } from "@/lib/toast";
+
 import { getStoryStatus } from "@/config/statuses";
 import { STATUS_OPTIONS } from "@/enums/story";
-
-type StoryRow = Story & { publisherName?: string; publisherEmail?: string };
 
 const PAGE_SIZE = 12;
 
@@ -19,34 +18,12 @@ function formatDate(d?: Date | string) {
 
 export default function NovelsTable() {
   const router = useRouter();
-  const [novels, setNovels] = useState<StoryRow[]>([]);
-  const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("all");
   const [vip, setVip] = useState("all");
   const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/novels?all=true").then((r) => r.json()),
-      fetch("/api/admin/users").then((r) => r.json()),
-    ])
-      .then(([stories, users]) => {
-        const map: Record<string, { name: string; email: string }> = {};
-        (users as { id: string; name: string; email: string }[]).forEach((u) => {
-          map[u.id] = { name: u.name, email: u.email };
-        });
-        setNovels(
-          (stories as Story[]).map((s) => ({
-            ...s,
-            publisherName: map[s.postedBy]?.name,
-            publisherEmail: map[s.postedBy]?.email,
-          }))
-        );
-      })
-      .catch(() => showToast.error("Không tải được danh sách truyện"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: novels = [], isLoading: loading } = useAdminNovels();
 
   const filtered = useMemo(() => {
     let list = [...novels];
