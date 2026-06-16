@@ -10,6 +10,8 @@ export const GENRES: Genre[] = [
   { id: "3", name: "Kỳ Ảo", slug: "ky-ao" },
   { id: "4", name: "Tiên Hiệp", slug: "tien-hiep" },
   { id: "5", name: "Đô Thị", slug: "do-thi" },
+  { id: "6", name: "Võ Hiệp", slug: "vo-hiep" },
+  { id: "7", name: "Lịch Sử", slug: "lich-su" },
 ];
 
 // Lookup theo name (dùng cho mock DB: string → Genre)

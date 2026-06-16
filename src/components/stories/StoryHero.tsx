@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BookOpen, Star, BookMarked } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
+import { getStoryStatus } from "@/config/statuses";
 import CandyButton from "./CandyButton";
 import FollowButton from "./FollowButton";
 import RecommendButton from "./RecommendButton";
@@ -86,7 +87,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
                 status === "completed" ? "bg-emerald-500 text-white" : "bg-stone-700 text-stone-300"
               }`}
             >
-              {status === "completed" ? "Hoàn thành" : "Đang ra"}
+              {getStoryStatus(status).label}
             </span>
             {vip && (
               <span className="text-xs font-bold px-3 py-1 bg-amber-500 text-white rounded-full">
