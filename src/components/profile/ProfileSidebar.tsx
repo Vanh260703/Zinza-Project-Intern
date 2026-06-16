@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,6 +14,7 @@ import {
   BarChart2,
   Upload,
   DollarSign,
+  ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useLibraryStore } from "@/stores/libraryStore";
@@ -68,6 +70,7 @@ export default function ProfileSidebar() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const clearLibrary = useLibraryStore((s) => s.clear);
+  const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -78,8 +81,29 @@ export default function ProfileSidebar() {
   return (
     <aside className="w-full lg:w-64 shrink-0">
       <div className="bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
-        {/* User info */}
-        <div className="flex flex-col items-center gap-3 px-6 py-6 border-b border-stone-800">
+        {/* User info — luôn hiện, toggle chỉ xuất hiện dưới lg */}
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="lg:hidden w-full flex items-center gap-3 px-4 py-4 hover:bg-stone-800/50 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center shrink-0">
+            <span className="text-base font-bold text-amber-400">
+              {user?.name?.[0]?.toUpperCase() ?? "?"}
+            </span>
+          </div>
+          <div className="flex-1 text-left min-w-0">
+            <p className="text-white font-semibold text-sm truncate">
+              {user?.name ?? "Người dùng"}
+            </p>
+            <p className="text-stone-500 text-xs">#{user?.id?.slice(0, 8) ?? "--------"}</p>
+          </div>
+          <ChevronDown
+            className={`w-4 h-4 text-stone-500 shrink-0 transition-transform duration-200 ${expanded ? "rotate-180" : ""}`}
+          />
+        </button>
+
+        {/* Desktop: user info dạng dọc như cũ */}
+        <div className="hidden lg:flex flex-col items-center gap-3 px-6 py-6 border-b border-stone-800">
           <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center">
             <span className="text-2xl font-bold text-amber-400">
               {user?.name?.[0]?.toUpperCase() ?? "?"}
@@ -93,33 +117,37 @@ export default function ProfileSidebar() {
           </div>
         </div>
 
-        {/* Nav groups */}
-        <nav className="p-2">
-          <SectionLabel>Thành viên</SectionLabel>
-          {MEMBER_ITEMS.map((item) => (
-            <NavLink key={item.href} {...item} pathname={pathname} />
-          ))}
+        {/* Nav + Logout — desktop luôn hiện, mobile/tablet chỉ hiện khi expanded */}
+        <div className={`${expanded ? "block" : "hidden"} lg:block`}>
+          {/* Mobile: divider */}
+          <div className="lg:hidden border-t border-stone-800" />
 
-          <SectionLabel>Truyện của tôi</SectionLabel>
-          {STORY_ITEMS.map((item) => (
-            <NavLink key={item.href} {...item} pathname={pathname} />
-          ))}
+          <nav className="p-2">
+            <SectionLabel>Thành viên</SectionLabel>
+            {MEMBER_ITEMS.map((item) => (
+              <NavLink key={item.href} {...item} pathname={pathname} />
+            ))}
 
-          <SectionLabel>Làm thêm</SectionLabel>
-          {MORE_ITEMS.map((item) => (
-            <NavLink key={item.href} {...item} pathname={pathname} />
-          ))}
-        </nav>
+            <SectionLabel>Truyện của tôi</SectionLabel>
+            {STORY_ITEMS.map((item) => (
+              <NavLink key={item.href} {...item} pathname={pathname} />
+            ))}
 
-        {/* Logout */}
-        <div className="p-2 border-t border-stone-800">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
-          >
-            <LogOut className="w-4 h-4 shrink-0" />
-            Đăng xuất
-          </button>
+            <SectionLabel>Làm thêm</SectionLabel>
+            {MORE_ITEMS.map((item) => (
+              <NavLink key={item.href} {...item} pathname={pathname} />
+            ))}
+          </nav>
+
+          <div className="p-2 border-t border-stone-800">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut className="w-4 h-4 shrink-0" />
+              Đăng xuất
+            </button>
+          </div>
         </div>
       </div>
     </aside>

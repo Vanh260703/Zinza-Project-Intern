@@ -3,16 +3,24 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLibraryStore } from "@/stores/libraryStore";
+import { useAuthStore } from "@/stores/userStore";
 import { BookOpen, BookMarked, History, Compass } from "lucide-react";
+import type { User } from "@/types/user";
 import { showToast } from "@/lib/toast";
 import type { Story } from "@/types/story";
 
 // ── Story card ────────────────────────────────────────────────────────────────
 
-function StoryCard({ story }: { story: Story }) {
+type LastChapter = NonNullable<User["lastReadChapters"]>[string];
+
+function StoryCard({ story, lastChapter }: { story: Story; lastChapter?: LastChapter }) {
+  const href = lastChapter
+    ? `/novels/${story.slug}/chapters/${lastChapter.id}`
+    : `/novels/${story.slug}`;
+
   return (
     <Link
-      href={`/novels/${story.slug}`}
+      href={href}
       className="flex gap-3 p-3 rounded-xl hover:bg-stone-800 transition-colors group"
     >
       <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
@@ -34,7 +42,11 @@ function StoryCard({ story }: { story: Story }) {
         </p>
         <p className="text-stone-500 text-xs truncate">{story.author}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-stone-600 text-[11px]">{story.chapterCount} chương</span>
+          <span className="text-stone-600 text-[11px]">
+            {lastChapter
+              ? `Ch.${lastChapter.number}: ${lastChapter.title}`
+              : `${story.chapterCount} chương`}
+          </span>
           {story.vip && (
             <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
               VIP
@@ -53,11 +65,13 @@ function Section({
   icon: Icon,
   stories,
   emptyText,
+  lastReadChapters,
 }: {
   title: string;
   icon: React.ElementType;
   stories: Story[];
   emptyText: string;
+  lastReadChapters?: User["lastReadChapters"];
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -71,7 +85,11 @@ function Section({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
           {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+            <StoryCard
+              key={story.id}
+              story={story}
+              lastChapter={lastReadChapters?.[story.id]}
+            />
           ))}
         </div>
       )}
@@ -83,6 +101,7 @@ function Section({
 
 export default function LibraryContent() {
   const { history, bookmarks } = useLibraryStore();
+  const lastReadChapters = useAuthStore((s) => s.user?.lastReadChapters);
   const [historyStories, setHistoryStories] = useState<Story[]>([]);
   const [bookmarkStories, setBookmarkStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,6 +169,7 @@ export default function LibraryContent() {
         title="Đã đọc"
         icon={History}
         stories={historyStories}
+        lastReadChapters={lastReadChapters}
         emptyText="Chưa có lịch sử đọc."
       />
     </div>

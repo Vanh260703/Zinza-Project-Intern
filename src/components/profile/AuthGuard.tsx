@@ -1,32 +1,34 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/userStore";
-import { useRouter } from "next/navigation";
+import ErrorPage from "@/components/error/ErrorPage";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
-  const router = useRouter();
-  const hadUser = useRef(false);
-
   const [hydrated, setHydrated] = useState(() => useAuthStore.persist?.hasHydrated() ?? false);
 
   useEffect(() => {
+    if (useAuthStore.persist?.hasHydrated()) {
+      setHydrated(true);
+      return;
+    }
     const unsub = useAuthStore.persist?.onFinishHydration(() => setHydrated(true));
     return unsub;
   }, []);
 
-  useEffect(() => {
-    if (user) hadUser.current = true;
-  }, [user]);
+  if (!hydrated) return null;
 
-  useEffect(() => {
-    if (mounted && !user && !hadUser.current) {
-      router.replace("/auth/login");
-    }
-  }, [mounted, user, router]);
-
-  if (!mounted || !user) return null;
+  if (!user) {
+    return (
+      <ErrorPage
+        code={401}
+        title="Bạn chưa đăng nhập"
+        description="Vui lòng đăng nhập để truy cập trang này."
+        action={{ label: "Đăng nhập", href: "/auth/login" }}
+      />
+    );
+  }
 
   return <>{children}</>;
 }

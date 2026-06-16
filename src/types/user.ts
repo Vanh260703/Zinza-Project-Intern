@@ -1,4 +1,6 @@
 import type { Gender, Role } from "@/enums/auth";
+import type { Story } from "@/types/story";
+import type { Chapter } from "@/types/chapter";
 
 export interface User {
   id: string;
@@ -10,10 +12,12 @@ export interface User {
   role: Role;
   chaptersRead: number;
   joinedAt?: string;
-  monthlyRecommendationTicket: number;
-  // isRead     → LibraryStore / user_story_reads table
-  // storiesMark   → LibraryStore / user_story_bookmarks table
-  // unlockedChapters → chapter_purchases table
+  recommendationTickets: number;
+  dailyReadCount?: number;
+  dailyReadDate?: string;
+  dailyReadChapterIds?: Record<Story["id"], Record<Chapter["id"], true>>;
+  dailyTicketClaimed?: boolean;
+  lastReadChapters?: Record<Story["id"], Pick<Chapter, "id" | "title" | "number">>;
 }
 
 // Số dư kẹo — tách khỏi User vì nằm trong bảng user_wallets

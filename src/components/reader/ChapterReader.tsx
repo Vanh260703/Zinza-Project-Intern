@@ -7,7 +7,8 @@ import {
   ArrowRight,
   AlignJustify,
   Gift,
-  Star,
+  Bookmark,
+  BookmarkCheck,
   Settings,
   List,
   X,
@@ -16,7 +17,10 @@ import {
   Plus,
   Lock,
   CandyIcon,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
+import CandyButton from "@/components/stories/CandyButton";
 import { useLibraryStore } from "@/stores/libraryStore";
 import { useAuthStore } from "@/stores/userStore";
 import {
@@ -382,7 +386,7 @@ function ChapterPaywall({
             <div className="flex flex-col items-center gap-2 w-full">
               <p className="text-red-400 text-sm">Không đủ kẹo để mở khoá</p>
               <Link
-                href="/topup"
+                href="/profile/payment"
                 className="w-full py-3 rounded-xl text-sm font-semibold bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white transition-colors text-center"
               >
                 Nạp thêm kẹo
@@ -392,7 +396,7 @@ function ChapterPaywall({
         </div>
       ) : (
         <Link
-          href="/login"
+          href="/auth/login"
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
         >
           Đăng nhập để đọc
@@ -415,10 +419,19 @@ export default function ChapterReader({
   const addHistory = useLibraryStore((s) => s.addHistory);
   const purchasedChapterIds = useLibraryStore((s) => s.purchasedChapterIds);
   const { fontSize, lineHeight, fontFamily, textColor } = useReaderStore();
+  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const [showToc, setShowToc] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
+
+  const bookmarks = useLibraryStore((s) => s.bookmarks);
+  const toggleBookmark = useLibraryStore((s) => s.toggleBookmark);
+  const isBookmarked = bookmarks.includes(story.id);
+  const [showCandyDialog, setShowCandyDialog] = useState(false);
+  const [showFloating, setShowFloating] = useState(true);
 
   // Nội dung thực (có thể được set sau khi unlock)
   const [unlockedContent, setUnlockedContent] = useState<string | null>(null);
@@ -433,6 +446,29 @@ export default function ChapterReader({
   useEffect(() => {
     addHistory(story.id);
   }, [story.id, addHistory]);
+
+  // Track daily reading — chỉ đếm chapter chưa bị lock, dedup theo storyId-chapterId
+  useEffect(() => {
+    if (!user || !token) return;
+    if (isLocked) return;
+    fetch("/api/user/daily-read", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user.id,
+        storyId: story.id,
+        chapterId: chapter.id,
+        chapterTitle: chapter.title,
+        chapterNumber: chapter.number,
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.user) setUser(data.user, token);
+      })
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapter.id, user?.id]);
   useEffect(() => {
     window.scrollTo({ top: 0 });
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -518,45 +554,74 @@ export default function ChapterReader({
         <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
       </div>
 
-      {/* Floating buttons */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-30">
-        {[
-          { icon: <Gift className="w-4 h-4" />, title: "Tặng quà" },
-          { icon: <Star className="w-4 h-4" />, title: "Đề cử" },
-        ].map(({ icon, title }) => (
-          <button
-            key={title}
-            title={title}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700 text-stone-400 hover:text-white hover:bg-stone-700 transition-colors shadow-lg"
-          >
-            {icon}
-          </button>
-        ))}
+      {/* Candy dialog (controlled) */}
+      <CandyButton open={showCandyDialog} onOpenChange={setShowCandyDialog} />
 
-        {/* Settings */}
-        <div className="relative" ref={settingsRef}>
+      {/* Floating buttons */}
+      <div className="fixed right-4 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 z-30">
+
+        {/* Toggle — chỉ hiện trên mobile */}
+        <button
+          title={showFloating ? "Ẩn" : "Hiện công cụ"}
+          onClick={() => setShowFloating((v) => !v)}
+          className="sm:hidden w-7 h-7 flex items-center justify-center rounded-full bg-stone-900/80 border border-stone-700 text-stone-500 hover:text-white transition-colors shadow-md"
+        >
+          {showFloating
+            ? <ChevronRight className="w-3.5 h-3.5" />
+            : <ChevronLeft className="w-3.5 h-3.5" />}
+        </button>
+
+        {/* Action buttons — luôn hiện trên desktop, ẩn/hiện trên mobile */}
+        <div className={`flex flex-col gap-2 transition-all duration-200 ${
+          showFloating ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none sm:opacity-100 sm:pointer-events-auto"
+        }`}>
+          {/* Tặng quà */}
           <button
-            title="Cài đặt đọc"
-            onClick={() => setShowSettings((v) => !v)}
+            title="Tặng quà"
+            onClick={() => setShowCandyDialog(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700 text-stone-400 hover:text-amber-400 hover:bg-stone-700 transition-colors shadow-lg"
+          >
+            <Gift className="w-4 h-4" />
+          </button>
+
+          {/* Lưu truyện */}
+          <button
+            title={isBookmarked ? "Đã lưu" : "Lưu truyện"}
+            onClick={() => toggleBookmark(story.id)}
             className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors shadow-lg ${
-              showSettings
-                ? "bg-amber-500 border-amber-500 text-white"
-                : "bg-stone-800 border-stone-700 text-stone-400 hover:text-white hover:bg-stone-700"
+              isBookmarked
+                ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
+                : "bg-stone-800 border-stone-700 text-stone-400 hover:text-amber-400 hover:bg-stone-700"
             }`}
           >
-            <Settings className="w-4 h-4" />
+            {isBookmarked ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
           </button>
-          {showSettings && <SettingsPopover />}
-        </div>
 
-        {/* TOC */}
-        <button
-          title="Mục lục"
-          onClick={() => setShowToc(true)}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700 text-stone-400 hover:text-white hover:bg-stone-700 transition-colors shadow-lg"
-        >
-          <List className="w-4 h-4" />
-        </button>
+          {/* Settings */}
+          <div className="relative" ref={settingsRef}>
+            <button
+              title="Cài đặt đọc"
+              onClick={() => setShowSettings((v) => !v)}
+              className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors shadow-lg ${
+                showSettings
+                  ? "bg-amber-500 border-amber-500 text-white"
+                  : "bg-stone-800 border-stone-700 text-stone-400 hover:text-white hover:bg-stone-700"
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+            </button>
+            {showSettings && <SettingsPopover />}
+          </div>
+
+          {/* TOC */}
+          <button
+            title="Mục lục"
+            onClick={() => setShowToc(true)}
+            className="w-9 h-9 flex items-center justify-center rounded-full bg-stone-800 border border-stone-700 text-stone-400 hover:text-white hover:bg-stone-700 transition-colors shadow-lg"
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {showToc && (

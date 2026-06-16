@@ -2,7 +2,14 @@
 
 import { useState, useMemo } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { CreditCard, Filter } from "lucide-react";
+import { CreditCard, Filter, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { useAuthStore } from "@/stores/userStore";
+import { PAYMENT_PACKAGES } from "@/config/payment";
+import type { PaymentStatus } from "@/types/payment";
+import paymentsData from "@/lib/data/payments.json";
+import type { Payment } from "@/types/payment";
+
+const MOCK_PAYMENTS = paymentsData as Payment[];
 
 const FILTER_OPTIONS = [
   { value: "all", label: "Tất cả loại" },
@@ -13,16 +20,28 @@ const FILTER_OPTIONS = [
 
 type Transaction = {
   id: string;
-  type: string;
-  amount: number;
+  type: "topup" | "unlock" | "gift";
+  amount: number;       // kẹo (+/-)
   description: string;
   createdAt: string;
+  status?: PaymentStatus;
 };
+
+const STATUS_CONFIG = {
+  completed: { label: "Thành công", icon: CheckCircle2, cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+  pending:   { label: "Đang chờ",   icon: Clock,         cls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+  failed:    { label: "Thất bại",   icon: XCircle,       cls: "text-red-400 bg-red-500/10 border-red-500/20" },
+} as const;
+
+function formatVND(n: number) {
+  return n.toLocaleString("vi-VN") + "đ";
+}
 
 export default function TransactionsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const user = useAuthStore((s) => s.user);
 
   const [filter, setFilter] = useState(searchParams.get("type") ?? "all");
   const [fromDate, setFromDate] = useState(searchParams.get("from") ?? "");
@@ -38,8 +57,23 @@ export default function TransactionsContent() {
     router.replace(qs ? `${pathname}?${qs}` : pathname);
   };
 
+  // Map MOCK_PAYMENTS → Transaction[]
+  const allTransactions = useMemo((): Transaction[] => {
+    return MOCK_PAYMENTS.filter((p) => p.userId === user?.id).map((p) => {
+      const pkg = PAYMENT_PACKAGES.find((x) => x.id === p.packageId);
+      return {
+        id: p.id,
+        type: "topup" as const,
+        amount: p.candyReceived,
+        description: `Nạp kẹo${pkg ? ` — ${formatVND(p.amount)}` : ""}`,
+        createdAt: p.createdAt,
+        status: p.status,
+      };
+    });
+  }, [user?.id]);
+
   const filtered = useMemo(() => {
-    const transactions: Transaction[] = []; // mock — luôn rỗng
+    const transactions = allTransactions;
     return transactions.filter((t) => {
       if (filter !== "all" && t.type !== filter) return false;
       if (fromDate && t.createdAt < fromDate) return false;
@@ -173,6 +207,9 @@ export default function TransactionsContent() {
                 <th className="px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-center">
                   SỐ KẸO
                 </th>
+                <th className="hidden sm:table-cell px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-center">
+                  TRẠNG THÁI
+                </th>
                 <th className="px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-right">
                   NGÀY
                 </th>
@@ -193,6 +230,18 @@ export default function TransactionsContent() {
                   >
                     {t.amount >= 0 ? "+" : ""}
                     {t.amount.toLocaleString()}
+                  </td>
+                  <td className="hidden sm:table-cell px-4 py-3.5 text-center">
+                    {t.status && (() => {
+                      const s = STATUS_CONFIG[t.status];
+                      const Icon = s.icon;
+                      return (
+                        <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${s.cls}`}>
+                          <Icon className="w-3 h-3" />
+                          {s.label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3.5 text-stone-500 text-sm text-right">
                     {new Date(t.createdAt).toLocaleDateString("vi-VN")}

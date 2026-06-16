@@ -61,6 +61,8 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
       router.push(`/my-novels/${story.id}`);
     } catch {
       showToast.error("Lỗi kết nối, thử lại sau");
+    } finally {
+      setLoading(false);
     }
   };
 

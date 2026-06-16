@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import Navbar from "@/components/layout/Navbar";
+import StoreHydrator from "@/components/StoreHydrator";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,6 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="vi">
       <body className="min-h-screen bg-[#0f0e17] antialiased">
+        <StoreHydrator />
         <Navbar />
         {children}
         <Toaster

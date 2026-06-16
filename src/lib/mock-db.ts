@@ -134,7 +134,7 @@ export const db = {
       return getNominated(readJson<DbStory>("stories.json").map(toStory), history, limit);
     },
 
-    getRandom(): Story {
+    getRandom(): Story | null {
       return getRandomStory(readJson<DbStory>("stories.json").map(toStory));
     },
 

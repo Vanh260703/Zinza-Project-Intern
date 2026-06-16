@@ -22,5 +22,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
   }
 
-  return NextResponse.json({ user: updated });
+  const { password: _, candy, isRead, storiesMark, unlockedChapters, ...safeUser } = updated as typeof updated & {
+    candy: number; isRead: string[]; storiesMark: string[]; unlockedChapters: string[];
+  };
+  void candy; void isRead; void storiesMark; void unlockedChapters;
+  return NextResponse.json({ user: safeUser });
 }

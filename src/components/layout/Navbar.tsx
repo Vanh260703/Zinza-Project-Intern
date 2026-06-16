@@ -500,10 +500,14 @@ export default function Navbar() {
             <SearchBox />
 
             {user ? (
-              <div className="hidden sm:flex items-center gap-1">
+              <>
+                {/* Notification — hiện trên cả mobile lẫn desktop */}
                 <NotificationDropdown />
-                <UserDropdown />
-              </div>
+                {/* UserDropdown — chỉ desktop */}
+                <div className="hidden sm:flex items-center gap-1">
+                  <UserDropdown />
+                </div>
+              </>
             ) : (
               <div className="hidden sm:flex items-center gap-2">
                 <Link
@@ -584,7 +588,7 @@ export default function Navbar() {
                   Hồ sơ cá nhân
                 </Link>
                 <Link
-                  href="/profile"
+                  href={`/users/${user?.id}`}
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-stone-300 hover:text-white hover:bg-stone-700/60 transition-colors"
                 >

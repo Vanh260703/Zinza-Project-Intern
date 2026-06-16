@@ -1,10 +1,6 @@
-export type PaymentPackage = {
-  id: string;
-  price: number;
-  candy: number;
-  bonus: number;
-  badge?: string;
-};
+import type { PaymentPackage } from "@/types/payment";
+
+export type { PaymentPackage };
 
 export const PAYMENT_PACKAGES: PaymentPackage[] = [
   { id: "p1", price: 20_000, candy: 200, bonus: 0 },
@@ -24,3 +20,4 @@ export const BANK_CONFIG = {
 
 // Prefix nội dung chuyển khoản để SePay auto-match
 export const TRANSFER_PREFIX = "NAPKEO";
+

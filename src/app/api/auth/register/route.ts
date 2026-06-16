@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     isRead: [],
     storiesMark: [],
     unlockedChapters: [],
-    monthlyRecommendationTicket: 0,
+    recommendationTickets: 0,
   });
 
   return NextResponse.json(

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Candy, CheckCircle, XCircle } from "lucide-react";
 import { showToast } from "@/lib/toast";
+import { useAuthStore } from "@/stores/userStore";
 
 type User = { id: string; name: string; email: string; candy: number };
 type Step = "input" | "confirm" | "loading" | "success" | "error";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function TopupDialog({ user, onClose, onSuccess }: Props) {
+  const adminId = useAuthStore((s) => s.user?.id);
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState<Step>("input");
   const [errMsg, setErrMsg] = useState("");
@@ -28,7 +30,7 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
       const res = await fetch(`/api/admin/users/${user.id}/topup`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parsed }),
+        body: JSON.stringify({ amount: parsed, adminId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -68,7 +70,7 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
                 <span className="text-stone-300">{user.name}</span> nhận{" "}
                 <span className="text-amber-400 font-bold">+{parsed.toLocaleString()} kẹo</span>
               </p>
-              <p className="text-stone-600 text-xs mt-1">Số dư mới: {after.toLocaleString()} kẹo</p>
+              <p className="text-stone-600 text-xs mt-1">Số dư mới: {user.candy.toLocaleString()} kẹo</p>
             </div>
             <button
               onClick={onClose}

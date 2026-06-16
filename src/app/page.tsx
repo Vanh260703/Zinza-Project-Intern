@@ -16,7 +16,7 @@ export default async function Page() {
       <HeroSection />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <RandomSection story={randomStory} />
+        {randomStory && <RandomSection story={randomStory} />}
 
         <div className="mt-12 sm:mt-16 flex flex-col lg:flex-row gap-8 lg:gap-10 lg:items-start">
           {/* Main content */}

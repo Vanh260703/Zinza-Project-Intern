@@ -23,15 +23,55 @@
     "password": "123456",
     "gender": "male",
     "role": "user",
-    "candy": 1500,
+    "candy": 4250,
     "candySpent": 866,
     "candyTopUp": 9064,
-    "chaptersRead": 73,
+    "chaptersRead": 81,
     "isRead": [],
     "storiesMark": [],
     "follower": 1001,
     "unlockedChapters": [],
-    "monthlyRecommendationTicket": 0
+    "recommendationTickets": 4,
+    "dailyReadDate": "2026-06-11",
+    "dailyReadCount": 1,
+    "dailyReadChapterIds": {
+      "106686": {
+        "1": true
+      }
+    },
+    "lastReadChapters": {
+      "101081": {
+        "id": "2",
+        "title": "Chương 2: Lâm thời giảng bài",
+        "number": 2
+      },
+      "103905": {
+        "id": "3",
+        "title": "Chương 3 trang bức, ta cũng sẽ a (cầu đánh giá, )",
+        "number": 3
+      },
+      "104789": {
+        "id": "10",
+        "title": "Chương 10: Tế đàn",
+        "number": 10
+      },
+      "106686": {
+        "id": "1",
+        "title": "Chương 1: Lắc xúc xắc mười một năm, một sớm khí vận đỉnh cấp",
+        "number": 1
+      },
+      "108343": {
+        "id": "1",
+        "title": "Chương 01: Thành công giác tỉnh! Hệ thống mở ra!",
+        "number": 1
+      },
+      "110212": {
+        "id": "9",
+        "title": "Chương 9: Ám ngữ: Chỗ non rớt",
+        "number": 9
+      }
+    },
+    "dailyTicketClaimed": false
   },
   {
     "id": "01820c35-8d60-4326-9d20-0d95f33b6a9d",
@@ -599,6 +639,11 @@
     "storiesMark": [],
     "unlockedChapters": [
       "677a0a1f-65d7-480c-b0e8-ff93e4f6f589"
-    ]
+    ],
+    "dailyReadDate": "2026-06-10",
+    "dailyReadCount": 0,
+    "dailyReadChapterIds": [],
+    "dailyTicketClaimed": true,
+    "recommendationTickets": 1
   }
 ]
