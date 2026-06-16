@@ -20,7 +20,7 @@ const TABLE_COLS = [
   { key: "nominated", label: "ĐỀ CỬ", align: "text-center" },
   { key: "unlocked", label: "MỞ KHOÁ", align: "text-center" },
   { key: "gifts", label: "QUÀ", align: "text-center" },
-  { key: "revenue", label: "MỞ KHOÁ", align: "text-center" },
+  { key: "revenue", label: "TIỀN MỞ KHOÁ", align: "text-center" },
 ];
 
 type StoryStats = {
@@ -85,13 +85,19 @@ export default function StatsContent() {
           <input
             type="date"
             value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              syncUrl(e.target.value, toDate);
+            }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
           <input
             type="date"
             value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              syncUrl(fromDate, e.target.value);
+            }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
           />
         </div>

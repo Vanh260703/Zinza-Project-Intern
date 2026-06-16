@@ -106,7 +106,7 @@ export default function DashboardContent() {
           </p>
           <div className="flex flex-col gap-2 mt-1">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-400">Đang ra</span>
+              <span className="text-sm text-stone-400">{getStoryStatus("pending").label}</span>
               <span className="text-blue-400 font-semibold">{stats.novelsByStatus.pending}</span>
             </div>
             <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
@@ -118,7 +118,7 @@ export default function DashboardContent() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-400">Hoàn thành</span>
+              <span className="text-sm text-stone-400">{getStoryStatus("completed").label}</span>
               <span className="text-emerald-400 font-semibold">
                 {stats.novelsByStatus.completed}
               </span>
@@ -276,13 +276,9 @@ export default function DashboardContent() {
                 </div>
                 <div className="flex flex-col items-end gap-1 shrink-0">
                   <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded border font-semibold ${
-                      n.status === "completed"
-                        ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                        : "text-blue-400 bg-blue-500/10 border-blue-500/20"
-                    }`}
+                    className={`text-[10px] px-1.5 py-0.5 rounded border font-semibold ${getStoryStatus(n.status).cls}`}
                   >
-                    {n.status === "completed" ? "Hoàn thành" : "Đang ra"}
+                    {getStoryStatus(n.status).label}
                   </span>
                   <span className="text-stone-700 text-[10px]">{formatDate(n.updatedAt)}</span>
                 </div>

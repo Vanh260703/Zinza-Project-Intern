@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { X, ImagePlus } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useUpdateNovel } from "@/hooks/useNovels";
@@ -9,11 +11,10 @@ import { showToast } from "@/lib/toast";
 
 import type { Story } from "@/types/story";
 import { GENRES } from "@/config/genres";
+import { STATUS_OPTIONS } from "@/enums/story";
+import { editNovelFormSchema } from "@/schemas/novel";
 
-const STATUS_OPTIONS = [
-  { label: "Đang ra", value: "pending" },
-  { label: "Hoàn thành", value: "completed" },
-];
+type EditNovelFormData = z.infer<typeof editNovelFormSchema>;
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE_BYTE = 2 * 1024 * 1024;
@@ -26,15 +27,25 @@ type Props = { story: Story; onUpdated: (s: Story) => void };
 export default function EditTab({ story, onUpdated }: Props) {
   const user = useAuthStore((s) => s.user);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [name, setName] = useState(story.name);
-  const [author, setAuthor] = useState(story.author);
-  const [status, setStatus] = useState(story.status);
-  const [genres, setGenres] = useState<string[]>(story.genres.map((g) => g.name));
-  const [description, setDescription] = useState(story.description);
   const updateMutation = useUpdateNovel(story.id);
 
-  // Cover state
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isDirty },
+  } = useForm<EditNovelFormData>({
+    resolver: zodResolver(editNovelFormSchema),
+    defaultValues: {
+      name: story.name,
+      author: story.author,
+      status: story.status,
+      genres: story.genres.map((g) => g.name),
+      description: story.description ?? "",
+    },
+  });
+
+  // Cover state — quản lý ngoài RHF vì là File object
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverError, setCoverError] = useState<string | null>(null);
@@ -44,9 +55,6 @@ export default function EditTab({ story, onUpdated }: Props) {
       if (coverPreview) URL.revokeObjectURL(coverPreview);
     };
   }, [coverPreview]);
-
-  const toggleGenre = (g: string) =>
-    setGenres((prev) => (prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g]));
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,48 +79,42 @@ export default function EditTab({ story, onUpdated }: Props) {
     setCoverPreview(URL.createObjectURL(file));
   };
 
-  const saveMutation = {
-    mutateAsync: async () => {
-      if (!user) throw new Error("Chưa đăng nhập");
-      const data = await updateMutation.mutateAsync({
-        userId: user.id,
-        name,
-        author,
-        status,
-        genres,
-        description,
-      });
+  const onSubmit = async (data: EditNovelFormData) => {
+    if (!user || coverError) return;
+    try {
+      const result = await updateMutation.mutateAsync({ userId: user.id, ...data });
+
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
         const coverRes = await fetch(`/api/cover/${story.id}`, { method: "POST", body: form });
         if (!coverRes.ok) {
           const err = await coverRes.json().catch(() => ({}));
-          onUpdated(data.story);
-          throw new Error(err.message ?? "Upload ảnh bìa thất bại");
+          showToast.error(err.message ?? "Upload ảnh bìa thất bại");
+          onUpdated(result.story);
+          return;
         }
         const { poster } = await coverRes.json();
-        data.story.poster = poster;
+        result.story.poster = poster;
         setCoverFile(null);
         setCoverPreview(null);
       }
+
       showToast.success("Đã lưu thay đổi");
-      onUpdated(data.story);
-    },
-    mutate: () => saveMutation.mutateAsync().catch(() => {}),
-    isPending: updateMutation.isPending,
+      onUpdated(result.story);
+    } catch {
+      showToast.error("Lỗi kết nối, thử lại sau");
+    }
   };
 
-  // Preview hiện tại: ảnh mới chọn → ảnh cũ trên server → placeholder
   const currentCover = coverPreview ?? (story.poster ? `/api/cover/${story.id}` : null);
 
   return (
-    <div className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       {/* Cover */}
       <div className="flex flex-col gap-2">
         <label className="text-stone-400 text-xs font-medium">Ảnh bìa</label>
         <div className="flex items-end gap-4">
-          {/* Preview */}
           <div
             onClick={() => fileInputRef.current?.click()}
             className={`relative w-28 h-40 rounded-xl overflow-hidden border-2 border-dashed cursor-pointer transition-colors flex items-center justify-center bg-stone-800/50 group ${
@@ -134,7 +136,6 @@ export default function EditTab({ story, onUpdated }: Props) {
             )}
           </div>
 
-          {/* Info + actions */}
           <div className="flex flex-col gap-2 text-xs text-stone-500">
             <p>JPG, PNG, WebP — tối đa 2MB</p>
             {coverFile && (
@@ -176,25 +177,31 @@ export default function EditTab({ story, onUpdated }: Props) {
 
       {/* Fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <label className="text-stone-400 text-xs font-medium">
             Tên truyện <span className="text-red-400">*</span>
           </label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+          <input
+            {...register("name")}
+            className={`${inputCls} ${errors.name ? "border-red-500/60" : ""}`}
+          />
+          {errors.name && <p className="text-red-400 text-xs">{errors.name.message}</p>}
         </div>
-        <div className="flex flex-col gap-2">
+
+        <div className="flex flex-col gap-1.5">
           <label className="text-stone-400 text-xs font-medium">
             Tác giả <span className="text-red-400">*</span>
           </label>
-          <input value={author} onChange={(e) => setAuthor(e.target.value)} className={inputCls} />
+          <input
+            {...register("author")}
+            className={`${inputCls} ${errors.author ? "border-red-500/60" : ""}`}
+          />
+          {errors.author && <p className="text-red-400 text-xs">{errors.author.message}</p>}
         </div>
-        <div className="flex flex-col gap-2">
+
+        <div className="flex flex-col gap-1.5">
           <label className="text-stone-400 text-xs font-medium">Trạng thái</label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value as Story["status"])}
-            className={inputCls}
-          >
+          <select {...register("status")} className={inputCls}>
             {STATUS_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
                 {o.label}
@@ -206,45 +213,55 @@ export default function EditTab({ story, onUpdated }: Props) {
 
       <div className="flex flex-col gap-2">
         <label className="text-stone-400 text-xs font-medium">Thể loại</label>
-        <div className="flex flex-wrap gap-2">
-          {GENRES.map((g) => {
-            const active = genres.includes(g.name);
-            return (
-              <button
-                key={g.slug}
-                type="button"
-                onClick={() => toggleGenre(g.name)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-                  active
-                    ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                    : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600"
-                }`}
-              >
-                {g.name}
-                {active && <X className="w-3 h-3" />}
-              </button>
-            );
-          })}
-        </div>
+        <Controller
+          name="genres"
+          control={control}
+          render={({ field }) => (
+            <div className="flex flex-wrap gap-2">
+              {GENRES.map((g) => {
+                const active = field.value.includes(g.name);
+                return (
+                  <button
+                    key={g.slug}
+                    type="button"
+                    onClick={() =>
+                      field.onChange(
+                        active ? field.value.filter((x) => x !== g.name) : [...field.value, g.name]
+                      )
+                    }
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
+                      active
+                        ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
+                        : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600"
+                    }`}
+                  >
+                    {g.name}
+                    {active && <X className="w-3 h-3" />}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        />
+        {errors.genres && <p className="text-red-400 text-xs">{errors.genres.message}</p>}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1.5">
         <label className="text-stone-400 text-xs font-medium">Mô tả</label>
         <textarea
+          {...register("description")}
           rows={5}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
           className={`${inputCls} resize-none leading-relaxed`}
         />
       </div>
 
       <button
-        onClick={() => saveMutation.mutate()}
-        disabled={saveMutation.isPending || !!coverError}
+        type="submit"
+        disabled={updateMutation.isPending || !!coverError || (!isDirty && !coverFile)}
         className="self-start px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
       >
-        {saveMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
+        {updateMutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
       </button>
-    </div>
+    </form>
   );
 }

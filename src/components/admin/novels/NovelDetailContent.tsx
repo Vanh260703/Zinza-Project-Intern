@@ -119,13 +119,9 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
 
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${
-                novel.status === "completed"
-                  ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
-                  : "text-blue-400 bg-blue-500/10 border-blue-500/20"
-              }`}
+              className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${getStoryStatus(novel.status).cls}`}
             >
-              {novel.status === "completed" ? "Hoàn thành" : "Đang ra"}
+              {getStoryStatus(novel.status).label}
             </span>
             {novel.genres.slice(0, 3).map((g) => (
               <span
@@ -243,7 +239,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
             label="Giá mặc định"
             value={novel.price > 0 ? `${novel.price} kẹo / chương` : "Miễn phí"}
           />
-          <Row label="Trạng thái" value={novel.status === "completed" ? "Hoàn thành" : "Đang ra"} />
+          <Row label="Trạng thái" value={getStoryStatus(novel.status).label} />
           <Row
             label="VIP"
             value={
