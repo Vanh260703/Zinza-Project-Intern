@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { BookOpen, Star, BookMarked } from "lucide-react";
+import { BookOpen, Star, BookMarked, PlayCircle } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import { getStoryStatus } from "@/config/statuses";
+import { useAuthStore } from "@/stores/userStore";
 import CandyButton from "./CandyButton";
 import FollowButton from "./FollowButton";
 import RecommendButton from "./RecommendButton";
@@ -65,6 +68,8 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
     nominations,
     vip,
   } = story;
+
+  const lastRead = useAuthStore((s) => s.user?.lastReadChapters?.[id]);
 
   const formatNum = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n));
 
@@ -151,13 +156,32 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 flex-wrap mt-1">
-            <Link
-              href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
-              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
-            >
-              <BookOpen className="w-4 h-4" />
-              Đọc ngay
-            </Link>
+            {lastRead ? (
+              <>
+                <Link
+                  href={`/novels/${slug}/chapters/${lastRead.id}`}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+                >
+                  <PlayCircle className="w-4 h-4" />
+                  Đọc tiếp
+                </Link>
+                <Link
+                  href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Đọc từ đầu
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
+                className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+              >
+                <BookOpen className="w-4 h-4" />
+                Đọc ngay
+              </Link>
+            )}
             <FollowButton storyId={id} />
             <RecommendButton storyId={id} postedBy={postedBy} />
             <CandyButton novelId={id} />

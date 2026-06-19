@@ -27,14 +27,14 @@
     "candy": 6750,
     "candySpent": 866,
     "candyTopUp": 9064,
-    "chaptersRead": 97,
+    "chaptersRead": 98,
     "isRead": [],
     "storiesMark": [],
     "follower": 1001,
     "unlockedChapters": [],
     "recommendationTicket": 4,
     "dailyReadDate": "2026-06-19",
-    "dailyReadCount": 10,
+    "dailyReadCount": 11,
     "dailyReadChapterIds": {
       "105523": {
         "1": true,
@@ -46,7 +46,8 @@
         "7": true,
         "8": true,
         "9": true,
-        "10": true
+        "10": true,
+        "11": true
       }
     },
     "lastReadChapters": {
@@ -56,9 +57,9 @@
         "number": 3
       },
       "105523": {
-        "id": "10",
-        "title": "Chương 10: Nhậm chức Soạn nhạc bộ",
-        "number": 10
+        "id": "11",
+        "title": "Chương 11: Ngươi xem ta còn có cơ hội không",
+        "number": 11
       },
       "106686": {
         "id": "1",
