@@ -8,11 +8,12 @@ import { useAuthStore } from "@/stores/userStore";
 const PRESETS = [50, 100, 200, 500];
 
 type Props = {
+  novelId: string;
   open?: boolean;
   onOpenChange?: (v: boolean) => void;
 };
 
-export default function CandyButton({ open: controlledOpen, onOpenChange }: Props = {}) {
+export default function CandyButton({ novelId, open: controlledOpen, onOpenChange }: Props) {
   const { user, wallet } = useAuthStore();
   const [internalOpen, setInternalOpen] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
@@ -36,7 +37,7 @@ export default function CandyButton({ open: controlledOpen, onOpenChange }: Prop
 
   const balance = wallet?.balance ?? 0;
 
-  const giftMutation = useGiftCandy();
+  const giftMutation = useGiftCandy(novelId);
 
   const handleConfirm = () => {
     if (!amount || amount <= 0 || !user || giftMutation.isPending) return;

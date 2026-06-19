@@ -10,7 +10,7 @@ import { useUpdateNovel } from "@/hooks/useNovels";
 import { showToast } from "@/lib/toast";
 
 import type { Story } from "@/types/story";
-import { GENRES } from "@/config/genres";
+import { CATEGORIES } from "@/config/category";
 import { STATUS_OPTIONS } from "@/enums/story";
 import { editNovelFormSchema } from "@/schemas/novel";
 
@@ -40,7 +40,7 @@ export default function EditTab({ story, onUpdated }: Props) {
       name: story.name,
       author: story.author,
       status: story.status,
-      genres: story.genres.map((g) => g.name),
+      categoryIds: story.categories.map((c) => c.name),
       description: story.description ?? "",
     },
   });
@@ -94,8 +94,8 @@ export default function EditTab({ story, onUpdated }: Props) {
           onUpdated(result.story);
           return;
         }
-        const { poster } = await coverRes.json();
-        result.story.poster = poster;
+        const { posterUrl } = await coverRes.json();
+        result.story.posterUrl = posterUrl;
         setCoverFile(null);
         setCoverPreview(null);
       }
@@ -107,7 +107,7 @@ export default function EditTab({ story, onUpdated }: Props) {
     }
   };
 
-  const currentCover = coverPreview ?? (story.poster ? `/api/cover/${story.id}` : null);
+  const currentCover = coverPreview ?? (story.posterUrl ? `/api/cover/${story.id}` : null);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -149,7 +149,7 @@ export default function EditTab({ story, onUpdated }: Props) {
               onClick={() => fileInputRef.current?.click()}
               className="self-start px-3 py-1.5 rounded-lg border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors"
             >
-              {story.poster || coverFile ? "Đổi ảnh bìa" : "Chọn ảnh bìa"}
+              {story.posterUrl || coverFile ? "Đổi ảnh bìa" : "Chọn ảnh bìa"}
             </button>
             {coverFile && (
               <button
@@ -214,11 +214,11 @@ export default function EditTab({ story, onUpdated }: Props) {
       <div className="flex flex-col gap-2">
         <label className="text-stone-400 text-xs font-medium">Thể loại</label>
         <Controller
-          name="genres"
+          name="categoryIds"
           control={control}
           render={({ field }) => (
             <div className="flex flex-wrap gap-2">
-              {GENRES.map((g) => {
+              {CATEGORIES.map((g) => {
                 const active = field.value.includes(g.name);
                 return (
                   <button
@@ -243,7 +243,7 @@ export default function EditTab({ story, onUpdated }: Props) {
             </div>
           )}
         />
-        {errors.genres && <p className="text-red-400 text-xs">{errors.genres.message}</p>}
+        {errors.categoryIds && <p className="text-red-400 text-xs">{errors.categoryIds.message}</p>}
       </div>
 
       <div className="flex flex-col gap-1.5">

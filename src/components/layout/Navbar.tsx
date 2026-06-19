@@ -29,8 +29,8 @@ type SearchResult = {
   slug: string;
   name: string;
   author: string;
-  poster: string | null;
-  genres: { slug: string; name: string }[];
+  posterUrl: string | null;
+  categories: { slug: string; name: string }[];
 };
 
 function SearchBox() {
@@ -131,7 +131,7 @@ function SearchBox() {
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
                   <div className="w-8 h-10 rounded-md overflow-hidden bg-stone-800 shrink-0">
-                    {story.poster ? (
+                    {story.posterUrl ? (
                       <img
                         src={`/api/cover/${story.id}`}
                         alt={story.name}
@@ -147,9 +147,9 @@ function SearchBox() {
                     <p className="text-stone-200 text-sm font-medium truncate">{story.name}</p>
                     <p className="text-stone-500 text-xs truncate">{story.author}</p>
                   </div>
-                  {story.genres[0] && (
+                  {story.categories[0] && (
                     <span className="text-[10px] px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-md shrink-0">
-                      {story.genres[0].name}
+                      {story.categories[0].name}
                     </span>
                   )}
                 </Link>

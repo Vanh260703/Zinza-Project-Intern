@@ -1,7 +1,7 @@
 export const GENDER_OPTIONS = [
-  { label: "Nam", value: "male" },
-  { label: "Nữ", value: "female" },
-  { label: "Khác", value: "other" },
+  { label: "Nam", value: "MALE" },
+  { label: "Nữ", value: "FEMALE" },
+  { label: "Khác", value: "OTHER" },
 ] as const;
 
 export const ROLE_OPTIONS = [

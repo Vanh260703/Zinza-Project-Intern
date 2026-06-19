@@ -72,8 +72,8 @@ export default function TransactionsContent() {
       return {
         id: p.id,
         type: "topup" as const,
-        amount: p.candyReceived,
-        description: `Nạp kẹo${pkg ? ` — ${formatVND(p.amount)}` : ""}`,
+        amount: p.candyAmount,
+        description: `Nạp kẹo${pkg ? ` — ${formatVND(p.amountVnd)}` : ""}`,
         createdAt: p.createdAt,
         status: p.status,
       };

@@ -20,7 +20,7 @@ function readOverview(folderPath: string): ParsedOverview | null {
 }
 
 function toStatus(raw: string): Status {
-  return raw.trim() === "Hoàn thành" ? "completed" : "pending";
+  return raw.trim() === "Hoàn thành" ? "COMPLETED" : "PENDING";
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +39,7 @@ export function scanStories(): any[] {
         id,
         slug,
         name: overview?.name || slug.replace(/-/g, " "),
-        poster: findCover(folderPath),
+        posterUrl: findCover(folderPath),
         status: toStatus(overview?.status ?? ""),
         chapterCount: files.filter((f) => f.endsWith(".txt") && !f.startsWith("00000")).length,
         rating: overview?.rating ?? 0,
@@ -48,7 +48,7 @@ export function scanStories(): any[] {
         nominations: overview?.nominations ?? 0,
         author: overview?.author ?? "",
         postedBy: overview?.postedBy ?? "",
-        genres: overview?.genres ?? [],
+        categories: overview?.categories ?? [],
         tags: overview?.tags ?? [],
         description: overview?.description ?? "",
         vip: false,

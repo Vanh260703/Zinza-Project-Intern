@@ -1,10 +1,10 @@
-export interface Genre {
+export interface Category {
   id: string;
   name: string;
   slug: string;
 }
 
-export const GENRES: Genre[] = [
+export const CATEGORIES: Category[] = [
   { id: "1", name: "Huyền Huyễn", slug: "huyen-huyen" },
   { id: "2", name: "Huyền Nghi", slug: "huyen-nghi" },
   { id: "3", name: "Kỳ Ảo", slug: "ky-ao" },
@@ -14,12 +14,12 @@ export const GENRES: Genre[] = [
   { id: "7", name: "Lịch Sử", slug: "lich-su" },
 ];
 
-// Lookup theo name (dùng cho mock DB: string → Genre)
-export const GENRE_BY_NAME: Record<string, Genre> = Object.fromEntries(
-  GENRES.map((g) => [g.name, g])
+// Lookup theo name (dùng cho mock DB: string → Category)
+export const CATEGORY_BY_NAME: Record<string, Category> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.name, c])
 );
 
 // Lookup theo slug (dùng cho filter URL params)
-export const GENRE_BY_SLUG: Record<string, Genre> = Object.fromEntries(
-  GENRES.map((g) => [g.slug, g])
+export const CATEGORY_BY_SLUG: Record<string, Category> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.slug, c])
 );

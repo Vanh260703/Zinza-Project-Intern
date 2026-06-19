@@ -5,7 +5,7 @@ import { Search, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
-import { GENRES } from "@/config/genres";
+import { CATEGORIES } from "@/config/category";
 import { STATUS_OPTIONS } from "@/enums/story";
 
 function FilterSelect({
@@ -118,7 +118,7 @@ export default function HeroSection() {
           <div className="grid grid-cols-3 sm:contents gap-2">
             <FilterSelect value={genre} onChange={setGenre}>
               <option value="">Thể loại</option>
-              {GENRES.map((g) => (
+              {CATEGORIES.map((g) => (
                 <option key={g.slug} value={g.slug}>
                   {g.name}
                 </option>

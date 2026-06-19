@@ -36,9 +36,9 @@ export default function RandomSection({ story }: RandomSectionProps) {
     id,
     slug,
     name,
-    poster,
+    posterUrl,
     author,
-    genres,
+    categories,
     rating,
     ratingCount,
     chapterCount,
@@ -64,7 +64,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
           className="relative shrink-0 w-32 sm:w-36 mx-auto sm:mx-0 rounded-xl overflow-hidden bg-stone-800 group"
           style={{ aspectRatio: "3/4" }}
         >
-          <CoverImage storyId={id} hasPoster={!!poster} name={name} />
+          <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
 
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Play className="w-8 h-8 text-white fill-white" />
@@ -78,7 +78,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
 
           <span
             className={`absolute top-2 right-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none ${
-              status === "completed"
+              status === "COMPLETED"
                 ? "bg-emerald-500/90 text-white"
                 : "bg-stone-700/90 text-stone-300"
             }`}
@@ -121,10 +121,10 @@ export default function RandomSection({ story }: RandomSectionProps) {
               )}
             </div>
 
-            {/* Genres */}
-            {genres.length > 0 && (
+            {/* Categories */}
+            {categories.length > 0 && (
               <div className="flex gap-1.5 flex-wrap justify-center sm:justify-start">
-                {genres.slice(0, 3).map((g) => (
+                {categories.slice(0, 3).map((g) => (
                   <span
                     key={g.slug}
                     className="text-xs px-2 py-0.5 bg-stone-800 text-stone-400 rounded-full border border-stone-700/60"

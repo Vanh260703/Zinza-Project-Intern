@@ -15,7 +15,7 @@ export const registerSchema = z
   .object({
     name: z.string().min(2, "Tên ít nhất 2 ký tự"),
     email: z.string().email("Email không hợp lệ"),
-    gender: z.enum(["male", "female", "other"], { message: "Vui lòng chọn giới tính" }),
+    gender: z.enum(["MALE", "FEMALE", "OTHER"], { message: "Vui lòng chọn giới tính" }),
     password: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
     confirmPassword: z.string(),
   })

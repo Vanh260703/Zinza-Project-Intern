@@ -54,10 +54,10 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
     id,
     slug,
     name,
-    poster,
+    posterUrl,
     author,
     postedBy,
-    genres,
+    categories,
     status,
     rating,
     ratingCount,
@@ -74,7 +74,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
         {/* Cover */}
         <div className="shrink-0 w-40 sm:w-48 mx-auto sm:mx-0">
           <div className="aspect-square rounded-2xl overflow-hidden bg-stone-800 shadow-xl shadow-black/50">
-            <CoverImage storyId={id} hasPoster={!!poster} name={name} />
+            <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
           </div>
         </div>
 
@@ -84,7 +84,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                status === "completed" ? "bg-emerald-500 text-white" : "bg-stone-700 text-stone-300"
+                status === "COMPLETED" ? "bg-emerald-500 text-white" : "bg-stone-700 text-stone-300"
               }`}
             >
               {getStoryStatus(status).label}
@@ -94,7 +94,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
                 VIP
               </span>
             )}
-            {genres.slice(0, 2).map((g) => (
+            {categories.slice(0, 2).map((g) => (
               <span
                 key={g.slug}
                 className="text-xs font-medium px-3 py-1 bg-stone-800 border border-stone-700 text-stone-300 rounded-full"
@@ -160,7 +160,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
             </Link>
             <FollowButton storyId={id} />
             <RecommendButton storyId={id} postedBy={postedBy} />
-            <CandyButton />
+            <CandyButton novelId={id} />
           </div>
         </div>
       </div>

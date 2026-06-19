@@ -10,7 +10,7 @@ type Props = { storyId: string; postedBy: string };
 export default function RecommendButton({ storyId, postedBy }: Props) {
   const user = useAuthStore((s) => s.user);
   const [open, setOpen] = useState(false);
-  const tickets = user?.recommendationTickets ?? 0;
+  const tickets = user?.recommendationTicket ?? 0;
   const hasTicket = tickets > 0;
   const isOwner = !!user && user.id === postedBy;
 

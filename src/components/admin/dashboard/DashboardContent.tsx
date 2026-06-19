@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useAdminDashboard } from "@/hooks/useAdmin";
 import { Users, BookOpenText, BookOpen, Candy, Crown, TrendingUp, Clock } from "lucide-react";
+import { getStoryStatus } from "@/config/statuses";
 
 function StatCard({
   icon: Icon,
@@ -106,7 +107,7 @@ export default function DashboardContent() {
           </p>
           <div className="flex flex-col gap-2 mt-1">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-400">{getStoryStatus("pending").label}</span>
+              <span className="text-sm text-stone-400">{getStoryStatus("PENDING").label}</span>
               <span className="text-blue-400 font-semibold">{stats.novelsByStatus.pending}</span>
             </div>
             <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden">
@@ -118,7 +119,7 @@ export default function DashboardContent() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-400">{getStoryStatus("completed").label}</span>
+              <span className="text-sm text-stone-400">{getStoryStatus("COMPLETED").label}</span>
               <span className="text-emerald-400 font-semibold">
                 {stats.novelsByStatus.completed}
               </span>
@@ -253,7 +254,7 @@ export default function DashboardContent() {
                 className="flex items-center gap-3 px-5 py-3.5 hover:bg-stone-800/40 transition-colors"
               >
                 <div className="w-9 h-12 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-                  {n.poster ? (
+                  {n.posterUrl ? (
                     <img
                       src={`/api/cover/${n.id}`}
                       alt={n.name}

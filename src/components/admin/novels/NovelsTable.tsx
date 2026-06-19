@@ -111,7 +111,7 @@ export default function NovelsTable() {
             >
               {/* Cover */}
               <div className="w-14 h-20 rounded-xl overflow-hidden bg-stone-800 shrink-0">
-                {n.poster ? (
+                {n.posterUrl ? (
                   <img
                     src={`/api/cover/${n.id}`}
                     alt={n.name}

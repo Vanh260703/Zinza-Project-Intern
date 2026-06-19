@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: Params }) {
   if (!chapter) return NextResponse.json({ message: "Không tìm thấy chương" }, { status: 404 });
 
   const isOwner = story.postedBy === userId;
-  const price = isOwner ? 0 : (chapter.candyPrice ?? 0);
+  const price = isOwner ? 0 : (chapter.price ?? 0);
 
   if (!isOwner && price === 0) {
     return NextResponse.json({ message: "Chương miễn phí" }, { status: 400 });

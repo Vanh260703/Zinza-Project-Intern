@@ -27,8 +27,8 @@ export async function GET() {
     totalCandy,
     vipNovels,
     novelsByStatus: {
-      pending: stories.filter((s) => s.status === "pending").length,
-      completed: stories.filter((s) => s.status === "completed").length,
+      pending: stories.filter((s) => s.status === "PENDING").length,
+      completed: stories.filter((s) => s.status === "COMPLETED").length,
     },
     recentUsers,
     recentNovels,

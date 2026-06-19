@@ -170,8 +170,8 @@ function ChaptersTab({ slug, chapters }: { slug: string; chapters: Chapter[] }) 
               <span className="text-stone-300 text-sm truncate group-hover:text-white transition-colors">
                 {ch.title}
               </span>
-              {ch.candyPrice && ch.candyPrice > 0 && (
-                <span className="ml-auto text-xs text-amber-400 shrink-0">🍬 {ch.candyPrice}</span>
+              {ch.price && ch.price > 0 && (
+                <span className="ml-auto text-xs text-amber-400 shrink-0">🍬 {ch.price}</span>
               )}
             </Link>
           ))}

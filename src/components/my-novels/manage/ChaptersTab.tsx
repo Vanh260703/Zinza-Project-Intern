@@ -92,9 +92,9 @@ export default function ChaptersTab({ novelId }: Props) {
                       {(ch.views ?? 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      {ch.candyPrice ? (
+                      {ch.price ? (
                         <span className="text-amber-400 text-sm font-medium">
-                          {ch.candyPrice} kẹo
+                          {ch.price} kẹo
                         </span>
                       ) : (
                         <span className="text-amber-500/80 text-sm">Miễn phí</span>

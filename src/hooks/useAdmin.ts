@@ -20,7 +20,7 @@ export type AdminStats = {
     status: string;
     chapterCount: number;
     vip: boolean;
-    poster: string | null;
+    posterUrl: string | null;
     updatedAt?: string;
   }[];
 };
@@ -87,7 +87,7 @@ export function useAdminNovelDetail(novelId: string) {
         },
         chStats: {
           total: chapters.length,
-          paid: (chapters as { candyPrice?: number }[]).filter((c) => (c.candyPrice ?? 0) > 0)
+          paid: (chapters as { price?: number }[]).filter((c) => (c.price ?? 0) > 0)
             .length,
           totalWords: (chapters as { wordCount?: number }[]).reduce(
             (s, c) => s + (c.wordCount ?? 0),
@@ -113,8 +113,8 @@ export function useTopupUser(targetUserId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ amount, adminId }: { amount: number; adminId: string }) =>
-      adminApi.topupUser(targetUserId, amount, adminId),
+    mutationFn: ({ amount }: { amount: number }) =>
+      adminApi.topupUser(targetUserId, amount),
     onSuccess: (data) => {
       showToast.success(`Đã nạp ${data.user.candy.toLocaleString()} kẹo`);
       queryClient.setQueryData(["admin-user", targetUserId], data.user);

@@ -85,13 +85,13 @@ export function useUpdateNovel(novelId: string) {
 }
 
 export function useNominateNovel(storyId: string) {
-  const { user, token, setUser } = useAuthStore();
+  const { user, accessToken, setUser } = useAuthStore();
 
   return useMutation({
     mutationFn: () => novelsApi.nominate(storyId, user!.id),
     onSuccess: (data) => {
-      setUser(data.user, token!);
-      showToast.success("Đề cử thành công! 🎫", `Bạn còn ${data.user.recommendationTickets} vé`);
+      setUser(data.user, accessToken!);
+      showToast.success("Đề cử thành công! 🎫", `Bạn còn ${data.user.recommendationTicket} vé`);
     },
     onError: () => showToast.error("Không thể kết nối máy chủ"),
   });

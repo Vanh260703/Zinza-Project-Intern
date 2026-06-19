@@ -10,7 +10,7 @@ export default function ProfileStats() {
 
   const candy = wallet?.balance ?? 0;
   const chaptersRead = user?.chaptersRead ?? 0;
-  const recommendationTickets = user?.recommendationTickets ?? 0;
+  const recommendationTicket = user?.recommendationTicket ?? 0;
 
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
@@ -31,7 +31,7 @@ export default function ProfileStats() {
             <Ticket className="w-3.5 h-3.5 text-sky-400" />
             Vé đề cử
           </div>
-          <p className="text-sky-400 text-xl font-bold">{recommendationTickets.toLocaleString()}</p>
+          <p className="text-sky-400 text-xl font-bold">{recommendationTicket.toLocaleString()}</p>
           <p className="text-stone-600 text-[11px]">Vé</p>
         </div>
 

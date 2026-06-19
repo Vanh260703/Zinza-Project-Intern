@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } = user;
 
   return NextResponse.json({
-    token: `mock-token-${user.id}`,
+    accessToken: `mock-token-${user.id}`,
     user: safeUser,
     wallet: { userId: user.id, balance: candy },
     history: isRead, // → LibraryStore.history

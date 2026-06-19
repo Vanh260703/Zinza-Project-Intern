@@ -26,13 +26,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     );
   }
 
-  if ((user.recommendationTickets ?? 0) < 1) {
+  if ((user.recommendationTicket ?? 0) < 1) {
     return NextResponse.json({ message: "Bạn không còn vé đề cử tháng này" }, { status: 400 });
   }
 
   // Trừ vé user
   const updatedUser = db.users.update(userId, {
-    recommendationTickets: user.recommendationTickets - 1,
+    recommendationTicket: user.recommendationTicket - 1,
   });
 
   // Tăng nominations story

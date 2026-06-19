@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUpdateProfile, useChangePassword } from "@/hooks/useUser";
+import { useUpdateProfile, useChangePassword, useUploadAvatar } from "@/hooks/useUser";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -108,25 +108,76 @@ function InfoTab() {
 
 function AvatarTab() {
   const user = useAuthStore((s) => s.user);
+  const uploadMutation = useUploadAvatar();
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Chỉ hỗ trợ JPG, PNG, WebP");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Ảnh tối đa 2MB");
+      return;
+    }
+
+    setError(null);
+    setPreview(URL.createObjectURL(file));
+    uploadMutation.mutate(file, {
+      onError: () => setPreview(null),
+    });
+  };
+
+  const currentAvatar = preview ?? (user?.avatarUrl ? `/api/user/avatar/${user.id}` : null);
 
   return (
     <div className="flex flex-col items-center gap-6 py-4">
       <div className="relative">
-        <div className="w-24 h-24 rounded-full bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center">
-          <span className="text-4xl font-bold text-amber-400">
-            {user?.name?.[0]?.toUpperCase() ?? "?"}
-          </span>
+        <div className="w-24 h-24 rounded-full overflow-hidden bg-amber-500/20 border-2 border-amber-500/40 flex items-center justify-center">
+          {currentAvatar ? (
+            <img src={currentAvatar} alt="avatar" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-4xl font-bold text-amber-400">
+              {user?.name?.[0]?.toUpperCase() ?? "?"}
+            </span>
+          )}
         </div>
-        <button className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-stone-700 border border-stone-600 flex items-center justify-center hover:bg-stone-600 transition-colors">
+        <label className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-stone-700 border border-stone-600 flex items-center justify-center hover:bg-stone-600 transition-colors cursor-pointer">
           <Camera className="w-4 h-4 text-stone-300" />
-        </button>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={handleChange}
+            disabled={uploadMutation.isPending}
+          />
+        </label>
       </div>
+
+      {uploadMutation.isPending && (
+        <p className="text-amber-400 text-sm">Đang tải lên...</p>
+      )}
+      {error && <p className="text-red-400 text-sm">{error}</p>}
+
       <p className="text-stone-500 text-sm text-center max-w-xs">
-        Tải lên ảnh đại diện. Ảnh JPG hoặc PNG, tối đa 2MB.
+        Tải lên ảnh đại diện. Ảnh JPG, PNG hoặc WebP, tối đa 2MB.
       </p>
-      <button className="px-5 py-2 rounded-xl text-sm font-semibold border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors">
-        Chọn ảnh
-      </button>
+
+      <label className={`px-5 py-2 rounded-xl text-sm font-semibold border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors cursor-pointer ${uploadMutation.isPending ? "opacity-40 cursor-not-allowed" : ""}`}>
+        {uploadMutation.isPending ? "Đang tải lên..." : "Chọn ảnh"}
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleChange}
+          disabled={uploadMutation.isPending}
+        />
+      </label>
     </div>
   );
 }

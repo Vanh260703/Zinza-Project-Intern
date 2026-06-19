@@ -37,14 +37,14 @@ function CoverImage({
 }
 
 export default function StoryCard({ story }: StoryCardProps) {
-  const { id, slug, name, poster, author, genres, rating, chapterCount, status, vip, nominations } =
+  const { id, slug, name, posterUrl, author, categories, rating, chapterCount, status, vip, nominations } =
     story;
 
   return (
     <Link href={`/novels/${slug}`} className="group flex flex-col">
       {/* Cover */}
       <div className="relative aspect-3/4 rounded-xl overflow-hidden mb-3 bg-stone-800">
-        <CoverImage storyId={id} hasPoster={!!poster} name={name} />
+        <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
 
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -59,7 +59,7 @@ export default function StoryCard({ story }: StoryCardProps) {
         {/* Status badge */}
         <span
           className={`absolute top-2 right-2 text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none ${
-            status === "completed"
+            status === "COMPLETED"
               ? "bg-emerald-500/90 text-white"
               : "bg-stone-700/90 text-stone-300"
           }`}
@@ -100,10 +100,10 @@ export default function StoryCard({ story }: StoryCardProps) {
           </span>
         </div>
 
-        {/* Genres */}
-        {genres.length > 0 && (
+        {/* Categories */}
+        {categories.length > 0 && (
           <div className="flex gap-1 flex-wrap mt-0.5">
-            {genres.slice(0, 2).map((g) => (
+            {categories.slice(0, 2).map((g) => (
               <span
                 key={g.slug}
                 className="text-[10px] px-1.5 py-0.5 bg-stone-800 text-stone-400 rounded-md border border-stone-700/60"

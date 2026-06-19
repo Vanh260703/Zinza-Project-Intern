@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
 import { useCreateNovel } from "@/hooks/useNovels";
 import { createNovelSchema } from "@/schemas/novel";
-import { GENRES } from "@/config/genres";
+import { CATEGORIES } from "@/config/category";
 import { STATUS_OPTIONS } from "@/enums/story";
 
 const formSchema = createNovelSchema.omit({ userId: true });
@@ -133,7 +133,7 @@ function GenreSelector({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {GENRES.map((genre) => {
+      {CATEGORIES.map((genre) => {
         const active = selected.includes(genre.name);
         return (
           <button
@@ -197,7 +197,7 @@ export default function CreateNovelForm() {
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { status: "pending", genres: [] },
+    defaultValues: { status: "PENDING", categoryIds: [] },
   });
 
   const onSubmit = (data: FormData) => {
@@ -250,9 +250,9 @@ export default function CreateNovelForm() {
         </div>
       </div>
 
-      <Field label="Thể loại" error={errors.genres?.message}>
+      <Field label="Thể loại" error={errors.categoryIds?.message}>
         <Controller
-          name="genres"
+          name="categoryIds"
           control={control}
           render={({ field }) => <GenreSelector selected={field.value} onChange={field.onChange} />}
         />

@@ -1,12 +1,12 @@
-export type StoryStatus = "pending" | "completed";
+export type StoryStatus = "PENDING" | "COMPLETED";
 
 export const STORY_STATUS_CONFIG = {
-  pending: {
+  PENDING: {
     label: "Đang ra", // dùng trong filter chip, text thường
     labelUpper: "ĐANG RA", // dùng trong badge trên card
     cls: "text-blue-400 bg-blue-500/10 border-blue-500/20",
   },
-  completed: {
+  COMPLETED: {
     label: "Hoàn thành",
     labelUpper: "HOÀN THÀNH",
     cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",

@@ -44,7 +44,7 @@ export default function CurrentlyReadingSection() {
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800/60 transition-colors border-b border-stone-800/60 last:border-0 group"
             >
               <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
-                {story.poster ? (
+                {story.posterUrl ? (
                   <img
                     src={`/api/cover/${story.id}`}
                     alt={story.name}

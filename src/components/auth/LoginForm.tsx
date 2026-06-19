@@ -51,8 +51,8 @@ export default function LoginForm() {
       return;
     }
 
-    const { token, user, wallet, history, bookmarks, purchasedChapterIds } = await res.json();
-    setUser(user, token);
+    const { accessToken, user, wallet, history, bookmarks, purchasedChapterIds } = await res.json();
+    setUser(user, accessToken);
     setWallet(wallet);
     initLibrary(user.id, history, bookmarks, purchasedChapterIds);
     showToast.success("Chào mừng trở lại!", user.name);

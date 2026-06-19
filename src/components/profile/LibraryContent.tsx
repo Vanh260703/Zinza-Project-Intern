@@ -35,7 +35,7 @@ function StoryCard({
         className="flex gap-3 p-3 rounded-xl hover:bg-stone-800 transition-colors group"
       >
         <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-          {story.poster ? (
+          {story.posterUrl ? (
             <img
               src={`/api/cover/${story.id}`}
               alt={story.name}

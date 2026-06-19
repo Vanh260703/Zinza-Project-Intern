@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useTopupUser } from "@/hooks/useAdmin";
 import { Candy, CheckCircle, XCircle } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
 
 type User = { id: string; name: string; email: string; candy: number };
 type Step = "input" | "confirm" | "loading" | "success" | "error";
@@ -15,7 +14,6 @@ type Props = {
 };
 
 export default function TopupDialog({ user, onClose, onSuccess }: Props) {
-  const adminId = useAuthStore((s) => s.user?.id);
   const [amount, setAmount] = useState("");
   const [step, setStep] = useState<Step>("input");
   const [errMsg, setErrMsg] = useState("");
@@ -29,7 +27,7 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
   const submit = () => {
     setStep("loading");
     topupMutation.mutate(
-      { amount: parsed, adminId: adminId! },
+      { amount: parsed },
       {
         onSuccess: (data) => {
           setStep("success");

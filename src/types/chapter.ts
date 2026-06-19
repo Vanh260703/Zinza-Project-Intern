@@ -3,7 +3,7 @@ export interface Chapter {
   number: number;
   title: string;
   filename: string;
-  candyPrice?: number;
+  price?: number;
   wordCount?: number;
   views?: number;
   createdAt?: string;

@@ -59,7 +59,7 @@ export default function InfoTab({ story }: { story: Story }) {
           <div className="flex flex-col gap-1.5">
             <p className="text-stone-500 text-xs">Thể loại</p>
             <div className="flex flex-wrap gap-1.5">
-              {story.genres.map((g) => (
+              {story.categories.map((g) => (
                 <span
                   key={g.slug}
                   className="flex items-center gap-1 text-xs px-2 py-0.5 bg-stone-800 border border-stone-700 text-stone-300 rounded-md"
@@ -68,7 +68,7 @@ export default function InfoTab({ story }: { story: Story }) {
                   {g.name}
                 </span>
               ))}
-              {story.genres.length === 0 && <span className="text-stone-600 text-xs">—</span>}
+              {story.categories.length === 0 && <span className="text-stone-600 text-xs">—</span>}
             </div>
           </div>
 

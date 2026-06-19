@@ -38,12 +38,12 @@ export default function EditChapterForm({ novelId, postedBy, chapter, initialCon
     defaultValues: {
       title: chapter.title,
       content: initialContent,
-      candyPrice: chapter.candyPrice ?? 0,
+      price: chapter.price ?? 0,
     },
   });
 
   const content = useWatch({ control, name: "content" }) ?? "";
-  const candyPrice = useWatch({ control, name: "candyPrice" }) ?? 0;
+  const price = useWatch({ control, name: "price" }) ?? 0;
   const wordCount = content.replace(/\s/g, "").length;
 
   if (user && user.id !== postedBy) {
@@ -59,7 +59,7 @@ export default function EditChapterForm({ novelId, postedBy, chapter, initialCon
 
   const onSubmit = (data: FormData) => {
     updateMutation.mutate(
-      { title: data.title.trim(), content: data.content, candyPrice: data.candyPrice },
+      { title: data.title.trim(), content: data.content, price: data.price },
       { onSuccess: () => router.push(`/my-novels/${novelId}`) }
     );
   };
@@ -101,13 +101,13 @@ export default function EditChapterForm({ novelId, postedBy, chapter, initialCon
           <input
             type="number"
             min={0}
-            {...register("candyPrice", { valueAsNumber: true })}
+            {...register("price", { valueAsNumber: true })}
             className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo</span>
-          {candyPrice === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}
+          {price === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}
         </div>
-        {errors.candyPrice && <p className="text-red-400 text-xs">{errors.candyPrice.message}</p>}
+        {errors.price && <p className="text-red-400 text-xs">{errors.price.message}</p>}
       </div>
 
       {/* Actions */}

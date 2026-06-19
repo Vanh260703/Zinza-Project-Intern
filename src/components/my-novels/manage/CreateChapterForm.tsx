@@ -33,12 +33,12 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
     defaultValues: {
       title: `Chương ${nextNumber}: `,
       content: "",
-      candyPrice: 0,
+      price: 0,
     },
   });
 
   const content = useWatch({ control, name: "content" }) ?? "";
-  const candyPrice = useWatch({ control, name: "candyPrice" }) ?? 0;
+  const price = useWatch({ control, name: "price" }) ?? 0;
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
   if (user && user.id !== story.postedBy) {
@@ -59,7 +59,7 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
         userId: user.id,
         title: data.title.trim(),
         content: data.content,
-        ...(data.candyPrice > 0 ? { candyPrice: data.candyPrice } : {}),
+        ...(data.price > 0 ? { price: data.price } : {}),
       },
       { onSuccess: () => router.push(`/my-novels/${story.id}`) }
     );
@@ -104,13 +104,13 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
           <input
             type="number"
             min={0}
-            {...register("candyPrice", { valueAsNumber: true })}
+            {...register("price", { valueAsNumber: true })}
             className="w-28 text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2 outline-none transition-colors"
           />
           <span className="text-stone-500 text-sm">kẹo</span>
-          {candyPrice === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}
+          {price === 0 && <span className="text-stone-600 text-xs">(miễn phí)</span>}
         </div>
-        {errors.candyPrice && <p className="text-red-400 text-xs">{errors.candyPrice.message}</p>}
+        {errors.price && <p className="text-red-400 text-xs">{errors.price.message}</p>}
       </div>
 
       {/* Actions */}

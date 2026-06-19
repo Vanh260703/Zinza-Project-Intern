@@ -76,7 +76,7 @@ export default function RankingSection({ day, week, month }: Props) {
 
               {/* Cover */}
               <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
-                {story.poster ? (
+                {story.posterUrl ? (
                   <img
                     src={`/api/cover/${story.id}`}
                     alt={story.name}

@@ -23,7 +23,7 @@ export default function EditChapterPage({ story, chapter, initialContent }: Prop
             {story.name} — Chương {chapter.number}
           </p>
         </div>
-        <EditChapterForm novelId={story.id} chapter={chapter} initialContent={initialContent} />
+        <EditChapterForm novelId={story.id} postedBy={story.postedBy} chapter={chapter} initialContent={initialContent} />
       </div>
     </div>
   );
