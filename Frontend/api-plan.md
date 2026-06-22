@@ -22,6 +22,51 @@
 
 ---
 
+## Pagination
+
+### Format chuẩn
+
+**Query params:**
+
+| Param | Type | Default | Mô tả |
+|---|---|---|---|
+| `page` | `integer ≥ 1` | `1` | Trang hiện tại |
+| `limit` | `integer 1–100` | `20` | Số item mỗi trang |
+
+**Response shape (`PaginatedResponse<T>`):**
+
+```json
+{
+  "data": [...],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 142,
+    "totalPages": 8,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+### Danh sách endpoint có phân trang
+
+| Endpoint | Params bổ sung | Ghi chú |
+|---|---|---|
+| `GET /novels` | `search`, `status`, `categoryId`, `tagId`, `vip`, `sortBy`, `sortOrder` | Trang chủ, tìm kiếm |
+| `GET /novels/{id}/chapters` | `sortOrder` (`asc`/`desc`) | `limit` mặc định 30 |
+| `GET /stories/{storyId}/ratings` | — | |
+| `GET /stories/{storyId}/comments` | — | |
+| `GET /users/me/bookmarks` | — | |
+| `GET /users/me/wallet/transactions` | `type?` (`TOPUP`/`UNLOCK`/`GIFT`/`BONUS`) | |
+| `GET /notifications` | `isRead?` (`true`/`false`) | |
+| `GET /payments/orders` | `status?` (`completed`/`pending`/`failed`) | |
+| `GET /admin/users` | `search?`, `role?` | |
+
+> **`GET /novels/{id}/chapters`** — hiện tại trả về toàn bộ array (không phân trang) vì cần render full danh sách chương một lúc. Nếu truyện vượt ~500 chương thì cần thêm phân trang; tạm thời dùng `limit=500` để đảm bảo lấy hết.
+
+---
+
 ## Auth
 
 | Method | Path | Auth | Mô tả |
@@ -90,7 +135,7 @@
 **Response 200:** `WalletResponseDto`
 
 ### GET `/users/me/wallet/transactions`
-**Query:** `page`, `limit`  
+**Query:** `page`, `limit`, `type?` (`TOPUP`/`UNLOCK`/`GIFT`/`BONUS`)  
 **Response 200:** `PaginatedResponse<WalletTransactionResponseDto>`
 
 ### GET `/users/me/bookmarks`
@@ -128,7 +173,7 @@
 | PATCH | `/notifications` | ✓ | Đánh dấu tất cả đã đọc |
 
 ### GET `/notifications`
-**Query:** `page`, `limit`  
+**Query:** `page`, `limit`, `isRead?` (`true`/`false`)  
 **Response 200:** `PaginatedResponse<NotificationResponseDto>`
 
 ### PATCH `/notifications`
@@ -155,7 +200,7 @@
 | DELETE | `/stories/{storyId}/comments/{commentId}` | ✓ | Xoá bình luận (chủ comment / admin) |
 
 ### GET `/novels`
-**Query:** `page`, `limit`, `search?`, `status?`, `categoryId?`, `tagId?`, `vip?`, `sortBy?`, `sortOrder?`  
+**Query:** `page`, `limit`, `search?`, `status?` (`PENDING`/`COMPLETED`), `categoryId?`, `tagId?`, `vip?` (`true`/`false`), `sortBy?` (`updatedAt`/`nominations`/`rating`/`chapterCount`), `sortOrder?` (`asc`/`desc`)  
 **Response 200:** `PaginatedResponse<StorySummaryDto>`
 
 ### POST `/novels`
@@ -181,10 +226,26 @@
 **Response 200:** `{ nominations: number, recommendationTicket: number }`  
 **Errors:** `403` tự đề cử / `400` hết vé / `409` đã đề cử rồi
 
+### GET `/stories/{storyId}/ratings`
+**Query:** `page`, `limit`  
+**Response 200:** `PaginatedResponse<RatingResponseDto>`
+
 ### POST `/stories/{storyId}/ratings`
 **Request:** `RatingDto` (`score: 1–5`, `review?`)  
 **Response 200:** `RatingResponseDto`  
 > Upsert — tạo mới hoặc cập nhật rating hiện có của user
+
+### GET `/stories/{storyId}/comments`
+**Query:** `page`, `limit`  
+**Response 200:** `PaginatedResponse<CommentResponseDto>`
+
+### POST `/stories/{storyId}/comments`
+**Request:** `{ content: string }`  
+**Response 201:** `CommentResponseDto`
+
+### DELETE `/stories/{storyId}/comments/{commentId}`
+**Response 200:** `{ message: string }`  
+**Errors:** `403` không phải chủ comment / admin
 
 ---
 
@@ -200,7 +261,8 @@
 | POST | `/novels/{id}/chapters/{chapterId}/unlock` | ✓ | Mua khoá chương VIP bằng candy |
 
 ### GET `/novels/{id}/chapters`
-**Response 200:** `ChapterResponseDto[]` (không có field `content`)
+**Query:** `page`, `limit` (default `30`), `sortOrder?` (`asc`/`desc`, default `asc`)  
+**Response 200:** `PaginatedResponse<ChapterResponseDto>` (không có field `content`)
 
 ### GET `/novels/{id}/chapters/{chapterId}`
 **Response 200:** `{ chapter: ChapterResponseDto, content: string }`  
@@ -238,6 +300,13 @@
 **Response 201:** `PaymentOrderResponseDto` — có `orderCode` để user ghi vào nội dung CK  
 > `expiredAt` = 15 phút sau khi tạo đơn
 
+### GET `/payments/orders`
+**Query:** `page`, `limit`, `status?` (`completed`/`pending`/`failed`)  
+**Response 200:** `PaginatedResponse<PaymentOrderResponseDto>`
+
+### GET `/payments/orders/{id}`
+**Response 200:** `PaymentOrderResponseDto`
+
 ### POST `/payments/webhook`
 **Request:** `SepayWebhookDto` — xác thực bằng SePay API key trong header  
 **Response 200:** `{ success: true }`  
@@ -260,6 +329,10 @@
 | POST | `/admin/candy-packages` | ✓ Admin | Tạo gói candy mới |
 | PATCH | `/admin/candy-packages/{id}` | ✓ Admin | Cập nhật gói candy |
 | DELETE | `/admin/candy-packages/{id}` | ✓ Admin | Xoá gói candy |
+
+### GET `/admin/users`
+**Query:** `page`, `limit`, `search?` (name/email), `role?` (`ADMIN`/`USER`)  
+**Response 200:** `PaginatedResponse<UserResponseDto>`
 
 ### POST `/admin/users/{id}/topup`
 **Request:** `AdminTopupDto` (`amount`, `description`)  
