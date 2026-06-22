@@ -1,5 +1,13 @@
 import { db } from "@/lib/mock-db";
-import HomePage from "@/components/home/HomePage";
+import HeroSection from "@/components/home/HeroSection";
+import RandomSection from "@/components/home/RandomSection";
+import NominatedSection from "@/components/home/NominatedSection";
+import HotSection from "@/components/home/HotSection";
+import NewSection from "@/components/home/NewSection";
+import VipSection from "@/components/home/VipSection";
+import RankingSection from "@/components/home/RankingSection";
+import CurrentlyReadingSection from "@/components/home/CurrentlyReadingSection";
+import Footer from "@/components/layout/Footer";
 
 export default async function Page() {
   const allStories = db.stories.getAll();

@@ -19,7 +19,7 @@ function StoryCard({ story }: { story: Story }) {
       className="flex gap-3 p-3 rounded-xl border border-stone-800 hover:border-stone-700 hover:bg-stone-800/50 transition-colors group"
     >
       <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-        {story.poster ? (
+        {story.posterUrl ? (
           <img
             src={`/api/cover/${story.id}`}
             alt={story.name}
@@ -37,7 +37,7 @@ function StoryCard({ story }: { story: Story }) {
         </p>
         <p className="text-stone-500 text-xs">{story.chapterCount} chương</p>
         <div className="flex gap-1.5 flex-wrap mt-0.5">
-          {story.genres.slice(0, 2).map((g) => (
+          {story.categories.slice(0, 2).map((g) => (
             <span
               key={g.slug}
               className="text-[10px] px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-md"

@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-type SortKey = "name" | "candy" | "recommendationTickets" | "joinedAt";
+type SortKey = "name" | "candy" | "recommendationTicket" | "joinedAt";
 type SortDir = "asc" | "desc";
 
 const PAGE_SIZE = 15;
@@ -161,7 +161,7 @@ export default function UsersTable() {
               <Th label="Kẹo" k="candy" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
               <Th
                 label="Vé tháng"
-                k="recommendationTickets"
+                k="recommendationTicket"
                 sortKey={sortKey}
                 sortDir={sortDir}
                 onSort={handleSort}
@@ -218,7 +218,7 @@ export default function UsersTable() {
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1 text-sky-400">
                       <Ticket className="w-3.5 h-3.5" />
-                      {u.recommendationTickets}
+                      {u.recommendationTicket}
                     </div>
                   </td>
                   <td className="px-4 py-3.5 text-stone-600 text-xs">{formatDate(u.joinedAt)}</td>

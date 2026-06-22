@@ -16,6 +16,7 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
+import { getStoryStatus } from "@/config/statuses";
 
 function StatCard({
   icon: Icon,
@@ -93,7 +94,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
       {/* Header */}
       <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col sm:flex-row gap-5">
         <div className="w-28 h-40 sm:w-32 sm:h-44 rounded-2xl overflow-hidden bg-stone-800 shrink-0 mx-auto sm:mx-0">
-          {novel.poster ? (
+          {novel.posterUrl ? (
             <img
               src={`/api/cover/${novel.id}`}
               alt={novel.name}
@@ -123,7 +124,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
             >
               {getStoryStatus(novel.status).label}
             </span>
-            {novel.genres.slice(0, 3).map((g) => (
+            {novel.categories.slice(0, 3).map((g) => (
               <span
                 key={g.slug}
                 className="text-xs px-2.5 py-1 bg-stone-800 border border-stone-700 text-stone-400 rounded-lg"
@@ -234,7 +235,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
             label="Slug"
             value={<span className="font-mono text-xs text-stone-500">{novel.slug}</span>}
           />
-          <Row label="Thể loại" value={novel.genres.map((g) => g.name).join(", ") || "—"} />
+          <Row label="Thể loại" value={novel.categories.map((g) => g.name).join(", ") || "—"} />
           <Row
             label="Giá mặc định"
             value={novel.price > 0 ? `${novel.price} kẹo / chương` : "Miễn phí"}

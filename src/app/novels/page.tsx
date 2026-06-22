@@ -14,7 +14,7 @@ function filterAndSort(stories: Story[], params: SearchParams): Story[] {
     );
   }
   if (params.genre) {
-    result = result.filter((s) => s.genres.some((g) => g.slug === params.genre));
+    result = result.filter((s) => s.categories.some((g) => g.slug === params.genre));
   }
   if (params.status) {
     result = result.filter((s) => s.status === params.status);

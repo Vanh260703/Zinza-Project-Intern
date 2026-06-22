@@ -19,17 +19,17 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
   const { id } = await params;
   const story = db.stories.findById(id);
 
-  if (!story?.poster) {
+  if (!story?.posterUrl) {
     return new NextResponse(null, { status: 404 });
   }
 
-  const filePath = path.join(UPLOAD_DIR, `${story.id}_${story.slug}`, story.poster);
+  const filePath = path.join(UPLOAD_DIR, `${story.id}_${story.slug}`, story.posterUrl);
 
   if (!fs.existsSync(filePath)) {
     return new NextResponse(null, { status: 404 });
   }
 
-  const ext = path.extname(story.poster).toLowerCase();
+  const ext = path.extname(story.posterUrl).toLowerCase();
   const contentType = MIME[ext] ?? "application/octet-stream";
   const buffer = fs.readFileSync(filePath);
 
@@ -70,15 +70,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   fs.mkdirSync(dir, { recursive: true });
 
   // Xóa cover cũ nếu tồn tại (extension có thể khác)
-  if (story.poster) {
-    const oldPath = path.join(dir, story.poster);
+  if (story.posterUrl) {
+    const oldPath = path.join(dir, story.posterUrl);
     if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
   fs.writeFileSync(path.join(dir, filename), buffer);
 
-  db.stories.update(story.id, { poster: filename });
+  db.stories.update(story.id, { posterUrl: filename });
 
-  return NextResponse.json({ poster: filename });
+  return NextResponse.json({ posterUrl: filename });
 }

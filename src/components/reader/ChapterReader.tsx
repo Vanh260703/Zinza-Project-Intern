@@ -186,8 +186,8 @@ function TocModal({
                   {ch.number}
                 </span>
                 <span className="flex-1 truncate">{ch.title}</span>
-                {ch.candyPrice && ch.candyPrice > 0 && (
-                  <span className="text-[11px] text-amber-400 shrink-0">🍬 {ch.candyPrice}</span>
+                {ch.price && ch.price > 0 && (
+                  <span className="text-[11px] text-amber-400 shrink-0">🍬 {ch.price}</span>
                 )}
               </Link>
             );
@@ -317,7 +317,7 @@ function ChapterPaywall({
   const { user, wallet } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
 
-  const price = chapter.candyPrice!;
+  const price = chapter.price!;
   const hasEnough = (wallet?.balance ?? 0) >= price;
 
   const unlockMutation = useUnlockChapter(story.id, chapter.id);
@@ -403,7 +403,7 @@ export default function ChapterReader({
   const purchasedChapterIds = useLibraryStore((s) => s.purchasedChapterIds);
   const { fontSize, lineHeight, fontFamily, textColor } = useReaderStore();
   const user = useAuthStore((s) => s.user);
-  const token = useAuthStore((s) => s.token);
+  const accessToken = useAuthStore((s) => s.accessToken);
 
   const [showToc, setShowToc] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -422,7 +422,7 @@ export default function ChapterReader({
   const isOwner = !!user && user.id === story.postedBy;
   const isLocked =
     !isOwner &&
-    (chapter.candyPrice ?? 0) > 0 &&
+    (chapter.price ?? 0) > 0 &&
     !purchasedChapterIds.includes(chapter.id) &&
     !unlockedContent;
 
@@ -436,7 +436,7 @@ export default function ChapterReader({
   const trackMutation = useTrackDailyRead();
 
   useEffect(() => {
-    if (!user || !token || isLocked) return;
+    if (!user || !accessToken || isLocked) return;
     trackMutation.mutate({
       storyId: story.id,
       chapterId: chapter.id,

@@ -31,12 +31,12 @@ export function getNominated(allStories: Story[], history: string[], limit = 5):
 
   const readSet = new Set(history);
   // Dùng slug (string) thay vì object reference để Set.has() hoạt động đúng
-  const readGenres = new Set(
-    allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.genres.map((g) => g.slug))
+  const readCategories = new Set(
+    allStories.filter((s) => readSet.has(s.id)).flatMap((s) => s.categories.map((c) => c.slug))
   );
 
   const recommended = byNominations.filter(
-    (s) => !readSet.has(s.id) && s.genres.some((g) => readGenres.has(g.slug))
+    (s) => !readSet.has(s.id) && s.categories.some((c) => readCategories.has(c.slug))
   );
 
   if (recommended.length < limit) {

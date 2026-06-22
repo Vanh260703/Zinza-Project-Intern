@@ -186,7 +186,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
           <StatCard
             icon={Ticket}
             label="Vé tháng"
-            value={user.recommendationTickets}
+            value={user.recommendationTicket}
             color="bg-sky-500/15 text-sky-400"
           />
           <StatCard
@@ -245,7 +245,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
             />
             <Row
               label="Vé đề cử tháng"
-              value={<span className="text-sky-400">{user.recommendationTickets} vé</span>}
+              value={<span className="text-sky-400">{user.recommendationTicket} vé</span>}
             />
             <Row label="Chương đã mở khoá" value={`${user.unlockedChapters?.length ?? 0} chương`} />
           </div>

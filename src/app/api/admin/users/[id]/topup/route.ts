@@ -4,16 +4,12 @@ import { topupSchema } from "@/schemas/admin";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function PATCH(req: NextRequest, { params }: Params) {
+export async function POST(req: NextRequest, { params }: Params) {
   const { id } = await params;
   const body = await req.json();
   const parsed = topupSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
-  }
-
-  if (parsed.data.adminId === id) {
-    return NextResponse.json({ message: "Không thể tự nạp kẹo cho chính mình" }, { status: 403 });
   }
 
   const user = db.users.findById(id);

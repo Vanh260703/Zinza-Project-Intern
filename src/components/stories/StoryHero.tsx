@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { BookOpen, Star, BookMarked } from "lucide-react";
+import { BookOpen, Star, BookMarked, PlayCircle } from "lucide-react";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import { getStoryStatus } from "@/config/statuses";
+import { useAuthStore } from "@/stores/userStore";
 import CandyButton from "./CandyButton";
 import FollowButton from "./FollowButton";
 import RecommendButton from "./RecommendButton";
@@ -54,10 +57,10 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
     id,
     slug,
     name,
-    poster,
+    posterUrl,
     author,
     postedBy,
-    genres,
+    categories,
     status,
     rating,
     ratingCount,
@@ -65,6 +68,8 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
     nominations,
     vip,
   } = story;
+
+  const lastRead = useAuthStore((s) => s.user?.lastReadChapters?.[id]);
 
   const formatNum = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(0)}k` : String(n));
 
@@ -74,7 +79,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
         {/* Cover */}
         <div className="shrink-0 w-40 sm:w-48 mx-auto sm:mx-0">
           <div className="aspect-square rounded-2xl overflow-hidden bg-stone-800 shadow-xl shadow-black/50">
-            <CoverImage storyId={id} hasPoster={!!poster} name={name} />
+            <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
           </div>
         </div>
 
@@ -84,7 +89,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
           <div className="flex items-center gap-2 flex-wrap">
             <span
               className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                status === "completed" ? "bg-emerald-500 text-white" : "bg-stone-700 text-stone-300"
+                status === "COMPLETED" ? "bg-emerald-500 text-white" : "bg-stone-700 text-stone-300"
               }`}
             >
               {getStoryStatus(status).label}
@@ -94,7 +99,7 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
                 VIP
               </span>
             )}
-            {genres.slice(0, 2).map((g) => (
+            {categories.slice(0, 2).map((g) => (
               <span
                 key={g.slug}
                 className="text-xs font-medium px-3 py-1 bg-stone-800 border border-stone-700 text-stone-300 rounded-full"
@@ -151,16 +156,35 @@ export default function StoryHero({ story, firstChapter }: StoryHeroProps) {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2 flex-wrap mt-1">
-            <Link
-              href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
-              className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
-            >
-              <BookOpen className="w-4 h-4" />
-              Đọc ngay
-            </Link>
+            {lastRead ? (
+              <>
+                <Link
+                  href={`/novels/${slug}/chapters/${lastRead.id}`}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+                >
+                  <PlayCircle className="w-4 h-4" />
+                  Đọc tiếp
+                </Link>
+                <Link
+                  href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-stone-800 hover:bg-stone-700 border border-stone-700 text-stone-300 hover:text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Đọc từ đầu
+                </Link>
+              </>
+            ) : (
+              <Link
+                href={firstChapter ? `/novels/${slug}/chapters/${firstChapter.id}` : "#"}
+                className="flex items-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-amber-500/20"
+              >
+                <BookOpen className="w-4 h-4" />
+                Đọc ngay
+              </Link>
+            )}
             <FollowButton storyId={id} />
             <RecommendButton storyId={id} postedBy={postedBy} />
-            <CandyButton />
+            <CandyButton novelId={id} />
           </div>
         </div>
       </div>

@@ -44,10 +44,28 @@ export function useUpdateProfile() {
   return useMutation({
     mutationFn: (data: object) => userApi.updateProfile(data),
     onSuccess: (json) => {
-      setUser(json.user, useAuthStore.getState().token ?? "");
+      setUser(json.user, useAuthStore.getState().accessToken ?? "");
       showToast.success("Đã lưu thay đổi");
     },
     onError: () => showToast.error("Lỗi kết nối, thử lại sau"),
+  });
+}
+
+export function useUploadAvatar() {
+  const { user, accessToken, setUser } = useAuthStore();
+
+  return useMutation({
+    mutationFn: (file: File) => {
+      const form = new FormData();
+      form.append("avatar", file);
+      return fetch(`/api/user/avatar/${user!.id}`, { method: "POST", body: form })
+        .then((res) => res.json() as Promise<{ avatarUrl: string }>);
+    },
+    onSuccess: (data) => {
+      setUser({ ...user!, avatarUrl: data.avatarUrl }, accessToken!);
+      showToast.success("Cập nhật ảnh đại diện thành công");
+    },
+    onError: () => showToast.error("Upload thất bại, thử lại sau"),
   });
 }
 
@@ -59,11 +77,11 @@ export function useChangePassword() {
   });
 }
 
-export function useGiftCandy() {
+export function useGiftCandy(novelId: string) {
   const { user, setWallet } = useAuthStore();
 
   return useMutation({
-    mutationFn: (amount: number) => userApi.giftCandy(user!.id, amount),
+    mutationFn: (amount: number) => userApi.giftCandy(novelId, user!.id, amount),
     onSuccess: (data, amount) => {
       setWallet(data.wallet);
       showToast.success(
@@ -76,12 +94,12 @@ export function useGiftCandy() {
 }
 
 export function useClaimDailyTicket() {
-  const { user, token, setUser } = useAuthStore();
+  const { user, accessToken, setUser } = useAuthStore();
 
   return useMutation({
     mutationFn: () => userApi.claimDailyTicket(user!.id),
     onSuccess: (data) => {
-      setUser(data.user, token!);
+      setUser(data.user, accessToken!);
       showToast.success("Nhận vé thành công! 🎫");
     },
     onError: () => showToast.error("Không thể kết nối máy chủ"),
@@ -89,16 +107,16 @@ export function useClaimDailyTicket() {
 }
 
 export function useRemoveReadingHistory() {
-  const { user, token, setUser } = useAuthStore();
+  const { user, accessToken, setUser } = useAuthStore();
 
   return useMutation({
     mutationFn: (storyId: string) =>
       userApi.removeReadingHistory(user!.id, storyId).then(() => storyId),
     onSuccess: (storyId: string) => {
-      if (!user || !token) return;
+      if (!user || !accessToken) return;
       const updated = { ...user.lastReadChapters };
       delete updated[storyId];
-      setUser({ ...user, lastReadChapters: updated }, token);
+      setUser({ ...user, lastReadChapters: updated }, accessToken);
     },
     onError: () => showToast.error("Xóa thất bại"),
   });

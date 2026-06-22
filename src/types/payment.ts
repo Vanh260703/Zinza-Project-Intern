@@ -12,10 +12,10 @@ export type Payment = {
   id: string;
   userId: string;
   packageId: string;
-  amount: number;
-  candyReceived: number;
+  amountVnd: number;
+  candyAmount: number;
   status: PaymentStatus;
-  transferContent: string;
+  orderCode: string;
   createdAt: string;
   completedAt?: string;
 };

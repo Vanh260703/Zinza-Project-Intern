@@ -2,10 +2,10 @@ import { BookOpen } from "lucide-react";
 import type { Story } from "@/types/story";
 import StoryCard from "./StoryCard";
 import { getStoryStatus } from "@/config/statuses";
-import { GENRE_BY_SLUG } from "@/config/genres";
+import { CATEGORY_BY_SLUG } from "@/config/category";
 
 const GENRE_LABELS: Record<string, string> = Object.fromEntries(
-  Object.entries(GENRE_BY_SLUG).map(([slug, g]) => [slug, g.name])
+  Object.entries(CATEGORY_BY_SLUG).map(([slug, g]) => [slug, g.name])
 );
 
 const SORT_LABELS: Record<string, string> = {

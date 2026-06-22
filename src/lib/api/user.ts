@@ -13,8 +13,8 @@ export const userApi = {
       body: JSON.stringify(data),
     }).then((r) => r.json()),
 
-  giftCandy: (userId: string, amount: number) =>
-    fetch("/api/user/wallet/gift", {
+  giftCandy: (novelId: string, userId: string, amount: number) =>
+    fetch(`/api/novels/${novelId}/gift-candy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, amount }),

@@ -4,9 +4,9 @@ import type { User, UserWallet } from "@/types/user";
 
 type AuthStore = {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   wallet: UserWallet | null;
-  setUser: (user: User, token: string) => void;
+  setUser: (user: User, accessToken: string) => void;
   setWallet: (wallet: UserWallet) => void;
   updateBalance: (delta: number) => void; // trừ/cộng kẹo cục bộ
   logout: () => void;
@@ -16,10 +16,10 @@ export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       user: null,
-      token: null,
+      accessToken: null,
       wallet: null,
 
-      setUser: (user, token) => set({ user, token }),
+      setUser: (user, accessToken) => set({ user, accessToken }),
 
       setWallet: (wallet) => set({ wallet }),
 
@@ -30,7 +30,7 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
-        set({ user: null, token: null, wallet: null });
+        set({ user: null, accessToken: null, wallet: null });
         localStorage.removeItem("auth");
         localStorage.removeItem("reader-settings");
       },
@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthStore>()(
       skipHydration: true,
       onRehydrateStorage: () => () => {
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
       },
     }
   )

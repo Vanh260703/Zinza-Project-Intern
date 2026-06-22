@@ -3,11 +3,11 @@ export const adminApi = {
 
   getUserById: (id: string) => fetch(`/api/admin/users/${id}`).then((r) => r.json()),
 
-  topupUser: (targetId: string, amount: number, adminId: string) =>
+  topupUser: (targetId: string, amount: number) =>
     fetch(`/api/admin/users/${targetId}/topup`, {
-      method: "PATCH",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, adminId }),
+      body: JSON.stringify({ amount }),
     }).then((r) => r.json()),
 
   getNovels: () => fetch("/api/admin/novels").then((r) => r.json()),

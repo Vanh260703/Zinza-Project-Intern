@@ -12,7 +12,7 @@ export interface User {
   role: Role;
   chaptersRead: number;
   joinedAt?: string;
-  recommendationTickets: number;
+  recommendationTicket: number;
   dailyReadCount?: number;
   dailyReadDate?: string;
   dailyReadChapterIds?: Record<Story["id"], Record<Chapter["id"], true>>;

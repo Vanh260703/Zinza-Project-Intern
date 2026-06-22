@@ -23,8 +23,8 @@ export async function GET(req: NextRequest) {
     slug: s.slug,
     name: s.name,
     author: s.author,
-    poster: s.poster ?? null,
-    genres: s.genres ?? [],
+    posterUrl: s.posterUrl ?? null,
+    categories: s.categories ?? [],
   }));
 
   return NextResponse.json({ results, total: matched.length });

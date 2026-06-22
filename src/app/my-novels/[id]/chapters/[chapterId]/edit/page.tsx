@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/mock-db";
-import EditChapterPage from "@/components/my-novels/manage/EditChapterPage";
+import { ArrowLeft, Link } from "lucide-react";
+import EditChapterForm from "@/components/my-novels/manage/EditChapterForm";
 
 type Props = { params: Promise<{ id: string; chapterId: string }> };
 
@@ -28,7 +29,7 @@ export default async function Page({ params }: Props) {
             {story.name} — Chương {reader.chapter.number}
           </p>
         </div>
-        <EditChapterForm novelId={id} chapter={reader.chapter} initialContent={reader.content} />
+        <EditChapterForm novelId={id} postedBy={story.postedBy} chapter={reader.chapter} initialContent={reader.content} />
       </div>
     </div>
   );

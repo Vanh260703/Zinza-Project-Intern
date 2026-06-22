@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   const updated = db.users.update(userId, {
     dailyTicketClaimed: true,
-    recommendationTickets: (user.recommendationTickets ?? 0) + 1,
+    recommendationTicket: (user.recommendationTicket ?? 0) + 1,
   });
 
   if (!updated) {

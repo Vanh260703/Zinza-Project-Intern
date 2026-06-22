@@ -77,29 +77,6 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
     );
   }
 
-  // Chưa mount → không hiện gì, tránh flash content
-  if (!mounted) return null;
-
-  // Chưa đăng nhập → redirect về login
-  if (!user) {
-    router.replace("/auth/login");
-    return null;
-  }
-
-  // Đã đăng nhập nhưng không phải người đăng truyện → 403 full screen
-  // dùng fixed inset-0 để phủ lên toàn bộ layout (kể cả ProfileSidebar)
-  if (user.id !== initialStory.postedBy) {
-    return (
-      <div className="fixed inset-0 z-50 bg-stone-950">
-        <ErrorPage
-          code={403}
-          title="Không có quyền truy cập"
-          description="Bạn không phải người đăng truyện này."
-        />
-      </div>
-    );
-  }
-
   return (
     <>
       {showDelete && (
@@ -130,7 +107,7 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
           <div className="flex gap-4 items-start">
             {/* Cover */}
             <div className="w-20 h-28 rounded-xl overflow-hidden bg-stone-800 shrink-0">
-              {story.poster ? (
+              {story.posterUrl ? (
                 <img
                   src={`/api/cover/${story.id}`}
                   alt={story.name}

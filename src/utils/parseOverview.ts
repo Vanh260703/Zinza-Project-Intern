@@ -8,7 +8,7 @@ export interface ParsedOverview {
   nominations: number;
   author: string;
   postedBy: string;
-  genres: string[];
+  categories: string[];
   tags: string[];
   description: string;
 }
@@ -23,7 +23,7 @@ const KEY_MAP: Record<string, keyof ParsedOverview> = {
   "đề cử": "nominations",
   "tác giả": "author",
   "đăng bởi": "postedBy",
-  "thể loại": "genres",
+  "thể loại": "categories",
   tags: "tags",
 };
 
@@ -62,7 +62,7 @@ export function parseOverview(raw: string): ParsedOverview {
       case "nominations":
         result[field] = parseInt(value.replace(/\D/g, "")) || 0;
         break;
-      case "genres":
+      case "categories":
       case "tags":
         result[field] = value
           .split(",")
@@ -84,7 +84,7 @@ export function parseOverview(raw: string): ParsedOverview {
     nominations: result.nominations ?? 0,
     author: result.author ?? "",
     postedBy: result.postedBy ?? "",
-    genres: result.genres ?? [],
+    categories: result.categories ?? [],
     tags: result.tags ?? [],
     description: result.description ?? "",
   };

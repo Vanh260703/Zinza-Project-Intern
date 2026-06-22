@@ -15,7 +15,7 @@ import type { User } from "@/types/user";
 import type { Story } from "@/types/story";
 import type { Chapter } from "@/types/chapter";
 import type { Notification } from "@/types/notification";
-import { GENRE_BY_NAME } from "@/config/genres";
+import { CATEGORY_BY_NAME } from "@/config/category";
 
 // ─── Internal mock DB types ───────────────────────────────────────────────────
 // Phản ánh cấu trúc thực của JSON file — KHÔNG export ra ngoài.
@@ -27,16 +27,16 @@ type DbUser = User & {
   unlockedChapters: string[];
 };
 
-// genres trong JSON lưu dạng string[] (tên thể loại).
-// Khi trả về FE, transform thành Genre[].
-type DbStory = Omit<Story, "genres"> & { genres: string[] };
+// categories trong JSON lưu dạng string[] (tên thể loại).
+// Khi trả về FE, transform thành Category[].
+type DbStory = Omit<Story, "categories"> & { categories: string[] };
 
 function toStory(db: DbStory): Story {
   return {
     ...db,
-    genres: db.genres.map(
+    categories: db.categories.map(
       (name) =>
-        GENRE_BY_NAME[name] ?? { id: name, name, slug: removeDiacritics(name).replace(/\s+/g, "-") }
+        CATEGORY_BY_NAME[name] ?? { id: name, name, slug: removeDiacritics(name).replace(/\s+/g, "-") }
     ),
   };
 }
@@ -146,7 +146,7 @@ export const db = {
       return getVipStories(readJson<DbStory>("stories.json").map(toStory));
     },
 
-    // patch.genres nhận string[] (tên thể loại) từ form — lưu thẳng vào JSON
+    // patch.categoryIds nhận string[] (tên thể loại) từ form — lưu thẳng vào JSON
     update(id: string, patch: Partial<Omit<DbStory, "id">>): Story | null {
       const stories = readJson<DbStory>("stories.json");
       const idx = stories.findIndex((s) => s.id === id);
@@ -167,7 +167,7 @@ export const db = {
       name: string;
       author: string;
       status: Story["status"];
-      genres: string[];
+      categoryIds: string[];
       description?: string;
     }): Story {
       const stories = readJson<DbStory>("stories.json");
@@ -182,9 +182,9 @@ export const db = {
         slug,
         name: data.name,
         author: data.author,
-        poster: null,
+        posterUrl: null,
         status: data.status,
-        genres: data.genres, // lưu string[] vào JSON
+        categories: data.categoryIds,
         tags: [],
         description: data.description ?? "",
         vip: false,
@@ -293,7 +293,7 @@ export const db = {
 
     // Đồng bộ vip = true nếu có ít nhất 1 chapter trả phí, ngược lại false
     syncVip(story: Story, chapters: Chapter[]): void {
-      const hasVip = chapters.some((c) => (c.candyPrice ?? 0) > 0);
+      const hasVip = chapters.some((c) => (c.price ?? 0) > 0);
       const stories = readJson<DbStory>("stories.json");
       const idx = stories.findIndex((s) => s.id === story.id);
       if (idx !== -1 && stories[idx].vip !== hasVip) {
@@ -302,7 +302,7 @@ export const db = {
       }
     },
 
-    create(story: Story, data: { title: string; content: string; candyPrice?: number }): Chapter {
+    create(story: Story, data: { title: string; content: string; price?: number }): Chapter {
       const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
       const dir = path.join(DATA_DIR, "chapters", story.slug);
       fs.mkdirSync(dir, { recursive: true });
@@ -330,7 +330,7 @@ export const db = {
         wordCount,
         views: 0,
         createdAt,
-        ...(data.candyPrice ? { candyPrice: data.candyPrice } : {}),
+        ...(data.price ? { price: data.price } : {}),
       };
       const updated = [...existing, chapter];
       writeJson(`chapters/${story.slug}/index.json`, updated);
@@ -340,7 +340,7 @@ export const db = {
       const idx = stories.findIndex((s) => s.id === story.id);
       if (idx !== -1) {
         stories[idx].chapterCount = number;
-        stories[idx].vip = updated.some((c) => (c.candyPrice ?? 0) > 0);
+        stories[idx].vip = updated.some((c) => (c.price ?? 0) > 0);
         writeJson("stories.json", stories);
       }
 
@@ -350,7 +350,7 @@ export const db = {
     update(
       story: Story,
       chapterId: string,
-      data: { title?: string; content?: string; candyPrice?: number }
+      data: { title?: string; content?: string; price?: number }
     ): Chapter | null {
       const indexPath = path.join(DATA_DIR, "chapters", story.slug, "index.json");
       if (!fs.existsSync(indexPath)) return null;
@@ -366,9 +366,9 @@ export const db = {
         chapter.wordCount = data.content.replace(/\s/g, "").length;
       }
       if (data.title !== undefined) chapter.title = data.title;
-      if (data.candyPrice !== undefined) {
-        if (data.candyPrice === 0) delete chapter.candyPrice;
-        else chapter.candyPrice = data.candyPrice;
+      if (data.price !== undefined) {
+        if (data.price === 0) delete chapter.price;
+        else chapter.price = data.price;
       }
 
       existing[idx] = chapter;
@@ -397,7 +397,7 @@ export const db = {
       const idx = stories.findIndex((s) => s.id === story.id);
       if (idx !== -1) {
         stories[idx].chapterCount = updated.length;
-        stories[idx].vip = updated.some((c) => (c.candyPrice ?? 0) > 0);
+        stories[idx].vip = updated.some((c) => (c.price ?? 0) > 0);
         writeJson("stories.json", stories);
       }
 

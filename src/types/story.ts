@@ -1,13 +1,13 @@
 import type { Status } from "@/enums/story";
-import type { Genre } from "@/config/genres";
+import type { Category } from "@/config/category";
 
-export type { Genre };
+export type { Category };
 
 export interface Story {
   id: string;
   slug: string;
   name: string;
-  poster: string | null;
+  posterUrl: string | null;
   status: Status;
   chapterCount: number;
   rating: number;
@@ -16,7 +16,7 @@ export interface Story {
   nominations: number;
   author: string;
   postedBy: string;
-  genres: Genre[];
+  categories: Category[];
   tags: string[];
   description: string;
   vip: boolean;

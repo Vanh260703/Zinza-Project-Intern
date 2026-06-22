@@ -4,7 +4,7 @@
     "number": 1,
     "title": "Chương 1: TÔI LÀ BỐ THIÊN HẠ",
     "filename": "00001_1779337583162.txt",
-    "candyPrice": 100,
+    "price": 100,
     "wordCount": 855
   },
   {
@@ -32,6 +32,6 @@
     "wordCount": 16,
     "views": 0,
     "createdAt": "2026-05-22T02:32:16.398Z",
-    "candyPrice": 100
+    "price": 100
   }
 ]

@@ -71,7 +71,7 @@ export function useUnlockChapter(storyId: string, chapterId: string) {
 }
 
 export function useTrackDailyRead() {
-  const { user, token, setUser } = useAuthStore();
+  const { user, accessToken, setUser } = useAuthStore();
 
   return useMutation({
     mutationFn: (data: {
@@ -81,7 +81,7 @@ export function useTrackDailyRead() {
       chapterNumber?: number;
     }) => userApi.trackDailyRead({ userId: user!.id, ...data }),
     onSuccess: (data) => {
-      if (data.user) setUser(data.user, token!);
+      if (data.user) setUser(data.user, accessToken!);
     },
   });
 }
