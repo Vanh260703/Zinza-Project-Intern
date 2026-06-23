@@ -30,6 +30,9 @@ import { SepayWebhookLog } from './payments/entities/sepay-webhook-log.entity';
 import { CandyPackage } from './payments/entities/candy-package.entity';
 import { Notification } from './notifications/entities/notification.entity';
 import { MailModule } from './mail/mail.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PaymentsModule } from './payments/payments.module';
+import { StoriesModule } from './stories/stories.module';
 
 @Module({
   imports: [
@@ -76,9 +79,12 @@ import { MailModule } from './mail/mail.module';
     ]),
 
     RedisModule,
+    CloudinaryModule,
     UsersModule,
     AuthModule,
     MailModule,
+    PaymentsModule,
+    StoriesModule,
   ],
   controllers: [AppController],
   providers: [
