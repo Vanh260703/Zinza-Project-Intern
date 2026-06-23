@@ -8,6 +8,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -20,22 +21,39 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const ACCESS_TOKEN_COOKIE = 'access_token';
-const ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000; // 15 phút
 
-const COOKIE_OPTIONS = {
-  httpOnly: true, // JS client không đọc được → chống XSS
-  secure: process.env.NODE_ENV === 'production', // chỉ gửi qua HTTPS ở production
-  sameSite: 'strict' as const, // chống CSRF
-  maxAge: ACCESS_TOKEN_TTL_MS,
-};
-
-function setAccessTokenCookie(res: Response, accessToken: string) {
-  res.cookie(ACCESS_TOKEN_COOKIE, accessToken, COOKIE_OPTIONS);
+// '15m' | '1h' | '7d' | '900s' | '900' → milliseconds
+function parseExpiryMs(value: string): number {
+  const n = parseInt(value, 10);
+  if (value.endsWith('d')) return n * 24 * 60 * 60 * 1000;
+  if (value.endsWith('h')) return n * 60 * 60 * 1000;
+  if (value.endsWith('m')) return n * 60 * 1000;
+  return n * 1000; // 's' hoặc bare number → giây
 }
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private readonly cookieOptions: object;
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {
+    const expiresIn = this.configService.get<string>(
+      'ACCESS_TOKEN_EXPIRES_IN',
+      '15m',
+    );
+    this.cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: parseExpiryMs(expiresIn),
+    };
+  }
+
+  private setAccessTokenCookie(res: Response, accessToken: string) {
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, this.cookieOptions);
+  }
 
   // POST /auth/register
   @Throttle({ default: { ttl: 60000, limit: 5 } })
@@ -45,7 +63,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const { user, accessToken } = await this.authService.register(dto);
-    setAccessTokenCookie(res, accessToken);
+    this.setAccessTokenCookie(res, accessToken);
     return { user };
   }
 
@@ -58,7 +76,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const { user, accessToken } = await this.authService.login(dto);
-    setAccessTokenCookie(res, accessToken);
+    this.setAccessTokenCookie(res, accessToken);
     return { user };
   }
 
@@ -73,7 +91,7 @@ export class AuthController {
   ) {
     const expiredToken = req.cookies[ACCESS_TOKEN_COOKIE] as string;
     const { accessToken } = await this.authService.refresh(expiredToken);
-    setAccessTokenCookie(res, accessToken);
+    this.setAccessTokenCookie(res, accessToken);
     return { accessToken, message: 'Token refreshed' };
   }
 

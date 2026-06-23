@@ -23,9 +23,8 @@ export class AuthService {
     dto: RegisterDto,
   ): Promise<{ user: Omit<User, 'password'>; accessToken: string }> {
     const user = await this.usersService.create(dto);
-    // Refresh token chỉ lưu Redis, không trả ra ngoài
-    await this.tokenService.storeRefreshToken(user);
-    const accessToken = this.tokenService.generateAccessToken(user);
+    await this.tokenService.storeRefreshToken(user.id);
+    const accessToken = this.tokenService.generateAccessToken(user.id);
     return { user, accessToken };
   }
 
@@ -43,16 +42,16 @@ export class AuthService {
     }
 
     const { password: _, ...userData } = user;
-    await this.tokenService.storeRefreshToken(userData);
-    const accessToken = this.tokenService.generateAccessToken(userData);
+    await this.tokenService.storeRefreshToken(user.id);
+    const accessToken = this.tokenService.generateAccessToken(user.id);
     return { user: userData, accessToken };
   }
 
   // Nhận access token đã expired từ cookie, server tự tìm session trong Redis
   async refresh(expiredAccessToken: string): Promise<{ accessToken: string }> {
-    const userData =
+    const userId =
       await this.tokenService.refreshFromAccessToken(expiredAccessToken);
-    const accessToken = this.tokenService.generateAccessToken(userData);
+    const accessToken = this.tokenService.generateAccessToken(userId);
     return { accessToken };
   }
 

@@ -2,14 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis';
-import { User } from 'src/users/entities/user.entity';
 import { randomBytes, createHash } from 'crypto';
 
 const REFRESH_KEY_PREFIX = 'refresh_token:';
 const RESET_KEY_PREFIX = 'reset_token:';
 
 interface JwtPayload {
-  sub: Omit<User, 'password'>;
+  sub: string; // userId only
   iat: number;
   exp: number;
 }
@@ -22,26 +21,24 @@ export class TokenService {
     private readonly config: ConfigService,
   ) {}
 
-  generateAccessToken(userData: Omit<User, 'password'>): string {
-    return this.jwtService.sign({ sub: userData });
+  generateAccessToken(userId: string): string {
+    return this.jwtService.sign({ sub: userId });
   }
 
-  async storeRefreshToken(userData: Omit<User, 'password'>): Promise<void> {
+  async storeRefreshToken(userId: string): Promise<void> {
     const ttl =
       this.config.get<number>('REFRESH_TOKEN_EXPIRES_IN_DAYS', 7) *
       24 *
       60 *
       60;
     // Lưu userId làm value — không cần JWT, chỉ cần biết session có hợp lệ không
-    const key = `${REFRESH_KEY_PREFIX}${userData.id}`;
-    await this.redisService.set(key, userData.id, ttl);
+    const key = `${REFRESH_KEY_PREFIX}${userId}`;
+    await this.redisService.set(key, userId, ttl);
   }
 
   // Refresh flow: client gửi access token (dù đã expired) qua cookie
   // Server decode lấy userId → check Redis → rotate → trả access token mới
-  async refreshFromAccessToken(
-    expiredToken: string,
-  ): Promise<Omit<User, 'password'>> {
+  async refreshFromAccessToken(expiredToken: string): Promise<string> {
     // Verify chữ ký nhưng bỏ qua expiration — token hết hạn vẫn decode được
     let payload: JwtPayload;
     try {
@@ -52,7 +49,7 @@ export class TokenService {
       throw new UnauthorizedException('Access token không hợp lệ');
     }
 
-    const userId = payload.sub.id;
+    const userId = payload.sub;
     const key = `${REFRESH_KEY_PREFIX}${userId}`;
 
     // Kiểm tra Redis còn session không (chưa logout / chưa hết 7 ngày)
@@ -64,9 +61,9 @@ export class TokenService {
     }
 
     // Rotate: xóa session cũ, tạo session mới với TTL reset
-    await this.storeRefreshToken(payload.sub);
+    await this.storeRefreshToken(userId);
 
-    return payload.sub;
+    return userId;
   }
 
   async revokeRefreshToken(userId: string): Promise<void> {
