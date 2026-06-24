@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Chapter } from 'src/chapters/entities/chapter.entity';
-import { Story } from 'src/stories/entities/story.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 
 @Entity('chapter_purchases')
 @Unique(['user', 'chapter']) // Mỗi user chỉ mua 1 chapter 1 lần
@@ -26,9 +26,9 @@ export class ChapterPurchase {
   chapter: Chapter;
 
   // Denormalized để query "tất cả chapter đã mua của truyện X" không cần join Chapter
-  @ManyToOne(() => Story, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'story_id' })
-  story: Story;
+  @ManyToOne(() => Novel, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'novel_id' })
+  novel: Novel;
 
   // Snapshot số candy đã trả tại thời điểm mua (giá có thể thay đổi sau này)
   @Column()

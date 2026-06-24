@@ -7,11 +7,11 @@ import {
   Unique,
 } from 'typeorm';
 import { User } from './user.entity';
-import { Story } from 'src/stories/entities/story.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 
-@Entity('user_story_bookmarks')
-@Unique(['user', 'story']) // Ngăn user bookmark cùng 1 truyện nhiều lần
-export class UserStoryBookMark {
+@Entity('user_novel_bookmarks')
+@Unique(['user', 'novel']) // Ngăn user bookmark cùng 1 truyện nhiều lần
+export class UserNovelBookMark {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -19,9 +19,9 @@ export class UserStoryBookMark {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Story, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'story_id' })
-  story: Story;
+  @ManyToOne(() => Novel, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'novel_id' })
+  novel: Novel;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -6,18 +6,18 @@ import { UserController } from './users.controller';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { PaymentsModule } from 'src/payments/payments.module';
 import { UserWallet } from 'src/payments/entities/user-wallet.entity';
-import { UserStoryBookMark } from './entities/user-story-bookmark.entity';
-import { UserStoryRead } from './entities/user-story-read.entity';
-import { Story } from 'src/stories/entities/story.entity';
+import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
+import { UserNovelRead } from './entities/user-novel-read.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       User,
       UserWallet,
-      UserStoryBookMark,
-      UserStoryRead,
-      Story,
+      UserNovelBookMark,
+      UserNovelRead,
+      Novel,
     ]),
     CloudinaryModule,
     PaymentsModule,

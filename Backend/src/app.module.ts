@@ -10,15 +10,15 @@ import { RedisModule } from './common/redis';
 
 // Entities
 import { User } from './users/entities/user.entity';
-import { UserStoryRead } from './users/entities/user-story-read.entity';
+import { UserNovelRead } from './users/entities/user-novel-read.entity';
 import { UserDailyRead } from './users/entities/user-daily-read.entity';
-import { UserStoryBookMark } from './users/entities/user-story-bookmark.entity';
-import { Story } from './stories/entities/story.entity';
-import { StoryCategory } from './stories/entities/story-category.entity';
-import { StoryTag } from './stories/entities/story-tag.entity';
-import { StoryRating } from './stories/entities/story-rating.entity';
-import { StoryComment } from './stories/entities/story-comment.entity';
-import { StoryNomination } from './stories/entities/story-nomination.entity';
+import { UserNovelBookMark } from './users/entities/user-novel-bookmark.entity';
+import { Novel } from './novels/entities/novel.entity';
+import { NovelCategory } from './novels/entities/novel-category.entity';
+import { NovelTag } from './novels/entities/novel-tag.entity';
+import { NovelRating } from './novels/entities/novel-rating.entity';
+import { NovelComment } from './novels/entities/novel-comment.entity';
+import { NovelNomination } from './novels/entities/novel-nomination.entity';
 import { Chapter } from './chapters/entities/chapter.entity';
 import { Category } from './categories/entities/category.entity';
 import { Tag } from './tags/entities/tag.entity';
@@ -32,7 +32,7 @@ import { Notification } from './notifications/entities/notification.entity';
 import { MailModule } from './mail/mail.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PaymentsModule } from './payments/payments.module';
-import { StoriesModule } from './stories/stories.module';
+import { NovelsModule } from './novels/novels.module';
 
 @Module({
   imports: [
@@ -48,15 +48,15 @@ import { StoriesModule } from './stories/stories.module';
         synchronize: true,
         entities: [
           User,
-          UserStoryRead,
+          UserNovelRead,
           UserDailyRead,
-          UserStoryBookMark,
-          Story,
-          StoryCategory,
-          StoryTag,
-          StoryRating,
-          StoryComment,
-          StoryNomination,
+          UserNovelBookMark,
+          Novel,
+          NovelCategory,
+          NovelTag,
+          NovelRating,
+          NovelComment,
+          NovelNomination,
           Chapter,
           Category,
           Tag,
@@ -84,7 +84,7 @@ import { StoriesModule } from './stories/stories.module';
     AuthModule,
     MailModule,
     PaymentsModule,
-    StoriesModule,
+    NovelsModule,
   ],
   controllers: [AppController],
   providers: [

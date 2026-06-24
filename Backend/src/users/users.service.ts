@@ -13,9 +13,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UserWallet } from 'src/payments/entities/user-wallet.entity';
-import { UserStoryBookMark } from './entities/user-story-bookmark.entity';
-import { UserStoryRead } from './entities/user-story-read.entity';
-import { Story } from 'src/stories/entities/story.entity';
+import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
+import { UserNovelRead } from './entities/user-novel-read.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -25,12 +25,12 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserWallet)
     private readonly walletRepository: Repository<UserWallet>,
-    @InjectRepository(UserStoryBookMark)
-    private readonly bookmarkRepository: Repository<UserStoryBookMark>,
-    @InjectRepository(Story)
-    private readonly storyRepository: Repository<Story>,
-    @InjectRepository(UserStoryRead)
-    private readonly readRepository: Repository<UserStoryRead>,
+    @InjectRepository(UserNovelBookMark)
+    private readonly bookmarkRepository: Repository<UserNovelBookMark>,
+    @InjectRepository(Novel)
+    private readonly novelRepository: Repository<Novel>,
+    @InjectRepository(UserNovelRead)
+    private readonly readRepository: Repository<UserNovelRead>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -137,9 +137,9 @@ export class UsersService {
     const bookmarks = await this.bookmarkRepository.find({
       where: { user: { id: userId } },
       relations: {
-        story: {
-          storyCategories: { category: true },
-          storyTags: { tag: true },
+        novel: {
+          novelCategories: { category: true },
+          novelTags: { tag: true },
         },
       },
       order: { createdAt: 'DESC' },
@@ -148,31 +148,31 @@ export class UsersService {
     return bookmarks.map((bm) => ({
       id: bm.id,
       bookmarkedAt: bm.createdAt,
-      story: {
-        id: bm.story.id,
-        name: bm.story.name,
-        slug: bm.story.slug,
-        author: bm.story.author,
-        poster: bm.story.poster,
-        status: bm.story.status,
-        rating: bm.story.rating,
-        chapterCount: bm.story.chapterCount,
+      novel: {
+        id: bm.novel.id,
+        name: bm.novel.name,
+        slug: bm.novel.slug,
+        author: bm.novel.author,
+        poster: bm.novel.poster,
+        status: bm.novel.status,
+        rating: bm.novel.rating,
+        chapterCount: bm.novel.chapterCount,
         categories:
-          bm.story.storyCategories?.map((sc) => sc.category.name) ?? [],
-        tags: bm.story.storyTags?.map((st) => st.tag.name) ?? [],
+          bm.novel.novelCategories?.map((nc) => nc.category.name) ?? [],
+        tags: bm.novel.novelTags?.map((nt) => nt.tag.name) ?? [],
       },
     }));
   }
 
   async toggleBookmark(
     userId: string,
-    storyId: string,
+    novelId: string,
   ): Promise<{ bookmarked: boolean }> {
-    const storyExists = await this.storyRepository.existsBy({ id: storyId });
-    if (!storyExists) throw new NotFoundException('Truyện không tồn tại');
+    const novelExists = await this.novelRepository.existsBy({ id: novelId });
+    if (!novelExists) throw new NotFoundException('Truyện không tồn tại');
 
     const existing = await this.bookmarkRepository.findOne({
-      where: { user: { id: userId }, story: { id: storyId } },
+      where: { user: { id: userId }, novel: { id: novelId } },
     });
 
     if (existing) {
@@ -182,7 +182,7 @@ export class UsersService {
 
     const bookmark = this.bookmarkRepository.create({
       user: { id: userId },
-      story: { id: storyId },
+      novel: { id: novelId },
     });
 
     await this.bookmarkRepository.save(bookmark);

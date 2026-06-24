@@ -25,28 +25,28 @@ import { JwtAuthGuard } from 'src/common/guards';
 import { CurrentUser } from 'src/common/decorators';
 import { User } from './entities/user.entity';
 
-@Controller('users/me')
+@Controller('user')
 export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly paymentsService: PaymentsService,
   ) {}
 
-  // [GET] /api/v1/users/me
+  // [GET] /api/v1/user
   @UseGuards(JwtAuthGuard)
   @Get()
   getProfile(@CurrentUser() user: User) {
     return this.usersService.findById(user.id);
   }
 
-  // [PATCH] /api/v1/users/me/profile
+  // [PATCH] /api/v1/user/profile
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
   updateProfile(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
     return this.usersService.updateProfile(user.id, dto);
   }
 
-  // [PATCH] /api/v1/users/me/change-password
+  // [PATCH] /api/v1/user/change-password
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   @HttpCode(HttpStatus.OK)
@@ -58,7 +58,7 @@ export class UserController {
     return { message: 'Đổi mật khẩu thành công' };
   }
 
-  // [POST] /api/v1/users/me/upload-avatar
+  // [POST] /api/v1/user/upload-avatar
   @UseGuards(JwtAuthGuard)
   @Post('/upload-avatar')
   @UseInterceptors(FileInterceptor('file'))
@@ -77,21 +77,21 @@ export class UserController {
     return this.usersService.uploadAvatar(user.id, file);
   }
 
-  // [GET] /api/v1/users/me/wallet
+  // [GET] /api/v1/user/wallet
   @UseGuards(JwtAuthGuard)
   @Get('/wallet')
   getWallet(@CurrentUser() user: User) {
     return this.paymentsService.getWallet(user.id);
   }
 
-  // [GET] /api/v1/users/me/bookmarks
+  // [GET] /api/v1/user/bookmarks
   @UseGuards(JwtAuthGuard)
   @Get('/bookmarks')
   getBookmarks(@CurrentUser() user: User) {
     return this.usersService.getBookmarks(user.id);
   }
 
-  // [POST] /api/v1/users/me/bookmarks/:storyId — toggle (thêm nếu chưa có, xoá nếu đã có)
+  // [POST] /api/v1/user/bookmarks/:storyId — toggle (thêm nếu chưa có, xoá nếu đã có)
   @UseGuards(JwtAuthGuard)
   @Post('/bookmarks/:storyId')
   @HttpCode(HttpStatus.OK)
@@ -102,7 +102,7 @@ export class UserController {
     return this.usersService.toggleBookmark(user.id, storyId);
   }
 
-  // [DELETE] /api/v1/users/me/read-history — xoá toàn bộ lịch sử
+  // [DELETE] /api/v1/user/read-history — xoá toàn bộ lịch sử
   @UseGuards(JwtAuthGuard)
   @Delete('/read-history')
   @HttpCode(HttpStatus.OK)
@@ -111,7 +111,7 @@ export class UserController {
     return { message: 'Xoá toàn bộ lịch sử đọc thành công' };
   }
 
-  // [DELETE] /api/v1/users/me/read-history/:id — xoá 1 bản ghi
+  // [DELETE] /api/v1/user/read-history/:id — xoá 1 bản ghi
   @UseGuards(JwtAuthGuard)
   @Delete('/read-history/:id')
   @HttpCode(HttpStatus.OK)
