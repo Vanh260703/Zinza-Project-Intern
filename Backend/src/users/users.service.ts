@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,9 +11,11 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { ConflictException } from '@nestjs/common/exceptions';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { UserWallet } from 'src/payments/entities/user-wallet.entity';
+import { UserStoryBookMark } from './entities/user-story-bookmark.entity';
+import { UserStoryRead } from './entities/user-story-read.entity';
+import { Story } from 'src/stories/entities/story.entity';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -21,6 +25,12 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserWallet)
     private readonly walletRepository: Repository<UserWallet>,
+    @InjectRepository(UserStoryBookMark)
+    private readonly bookmarkRepository: Repository<UserStoryBookMark>,
+    @InjectRepository(Story)
+    private readonly storyRepository: Repository<Story>,
+    @InjectRepository(UserStoryRead)
+    private readonly readRepository: Repository<UserStoryRead>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -69,7 +79,7 @@ export class UsersService {
   }
 
   // Tìm user theo email
-  async findbyEmail(email: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }
 
@@ -121,5 +131,75 @@ export class UsersService {
     await this.userRepository.update(userId, { avatarUrl: result.secure_url });
 
     return { avatarUrl: result.secure_url };
+  }
+
+  async getBookmarks(userId: string) {
+    const bookmarks = await this.bookmarkRepository.find({
+      where: { user: { id: userId } },
+      relations: {
+        story: {
+          storyCategories: { category: true },
+          storyTags: { tag: true },
+        },
+      },
+      order: { createdAt: 'DESC' },
+    });
+
+    return bookmarks.map((bm) => ({
+      id: bm.id,
+      bookmarkedAt: bm.createdAt,
+      story: {
+        id: bm.story.id,
+        name: bm.story.name,
+        slug: bm.story.slug,
+        author: bm.story.author,
+        poster: bm.story.poster,
+        status: bm.story.status,
+        rating: bm.story.rating,
+        chapterCount: bm.story.chapterCount,
+        categories:
+          bm.story.storyCategories?.map((sc) => sc.category.name) ?? [],
+        tags: bm.story.storyTags?.map((st) => st.tag.name) ?? [],
+      },
+    }));
+  }
+
+  async toggleBookmark(
+    userId: string,
+    storyId: string,
+  ): Promise<{ bookmarked: boolean }> {
+    const storyExists = await this.storyRepository.existsBy({ id: storyId });
+    if (!storyExists) throw new NotFoundException('Truyện không tồn tại');
+
+    const existing = await this.bookmarkRepository.findOne({
+      where: { user: { id: userId }, story: { id: storyId } },
+    });
+
+    if (existing) {
+      await this.bookmarkRepository.remove(existing);
+      return { bookmarked: false };
+    }
+
+    const bookmark = this.bookmarkRepository.create({
+      user: { id: userId },
+      story: { id: storyId },
+    });
+
+    await this.bookmarkRepository.save(bookmark);
+    return { bookmarked: true };
+  }
+
+  async deleteReadHistory(userId: string, readId: string): Promise<void> {
+    const record = await this.readRepository.findOne({
+      where: { id: readId, user: { id: userId } },
+    });
+
+    if (!record) throw new NotFoundException('Lịch sử không tồn tại');
+
+    await this.readRepository.remove(record);
+  }
+
+  async clearAllReadHistory(userId: string): Promise<void> {
+    await this.readRepository.delete({ user: { id: userId } });
   }
 }

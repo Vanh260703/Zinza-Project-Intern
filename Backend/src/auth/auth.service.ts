@@ -60,7 +60,7 @@ export class AuthService {
   }
 
   async forgotPassword(dto: ForgotPasswordDto): Promise<void> {
-    const user = await this.usersService.findbyEmail(dto.email);
+    const user = await this.usersService.findByEmail(dto.email);
 
     // Không tiết lộ email có tồn tại hay không (chống email enumeration):
     // luôn trả về như nhau, chỉ gửi mail khi user thực sự tồn tại.

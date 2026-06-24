@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   MaxFileSizeValidator,
   FileTypeValidator,
+  Param,
   ParseFilePipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UploadedFile,
@@ -22,7 +25,7 @@ import { JwtAuthGuard } from 'src/common/guards';
 import { CurrentUser } from 'src/common/decorators';
 import { User } from './entities/user.entity';
 
-@Controller('users')
+@Controller('users/me')
 export class UserController {
   constructor(
     private readonly usersService: UsersService,
@@ -31,19 +34,19 @@ export class UserController {
 
   // [GET] /api/v1/users/me
   @UseGuards(JwtAuthGuard)
-  @Get('me')
+  @Get()
   getProfile(@CurrentUser() user: User) {
     return this.usersService.findById(user.id);
   }
 
-  // [PATCH] /api/v1/users/profile
+  // [PATCH] /api/v1/users/me/profile
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
   updateProfile(@CurrentUser() user: User, @Body() dto: UpdateUserDto) {
     return this.usersService.updateProfile(user.id, dto);
   }
 
-  // [PATCH] /api/v1/users/change-password
+  // [PATCH] /api/v1/users/me/change-password
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   @HttpCode(HttpStatus.OK)
@@ -57,7 +60,7 @@ export class UserController {
 
   // [POST] /api/v1/users/me/upload-avatar
   @UseGuards(JwtAuthGuard)
-  @Post('/me/upload-avatar')
+  @Post('/upload-avatar')
   @UseInterceptors(FileInterceptor('file'))
   uploadAvatar(
     @CurrentUser() user: User,
@@ -76,8 +79,47 @@ export class UserController {
 
   // [GET] /api/v1/users/me/wallet
   @UseGuards(JwtAuthGuard)
-  @Get('/me/wallet')
+  @Get('/wallet')
   getWallet(@CurrentUser() user: User) {
     return this.paymentsService.getWallet(user.id);
+  }
+
+  // [GET] /api/v1/users/me/bookmarks
+  @UseGuards(JwtAuthGuard)
+  @Get('/bookmarks')
+  getBookmarks(@CurrentUser() user: User) {
+    return this.usersService.getBookmarks(user.id);
+  }
+
+  // [POST] /api/v1/users/me/bookmarks/:storyId — toggle (thêm nếu chưa có, xoá nếu đã có)
+  @UseGuards(JwtAuthGuard)
+  @Post('/bookmarks/:storyId')
+  @HttpCode(HttpStatus.OK)
+  toggleBookmark(
+    @CurrentUser() user: User,
+    @Param('storyId', ParseUUIDPipe) storyId: string,
+  ) {
+    return this.usersService.toggleBookmark(user.id, storyId);
+  }
+
+  // [DELETE] /api/v1/users/me/read-history — xoá toàn bộ lịch sử
+  @UseGuards(JwtAuthGuard)
+  @Delete('/read-history')
+  @HttpCode(HttpStatus.OK)
+  async clearAllReadHistory(@CurrentUser() user: User) {
+    await this.usersService.clearAllReadHistory(user.id);
+    return { message: 'Xoá toàn bộ lịch sử đọc thành công' };
+  }
+
+  // [DELETE] /api/v1/users/me/read-history/:id — xoá 1 bản ghi
+  @UseGuards(JwtAuthGuard)
+  @Delete('/read-history/:id')
+  @HttpCode(HttpStatus.OK)
+  async deleteReadHistory(
+    @CurrentUser() user: User,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    await this.usersService.deleteReadHistory(user.id, id);
+    return { message: 'Xoá lịch sử đọc thành công' };
   }
 }
