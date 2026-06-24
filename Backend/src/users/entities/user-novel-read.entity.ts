@@ -7,12 +7,12 @@ import {
   Unique,
 } from 'typeorm';
 import { User } from './user.entity';
-import { Story } from 'src/stories/entities/story.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 import { Chapter } from 'src/chapters/entities/chapter.entity';
 
-@Entity('user_story_reads')
-@Unique(['user', 'story']) // Mỗi user chỉ có 1 record per story (track chapter đọc gần nhất)
-export class UserStoryRead {
+@Entity('user_novel_reads')
+@Unique(['user', 'novel']) // Mỗi user chỉ có 1 record per novel (track chapter đọc gần nhất)
+export class UserNovelRead {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -20,9 +20,9 @@ export class UserStoryRead {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Story, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'story_id' })
-  story: Story;
+  @ManyToOne(() => Novel, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'novel_id' })
+  novel: Novel;
 
   @ManyToOne(() => Chapter, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'chapter_id' })

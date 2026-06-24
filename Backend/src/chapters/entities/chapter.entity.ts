@@ -8,17 +8,17 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { Story } from 'src/stories/entities/story.entity';
+import { Novel } from 'src/novels/entities/novel.entity';
 
 @Entity('chapters')
-@Unique(['story', 'number']) // Chapter 1 của truyện A và truyện B không conflict
+@Unique(['novel', 'number']) // Chapter 1 của truyện A và truyện B không conflict
 export class Chapter {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Story, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'story_id' })
-  story: Story;
+  @ManyToOne(() => Novel, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'novel_id' })
+  novel: Novel;
 
   @Column()
   number: number;
