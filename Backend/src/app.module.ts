@@ -33,6 +33,7 @@ import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NovelsModule } from './modules/novels/novels.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
+import { Comment } from './modules/comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
           SepayWebhookLog,
           CandyPackage,
           Notification,
+          Comment,
         ],
       }),
     }),

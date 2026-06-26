@@ -32,10 +32,6 @@ export class NovelsService {
     private readonly dataSource: DataSource,
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
-    @InjectRepository(NovelNomination)
-    private readonly nominationRepository: Repository<NovelNomination>,
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     @InjectRepository(NovelRating)
     private readonly ratingRepository: Repository<NovelRating>,
 
@@ -345,30 +341,38 @@ export class NovelsService {
     const novel = await this.novelRepository.findOne({ where: { slug } });
     if (!novel) throw new NotFoundException('Truyện không tồn tại');
 
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+    return this.dataSource.transaction(async (em) => {
+      const user = await em.findOne(User, {
+        where: { id: userId },
+        lock: { mode: 'pessimistic_write' },
+      });
+      if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
-    if (user.recommendationTicket < 1) {
-      throw new BadRequestException('Không đủ vé đề cử');
-    }
+      if (user.recommendationTicket < 1) {
+        throw new BadRequestException('Không đủ vé đề cử');
+      }
 
-    await this.userRepository.decrement(
-      { id: userId },
-      'recommendationTicket',
-      1,
-    );
-    await this.nominationRepository.save(
-      this.nominationRepository.create({
-        user: { id: userId },
-        novel: { id: novel.id },
-      }),
-    );
-    await this.novelRepository.increment({ id: novel.id }, 'nominations', 1);
+      const alreadyNominated = await em.findOne(NovelNomination, {
+        where: { user: { id: userId }, novel: { id: novel.id } },
+      });
+      if (alreadyNominated) {
+        throw new BadRequestException('Bạn đã đề cử truyện này rồi');
+      }
 
-    return {
-      message: 'Đề cử thành công',
-      remainingTickets: user.recommendationTicket - 1,
-    };
+      await em.decrement(User, { id: userId }, 'recommendationTicket', 1);
+      await em.save(
+        em.create(NovelNomination, {
+          user: { id: userId },
+          novel: { id: novel.id },
+        }),
+      );
+      await em.increment(Novel, { id: novel.id }, 'nominations', 1);
+
+      return {
+        message: 'Đề cử thành công',
+        remainingTickets: user.recommendationTicket - 1,
+      };
+    });
   }
 
   async importFromZip(userId: string, file: Express.Multer.File) {
