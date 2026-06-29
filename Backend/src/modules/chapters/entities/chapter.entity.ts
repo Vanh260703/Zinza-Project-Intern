@@ -34,9 +34,6 @@ export class Chapter {
   wordCount: number;
 
   @Column({ default: 0 })
-  views: number;
-
-  @Column({ default: 0 })
   price: number;
 
   @CreateDateColumn()

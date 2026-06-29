@@ -352,13 +352,6 @@ export class NovelsService {
         throw new BadRequestException('Không đủ vé đề cử');
       }
 
-      const alreadyNominated = await em.findOne(NovelNomination, {
-        where: { user: { id: userId }, novel: { id: novel.id } },
-      });
-      if (alreadyNominated) {
-        throw new BadRequestException('Bạn đã đề cử truyện này rồi');
-      }
-
       await em.decrement(User, { id: userId }, 'recommendationTicket', 1);
       await em.save(
         em.create(NovelNomination, {

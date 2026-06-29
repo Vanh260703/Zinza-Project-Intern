@@ -15,7 +15,9 @@ import { CloudinaryService } from 'src/shared/cloudinary/cloudinary.service';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
 import { UserNovelRead } from './entities/user-novel-read.entity';
+import { UserDailyRead } from './entities/user-daily-read.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
+import { TrackDailyReadDto } from './dto/track-daily-read.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -31,6 +33,8 @@ export class UsersService {
     private readonly novelRepository: Repository<Novel>,
     @InjectRepository(UserNovelRead)
     private readonly readRepository: Repository<UserNovelRead>,
+    @InjectRepository(UserDailyRead)
+    private readonly dailyReadRepository: Repository<UserDailyRead>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -201,5 +205,39 @@ export class UsersService {
 
   async clearAllReadHistory(userId: string): Promise<void> {
     await this.readRepository.delete({ user: { id: userId } });
+  }
+
+  async trackDailyRead(userId: string, dto: TrackDailyReadDto): Promise<void> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existing = await this.dailyReadRepository.findOne({
+      where: {
+        user: { id: userId },
+        chapter: { id: dto.chapterId },
+        readDate: today,
+      },
+    });
+
+    if (!existing) {
+      await this.dailyReadRepository.save(
+        this.dailyReadRepository.create({
+          user: { id: userId },
+          chapter: { id: dto.chapterId },
+          readDate: today,
+        }),
+      );
+      await this.novelRepository.increment({ id: dto.novelId }, 'views', 1);
+    }
+
+    // Luôn cập nhật chapter đọc gần nhất dù đã đọc hôm nay hay chưa
+    await this.readRepository.upsert(
+      {
+        user: { id: userId },
+        novel: { id: dto.novelId },
+        chapter: { id: dto.chapterId },
+      },
+      ['user', 'novel'],
+    );
   }
 }
