@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
@@ -33,6 +34,8 @@ import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NovelsModule } from './modules/novels/novels.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { Comment } from './modules/comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -66,6 +69,7 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
           SepayWebhookLog,
           CandyPackage,
           Notification,
+          Comment,
         ],
       }),
     }),
@@ -77,6 +81,22 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
       },
     ]),
 
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const url = new URL(
+          config.get<string>('REDIS_URL', 'redis://localhost:6379'),
+        );
+        return {
+          connection: {
+            host: url.hostname,
+            port: parseInt(url.port) || 6379,
+            password: url.password || undefined,
+          },
+        };
+      },
+    }),
+
     RedisModule,
     CloudinaryModule,
     UsersModule,
@@ -85,6 +105,7 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
     PaymentsModule,
     NovelsModule,
     ChaptersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

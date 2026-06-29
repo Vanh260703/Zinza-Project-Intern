@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   MaxFileSizeValidator,
+  NotFoundException,
   Param,
   ParseFilePipe,
   ParseIntPipe,
@@ -19,7 +20,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { NovelsService } from './novels.service';
+import { NOVEL_IMPORT_QUEUE } from './novel-import.processor';
 import { PaymentsService } from 'src/modules/payments/payments.service';
 import { CommentsService } from 'src/modules/comments/comments.service';
 import { CommentTargetType } from 'src/modules/comments/enums/comment-target-type.enum';
@@ -40,6 +47,7 @@ export class NovelsController {
     private readonly novelsService: NovelsService,
     private readonly paymentsService: PaymentsService,
     private readonly commentsService: CommentsService,
+    @InjectQueue(NOVEL_IMPORT_QUEUE) private readonly importQueue: Queue,
   ) {}
 
   // [GET] /api/v1/novels?q=muc+than+ky&category=huyen-huyen&sort=newest&status=COMPLETED
@@ -73,9 +81,9 @@ export class NovelsController {
   // [POST] /api/v1/novels/import
   @UseGuards(JwtAuthGuard)
   @Post('import')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.ACCEPTED)
   @UseInterceptors(FileInterceptor('file'))
-  import(
+  async import(
     @CurrentUser() user: User,
     @UploadedFile(
       new ParseFilePipe({
@@ -84,7 +92,41 @@ export class NovelsController {
     )
     file: Express.Multer.File,
   ) {
-    return this.novelsService.importFromZip(user.id, file);
+    const tempPath = path.join(
+      os.tmpdir(),
+      `novel-import-${user.id}-${Date.now()}.zip`,
+    );
+    fs.writeFileSync(tempPath, file.buffer);
+    try {
+      const job = await this.importQueue.add('import', {
+        userId: user.id,
+        filePath: tempPath,
+      });
+      return { jobId: job.id, message: 'Import đang được xử lý trong nền' };
+    } catch (err) {
+      fs.unlink(tempPath, () => {});
+      throw err;
+    }
+  }
+
+  // [GET] /api/v1/novels/import/jobs/:jobId
+  @UseGuards(JwtAuthGuard)
+  @Get('import/jobs/:jobId')
+  async getImportStatus(
+    @CurrentUser() user: User,
+    @Param('jobId') jobId: string,
+  ) {
+    const job = await this.importQueue.getJob(jobId);
+    if (!job) throw new NotFoundException('Job không tồn tại');
+    if (job.data.userId !== user.id)
+      throw new NotFoundException('Job không tồn tại');
+    const state = await job.getState();
+    return {
+      jobId: job.id,
+      state, // 'waiting' | 'active' | 'completed' | 'failed'
+      result: state === 'completed' ? job.returnvalue : undefined,
+      error: state === 'failed' ? job.failedReason : undefined,
+    };
   }
 
   // [GET] /api/v1/novels/:slug
