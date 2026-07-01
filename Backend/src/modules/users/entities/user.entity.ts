@@ -50,9 +50,8 @@ export class User {
   @Column({ nullable: true })
   dailyReadDate: Date; // Ngày của dailyReadCount
 
-  // Field xem đã nhận vé đề cử của ngày hôm nay chưa
-  @Column({ default: false })
-  dailyTicketClaimed: boolean;
+  @Column({ type: 'date', nullable: true })
+  dailyTicketClaimedAt: Date | null;
 
   @CreateDateColumn()
   joinedAt: Date;
