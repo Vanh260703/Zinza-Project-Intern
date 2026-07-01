@@ -35,11 +35,15 @@ export class ChaptersService {
 
     const chapter = await this.chapterRepository.findOne({
       where: { id: chapterId, novel: { slug } },
-      relations: { novel: true },
+      relations: { novel: { postedBy: true } },
     });
     if (!chapter) throw new NotFoundException('Chương không tồn tại');
     if (chapter.price === 0)
       throw new BadRequestException('Chương này miễn phí, không cần mở khoá');
+    if (chapter.novel.postedBy?.id === userId)
+      throw new BadRequestException(
+        'Bạn là tác giả, không cần mở khoá chương của chính mình',
+      );
 
     return this.dataSource.transaction(async (em) => {
       // Lock wallet để tránh race condition
