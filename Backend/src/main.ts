@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DataSource } from 'typeorm';
-import { HttpExceptionFilter } from './common/filters';
+import { HttpExceptionFilter } from './shared/filters';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 

@@ -1,38 +1,41 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { RedisModule } from './common/redis';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { RedisModule } from './shared/redis';
 
 // Entities
-import { User } from './users/entities/user.entity';
-import { UserNovelRead } from './users/entities/user-novel-read.entity';
-import { UserDailyRead } from './users/entities/user-daily-read.entity';
-import { UserNovelBookMark } from './users/entities/user-novel-bookmark.entity';
-import { Novel } from './novels/entities/novel.entity';
-import { NovelCategory } from './novels/entities/novel-category.entity';
-import { NovelTag } from './novels/entities/novel-tag.entity';
-import { NovelRating } from './novels/entities/novel-rating.entity';
-import { NovelComment } from './novels/entities/novel-comment.entity';
-import { NovelNomination } from './novels/entities/novel-nomination.entity';
-import { Chapter } from './chapters/entities/chapter.entity';
-import { Category } from './categories/entities/category.entity';
-import { Tag } from './tags/entities/tag.entity';
-import { UserWallet } from './payments/entities/user-wallet.entity';
-import { PaymentOrder } from './payments/entities/payment-order.entity';
-import { WalletTransaction } from './payments/entities/wallet-transaction.entity';
-import { ChapterPurchase } from './payments/entities/chapter-purchase.entity';
-import { SepayWebhookLog } from './payments/entities/sepay-webhook-log.entity';
-import { CandyPackage } from './payments/entities/candy-package.entity';
-import { Notification } from './notifications/entities/notification.entity';
-import { MailModule } from './mail/mail.module';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { PaymentsModule } from './payments/payments.module';
-import { NovelsModule } from './novels/novels.module';
+import { User } from './modules/users/entities/user.entity';
+import { UserNovelRead } from './modules/users/entities/user-novel-read.entity';
+import { UserDailyRead } from './modules/users/entities/user-daily-read.entity';
+import { UserNovelBookMark } from './modules/users/entities/user-novel-bookmark.entity';
+import { Novel } from './modules/novels/entities/novel.entity';
+import { NovelCategory } from './modules/novels/entities/novel-category.entity';
+import { NovelTag } from './modules/novels/entities/novel-tag.entity';
+import { NovelRating } from './modules/novels/entities/novel-rating.entity';
+import { NovelNomination } from './modules/novels/entities/novel-nomination.entity';
+import { Chapter } from './modules/chapters/entities/chapter.entity';
+import { Category } from './modules/categories/entities/category.entity';
+import { Tag } from './modules/tags/entities/tag.entity';
+import { UserWallet } from './modules/payments/entities/user-wallet.entity';
+import { PaymentOrder } from './modules/payments/entities/payment-order.entity';
+import { WalletTransaction } from './modules/payments/entities/wallet-transaction.entity';
+import { ChapterPurchase } from './modules/payments/entities/chapter-purchase.entity';
+import { SepayWebhookLog } from './modules/payments/entities/sepay-webhook-log.entity';
+import { CandyPackage } from './modules/payments/entities/candy-package.entity';
+import { Notification } from './modules/notifications/entities/notification.entity';
+import { MailModule } from './shared/mail/mail.module';
+import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { NovelsModule } from './modules/novels/novels.module';
+import { ChaptersModule } from './modules/chapters/chapters.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { Comment } from './modules/comments/entities/comment.entity';
 
 @Module({
   imports: [
@@ -55,7 +58,6 @@ import { NovelsModule } from './novels/novels.module';
           NovelCategory,
           NovelTag,
           NovelRating,
-          NovelComment,
           NovelNomination,
           Chapter,
           Category,
@@ -67,6 +69,7 @@ import { NovelsModule } from './novels/novels.module';
           SepayWebhookLog,
           CandyPackage,
           Notification,
+          Comment,
         ],
       }),
     }),
@@ -78,6 +81,22 @@ import { NovelsModule } from './novels/novels.module';
       },
     ]),
 
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const url = new URL(
+          config.get<string>('REDIS_URL', 'redis://localhost:6379'),
+        );
+        return {
+          connection: {
+            host: url.hostname,
+            port: parseInt(url.port) || 6379,
+            password: url.password || undefined,
+          },
+        };
+      },
+    }),
+
     RedisModule,
     CloudinaryModule,
     UsersModule,
@@ -85,6 +104,8 @@ import { NovelsModule } from './novels/novels.module';
     MailModule,
     PaymentsModule,
     NovelsModule,
+    ChaptersModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [

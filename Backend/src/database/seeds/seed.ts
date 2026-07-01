@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { Category } from 'src/categories/entities/category.entity';
-import { Tag } from 'src/tags/entities/tag.entity';
+import { Category } from 'src/modules/categories/entities/category.entity';
+import { Tag } from 'src/modules/tags/entities/tag.entity';
 
 dotenv.config();
 
