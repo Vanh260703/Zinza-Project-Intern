@@ -170,6 +170,7 @@ export class NovelsService {
       ratingCount: novel.ratingCount,
       nominations: novel.nominations,
       commentCount: novel.commentCount,
+      views: novel.views,
       categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
       tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
       postedBy: novel.postedBy

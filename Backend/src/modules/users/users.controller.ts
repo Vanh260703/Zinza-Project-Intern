@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { TrackDailyReadDto } from './dto/track-daily-read.dto';
 import { PaymentsService } from 'src/modules/payments/payments.service';
 import { JwtAuthGuard } from 'src/shared/guards';
 import { CurrentUser } from 'src/shared/decorators';
@@ -100,6 +101,22 @@ export class UserController {
     @Param('storyId', ParseUUIDPipe) storyId: string,
   ) {
     return this.usersService.toggleBookmark(user.id, storyId);
+  }
+
+  // [POST] /api/v1/user/daily-ticket/claim — nhận vé đề cử nếu đọc đủ 10 chương/ngày
+  @UseGuards(JwtAuthGuard)
+  @Post('daily-ticket/claim')
+  @HttpCode(HttpStatus.OK)
+  claimDailyTicket(@CurrentUser() user: User) {
+    return this.usersService.claimDailyTicket(user.id);
+  }
+
+  // [POST] /api/v1/user/daily-read — track chapter đã đọc trong ngày
+  @UseGuards(JwtAuthGuard)
+  @Post('daily-read')
+  @HttpCode(HttpStatus.OK)
+  trackDailyRead(@CurrentUser() user: User, @Body() dto: TrackDailyReadDto) {
+    return this.usersService.trackDailyRead(user.id, dto);
   }
 
   // [DELETE] /api/v1/user/read-history — xoá toàn bộ lịch sử

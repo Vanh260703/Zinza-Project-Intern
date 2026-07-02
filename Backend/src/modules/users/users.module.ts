@@ -8,6 +8,7 @@ import { PaymentsModule } from 'src/modules/payments/payments.module';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
 import { UserNovelRead } from './entities/user-novel-read.entity';
+import { UserDailyRead } from './entities/user-daily-read.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
 
 @Module({
@@ -17,6 +18,7 @@ import { Novel } from 'src/modules/novels/entities/novel.entity';
       UserWallet,
       UserNovelBookMark,
       UserNovelRead,
+      UserDailyRead,
       Novel,
     ]),
     CloudinaryModule,

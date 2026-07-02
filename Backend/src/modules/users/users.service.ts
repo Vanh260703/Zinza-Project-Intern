@@ -15,7 +15,10 @@ import { CloudinaryService } from 'src/shared/cloudinary/cloudinary.service';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
 import { UserNovelRead } from './entities/user-novel-read.entity';
+import { UserDailyRead } from './entities/user-daily-read.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
+import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
+import { TrackDailyReadDto } from './dto/track-daily-read.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -31,6 +34,8 @@ export class UsersService {
     private readonly novelRepository: Repository<Novel>,
     @InjectRepository(UserNovelRead)
     private readonly readRepository: Repository<UserNovelRead>,
+    @InjectRepository(UserDailyRead)
+    private readonly dailyReadRepository: Repository<UserDailyRead>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -201,5 +206,97 @@ export class UsersService {
 
   async clearAllReadHistory(userId: string): Promise<void> {
     await this.readRepository.delete({ user: { id: userId } });
+  }
+
+  async claimDailyTicket(
+    userId: string,
+  ): Promise<{ message: string; recommendationTicket: number }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userId },
+    });
+
+    // Check đã claim hôm nay chưa
+    const claimedToday =
+      user.dailyTicketClaimedAt && new Date(user.dailyTicketClaimedAt) >= today;
+
+    if (claimedToday) {
+      throw new BadRequestException('Bạn đã nhận vé hôm nay rồi');
+    }
+
+    // Đếm số chapter đã đọc hôm nay từ bảng user_daily_reads
+    const todayCount = await this.dailyReadRepository.count({
+      where: { user: { id: userId }, readDate: today },
+    });
+
+    if (todayCount < 10) {
+      throw new BadRequestException(
+        `Cần đọc đủ 10 chương (hiện tại: ${todayCount})`,
+      );
+    }
+
+    await this.userRepository.update(userId, {
+      dailyTicketClaimedAt: today,
+      recommendationTicket: () => '"recommendationTicket" + 1',
+    });
+
+    return {
+      message: 'Nhận vé đề cử thành công',
+      recommendationTicket: user.recommendationTicket + 1,
+    };
+  }
+
+  async trackDailyRead(
+    userId: string,
+    dto: TrackDailyReadDto,
+  ): Promise<{ todayCount: number }> {
+    const chapterBelongsToNovel = await this.dailyReadRepository.manager
+      .getRepository(Chapter)
+      .existsBy({ id: dto.chapterId, novel: { id: dto.novelId } });
+
+    if (!chapterBelongsToNovel) {
+      throw new BadRequestException('Chapter không thuộc truyện này');
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existing = await this.dailyReadRepository.findOne({
+      where: {
+        user: { id: userId },
+        chapter: { id: dto.chapterId },
+        readDate: today,
+      },
+    });
+
+    if (!existing) {
+      await this.dailyReadRepository.save(
+        this.dailyReadRepository.create({
+          user: { id: userId },
+          chapter: { id: dto.chapterId },
+          readDate: today,
+        }),
+      );
+      await this.novelRepository.increment({ id: dto.novelId }, 'views', 1);
+      await this.userRepository.increment({ id: userId }, 'chaptersRead', 1);
+    }
+
+    // Luôn cập nhật chapter đọc gần nhất dù đã đọc hôm nay hay chưa
+    await this.readRepository.upsert(
+      {
+        user: { id: userId },
+        novel: { id: dto.novelId },
+        chapter: { id: dto.chapterId },
+      },
+      ['user', 'novel'],
+    );
+
+    const todayCount = await this.dailyReadRepository.count({
+      where: { user: { id: userId }, readDate: today },
+    });
+
+    return { todayCount };
   }
 }
