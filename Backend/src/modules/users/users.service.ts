@@ -280,6 +280,7 @@ export class UsersService {
         }),
       );
       await this.novelRepository.increment({ id: dto.novelId }, 'views', 1);
+      await this.userRepository.increment({ id: userId }, 'chaptersRead', 1);
     }
 
     // Luôn cập nhật chapter đọc gần nhất dù đã đọc hôm nay hay chưa

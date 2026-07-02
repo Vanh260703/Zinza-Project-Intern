@@ -74,6 +74,9 @@ export class Novel {
   @Column({ default: 0 })
   commentCount: number;
 
+  @Column({ default: 0 })
+  views: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

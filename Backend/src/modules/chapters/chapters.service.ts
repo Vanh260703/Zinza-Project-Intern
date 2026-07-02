@@ -109,6 +109,21 @@ export class ChaptersService {
     const chapter = await this.chapterRepository.findOne({
       where: { id, novel: { slug } },
       relations: { novel: { postedBy: true } },
+      select: {
+        id: true,
+        number: true,
+        title: true,
+        content: true,
+        wordCount: true,
+        price: true,
+        createdAt: true,
+        updatedAt: true,
+        novel: {
+          id: true,
+          name: true,
+          postedBy: { id: true, name: true },
+        },
+      },
     });
     if (!chapter) throw new NotFoundException('Chương không tồn tại');
 
@@ -258,7 +273,7 @@ export class ChaptersService {
 
     const [chapters, total] = await this.chapterRepository.findAndCount({
       where: { novel: { id: novel.id } },
-      select: { id: true, number: true, title: true },
+      select: { id: true, number: true, title: true, price: true },
       order: { number: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,

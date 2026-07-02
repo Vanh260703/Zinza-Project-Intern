@@ -170,6 +170,7 @@ export class NovelsService {
       ratingCount: novel.ratingCount,
       nominations: novel.nominations,
       commentCount: novel.commentCount,
+      views: novel.views,
       categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
       tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
       postedBy: novel.postedBy
@@ -368,10 +369,10 @@ export class NovelsService {
     });
   }
 
-  async importFromZip(userId: string, file: Express.Multer.File) {
+  async importFromZip(userId: string, buffer: Buffer) {
     let zip: AdmZip;
     try {
-      zip = new AdmZip(file.buffer);
+      zip = new AdmZip(buffer);
     } catch {
       throw new BadRequestException(
         'File không hợp lệ, phải là định dạng .zip',
