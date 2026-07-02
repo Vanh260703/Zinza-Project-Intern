@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -24,10 +24,9 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(UserWallet)
-    private readonly walletRepository: Repository<UserWallet>,
     @InjectRepository(UserNovelBookMark)
     private readonly bookmarkRepository: Repository<UserNovelBookMark>,
     @InjectRepository(Novel)
@@ -52,19 +51,15 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = this.userRepository.create({
-      ...dto,
-      password: hashedPassword,
-    });
-
-    const saved = await this.userRepository.save(user);
-
-    await this.walletRepository.save(
-      this.walletRepository.create({ user: saved }),
+    const { password: _, ...result } = await this.dataSource.transaction(
+      async (em) => {
+        const saved = await em.save(
+          em.create(User, { ...dto, password: hashedPassword }),
+        );
+        await em.save(em.create(UserWallet, { user: saved }));
+        return saved;
+      },
     );
-
-    // Tách password ra trước khi trả về client
-    const { password: _, ...result } = saved;
 
     return result;
   }

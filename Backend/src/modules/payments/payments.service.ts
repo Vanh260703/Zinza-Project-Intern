@@ -42,56 +42,59 @@ export class PaymentsService {
     dto: SepayWebhookDto,
   ) {
     // 1. Xác thực chữ ký HMAC-SHA256
-    // SEPAY_SKIP_SIGNATURE=true để bypass khi test bằng simulation tool
-    const skipVerify = process.env.SEPAY_SKIP_SIGNATURE === 'true';
+    // env validation đảm bảo SEPAY_SECRET_KEY luôn có giá trị khi app khởi động
+    const secret = process.env.SEPAY_SECRET_KEY!;
 
-    if (!skipVerify) {
-      const secret = process.env.SEPAY_SECRET_KEY;
-      if (!secret) return { success: false, message: 'Server misconfigured' };
-
-      if (!signature || !timestamp) {
-        return { success: false, message: 'Missing signature headers' };
-      }
-
-      // Reject request cũ hơn 5 phút để chống replay attack
-      const now = Math.floor(Date.now() / 1000);
-      if (Math.abs(now - parseInt(timestamp, 10)) > 300) {
-        return { success: false, message: 'Timestamp expired' };
-      }
-
-      // SePay ký trên chuỗi "${timestamp}.${body}" (không chỉ body)
-      const body = rawBody.toString('utf8');
-      const expected =
-        'sha256=' +
-        crypto
-          .createHmac('sha256', secret)
-          .update(`${timestamp}.${body}`)
-          .digest('hex');
-
-      // timingSafeEqual tránh timing attack — yêu cầu 2 buffer cùng độ dài
-      const sigBuf = Buffer.from(signature);
-      const expBuf = Buffer.from(expected);
-      const isValid =
-        sigBuf.length === expBuf.length &&
-        crypto.timingSafeEqual(sigBuf, expBuf);
-
-      if (!isValid) {
-        return { success: false, message: 'Invalid signature' };
-      }
+    if (!signature || !timestamp) {
+      return { success: false, message: 'Missing signature headers' };
     }
 
-    // 2. Khởi tạo log — ghi lại mọi request kể cả khi bị ignore
-    const log = this.webhookLogRepository.create({
-      gatewayTransactionId: String(dto.id),
-      rawPayload: dto as unknown as object,
-    });
+    // Reject request cũ hơn 5 phút để chống replay attack
+    const now = Math.floor(Date.now() / 1000);
+    if (Math.abs(now - parseInt(timestamp, 10)) > 300) {
+      return { success: false, message: 'Timestamp expired' };
+    }
 
-    // 3. Idempotency — bỏ qua nếu transaction này đã xử lý rồi
-    // SePay có thể retry nếu không nhận được 200, nên cần check trùng lặp
-    const existing = await this.webhookLogRepository.existsBy({
-      gatewayTransactionId: String(dto.id),
-    });
-    if (existing) return { success: true, message: 'Already processed' };
+    // SePay ký trên chuỗi "${timestamp}.${body}" (không chỉ body)
+    const body = rawBody.toString('utf8');
+    const expected =
+      'sha256=' +
+      crypto
+        .createHmac('sha256', secret)
+        .update(`${timestamp}.${body}`)
+        .digest('hex');
+
+    // timingSafeEqual tránh timing attack — yêu cầu 2 buffer cùng độ dài
+    const sigBuf = Buffer.from(signature);
+    const expBuf = Buffer.from(expected);
+    const isValid =
+      sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf);
+
+    if (!isValid) {
+      return { success: false, message: 'Invalid signature' };
+    }
+
+    // 2. Insert log ngay — unique constraint trên gatewayTransactionId làm "lock" tự nhiên.
+    // Nếu 2 request đến đồng thời, chỉ 1 insert thành công; request kia nhảy vào catch.
+    let log: SepayWebhookLog;
+    try {
+      log = await this.webhookLogRepository.save(
+        this.webhookLogRepository.create({
+          gatewayTransactionId: String(dto.id),
+          rawPayload: dto as unknown as object,
+        }),
+      );
+    } catch {
+      // 3. Idempotency — duplicate key: phân biệt "đã xử lý thành công" vs "lần trước bị lỗi".
+      const existing = await this.webhookLogRepository.findOneBy({
+        gatewayTransactionId: String(dto.id),
+      });
+      if (!existing || existing.isProcessed) {
+        return { success: true, message: 'Already processed' };
+      }
+      // Lần trước bị lỗi → reuse log cũ, tiếp tục xử lý
+      log = existing;
+    }
 
     // 4. Lọc giao dịch hợp lệ
     // Chỉ xử lý tiền vào (transferType = 'in') và phải có nội dung CK (code)
@@ -105,6 +108,15 @@ export class PaymentsService {
     const order = await this.orderRepository.findOne({
       where: { orderCode: dto.code },
       relations: { user: true },
+      select: {
+        id: true,
+        orderCode: true,
+        status: true,
+        expiredAt: true,
+        amountVnd: true,
+        candyAmount: true,
+        user: { id: true },
+      },
     });
 
     if (!order) {
@@ -185,7 +197,9 @@ export class PaymentsService {
     } catch (err) {
       log.errorMessage = err instanceof Error ? err.message : String(err);
       await this.webhookLogRepository.save(log);
-      return { success: true, message: 'Processing error' };
+      // Trả success:false để SePay retry — lần retry sẽ reuse log này (isProcessed=false).
+      // Chỉ trả success:true khi thực sự xử lý xong ở trên.
+      return { success: false, message: 'Processing error' };
     }
   }
 
