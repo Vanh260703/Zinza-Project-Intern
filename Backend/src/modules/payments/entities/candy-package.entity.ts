@@ -24,7 +24,7 @@ export class CandyPackage {
   bonus: number;
 
   // VD: "Phổ biến", "Giá trị nhất"
-  @Column()
+  @Column({ nullable: true })
   badge: string;
 
   // Admin bật/tắt gói mà không cần xóa
