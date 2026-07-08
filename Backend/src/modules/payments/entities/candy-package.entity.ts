@@ -24,16 +24,12 @@ export class CandyPackage {
   bonus: number;
 
   // VD: "Phổ biến", "Giá trị nhất"
-  @Column()
+  @Column({ nullable: true })
   badge: string;
 
   // Admin bật/tắt gói mà không cần xóa
   @Column({ default: true })
   isActive: boolean;
-
-  // Thứ tự hiển thị trên UI (số nhỏ hiển thị trước)
-  @Column({ default: 0 })
-  sortOrder: number;
 
   @CreateDateColumn()
   createdAt: Date;

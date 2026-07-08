@@ -35,6 +35,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { NovelsModule } from './modules/novels/novels.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { Comment } from './modules/comments/entities/comment.entity';
 
 @Module({
@@ -106,6 +107,7 @@ import { Comment } from './modules/comments/entities/comment.entity';
     NovelsModule,
     ChaptersModule,
     NotificationsModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
