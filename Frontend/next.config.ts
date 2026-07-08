@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "res.cloudinary.com" }],
+  },
   webpack(config, { nextRuntime }) {
     // fs/path không tồn tại ở client và edge runtime → fallback false
     if (nextRuntime !== "nodejs") {

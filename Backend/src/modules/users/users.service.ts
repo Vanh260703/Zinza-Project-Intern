@@ -3,7 +3,6 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -18,6 +17,9 @@ import { UserNovelRead } from './entities/user-novel-read.entity';
 import { UserDailyRead } from './entities/user-daily-read.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
+import { ChapterPurchase } from 'src/modules/payments/entities/chapter-purchase.entity';
+import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
+import { TransactionType } from 'src/modules/payments/enums/transaction-type.enum';
 import { TrackDailyReadDto } from './dto/track-daily-read.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -78,6 +80,33 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  // Hồ sơ công khai — chỉ field an toàn (không email/password/ví/vé)
+  async getPublicProfile(id: string) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        avatarUrl: true,
+        gender: true,
+        role: true,
+        chaptersRead: true,
+        joinedAt: true,
+      },
+    });
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    return {
+      id: user.id,
+      name: user.name,
+      avatarUrl: user.avatarUrl ?? null,
+      gender: user.gender,
+      role: user.role,
+      chaptersRead: user.chaptersRead,
+      joinedAt: user.joinedAt,
+    };
+  }
+
   // Tìm user theo email
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
@@ -101,7 +130,7 @@ export class UsersService {
 
     const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Mật khẩu hiện tại không đúng');
+      throw new BadRequestException('Mật khẩu hiện tại không đúng');
     }
 
     await this.updatePassword(userId, dto.newPassword);
@@ -189,6 +218,31 @@ export class UsersService {
     return { bookmarked: true };
   }
 
+  async getReadHistory(userId: string) {
+    const reads = await this.readRepository.find({
+      where: { user: { id: userId } },
+      relations: { novel: true, chapter: true },
+      select: {
+        id: true,
+        lastReadAt: true,
+        novel: { id: true },
+        chapter: { id: true, number: true, title: true },
+      },
+      order: { lastReadAt: 'DESC' },
+    });
+
+    return reads.map((r) => ({
+      id: r.id,
+      novelId: r.novel.id,
+      lastReadAt: r.lastReadAt,
+      chapter: {
+        id: r.chapter.id,
+        number: r.chapter.number,
+        title: r.chapter.title,
+      },
+    }));
+  }
+
   async deleteReadHistory(userId: string, readId: string): Promise<void> {
     const record = await this.readRepository.findOne({
       where: { id: readId, user: { id: userId } },
@@ -243,6 +297,36 @@ export class UsersService {
     };
   }
 
+  // Tiến độ vé đề cử hôm nay — cho UI hiển thị (đọc mấy chương, đã nhận chưa)
+  async getDailyProgress(userId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const user = await this.userRepository.findOneOrFail({
+      where: { id: userId },
+      select: {
+        id: true,
+        recommendationTicket: true,
+        dailyTicketClaimedAt: true,
+      },
+    });
+
+    const todayCount = await this.dailyReadRepository.count({
+      where: { user: { id: userId }, readDate: today },
+    });
+
+    const claimed =
+      !!user.dailyTicketClaimedAt &&
+      new Date(user.dailyTicketClaimedAt) >= today;
+
+    return {
+      todayCount,
+      required: 10,
+      claimed,
+      recommendationTicket: user.recommendationTicket,
+    };
+  }
+
   async trackDailyRead(
     userId: string,
     dto: TrackDailyReadDto,
@@ -258,22 +342,20 @@ export class UsersService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const existing = await this.dailyReadRepository.findOne({
-      where: {
+    // Tránh việc insert trùng lặp
+    const inserted = await this.dailyReadRepository
+      .createQueryBuilder()
+      .insert()
+      .values({
         user: { id: userId },
         chapter: { id: dto.chapterId },
         readDate: today,
-      },
-    });
+      })
+      .orIgnore()
+      .execute();
 
-    if (!existing) {
-      await this.dailyReadRepository.save(
-        this.dailyReadRepository.create({
-          user: { id: userId },
-          chapter: { id: dto.chapterId },
-          readDate: today,
-        }),
-      );
+    // Chỉ tăng counter khi chèn mới (lần đầu đọc chương này hôm nay)
+    if ((inserted.raw as unknown[]).length > 0) {
       await this.novelRepository.increment({ id: dto.novelId }, 'views', 1);
       await this.userRepository.increment({ id: userId }, 'chaptersRead', 1);
     }
@@ -293,5 +375,66 @@ export class UsersService {
     });
 
     return { todayCount };
+  }
+
+  // Thống kê truyện của chính user: lượt đọc, đề cử, số lượt mở khoá, tiền quà, tiền mở khoá.
+  // views/nominations lấy sẵn trên bảng novels; unlocked/revenue tổng hợp từ chapter_purchases;
+  // gifts tổng hợp từ wallet_transactions (chỉ giao dịch GIFT — amount lưu số âm bên người tặng).
+  async getMyNovelsStats(userId: string) {
+    const novels = await this.novelRepository.find({
+      where: { postedBy: { id: userId } },
+      select: {
+        id: true,
+        name: true,
+        author: true,
+        views: true,
+        nominations: true,
+      },
+      order: { createdAt: 'DESC' },
+    });
+    if (novels.length === 0) return [];
+
+    const ids = novels.map((n) => n.id);
+
+    // Tổng lượt mở khoá + tiền mở khoá theo từng truyện
+    const purchaseRows = await this.dataSource
+      .getRepository(ChapterPurchase)
+      .createQueryBuilder('cp')
+      .select('cp.novel_id', 'novelId')
+      .addSelect('COUNT(*)', 'unlocked')
+      .addSelect('COALESCE(SUM(cp.candySpent), 0)', 'revenue')
+      .where('cp.novel_id IN (:...ids)', { ids })
+      .groupBy('cp.novel_id')
+      .getRawMany<{ novelId: string; unlocked: string; revenue: string }>();
+
+    // Tổng kẹo được tặng theo từng truyện (amount âm bên người tặng nên lấy trị tuyệt đối)
+    const giftRows = await this.dataSource
+      .getRepository(WalletTransaction)
+      .createQueryBuilder('wt')
+      .select('wt.referenceId', 'novelId')
+      .addSelect('COALESCE(SUM(ABS(wt.amount)), 0)', 'gifts')
+      .where('wt.type = :type', { type: TransactionType.GIFT })
+      .andWhere('wt.referenceType = :refType', { refType: 'novel' })
+      .andWhere('wt.referenceId IN (:...ids)', { ids })
+      .groupBy('wt.referenceId')
+      .getRawMany<{ novelId: string; gifts: string }>();
+
+    const purchaseMap = new Map(purchaseRows.map((r) => [r.novelId, r]));
+    const giftMap = new Map(giftRows.map((r) => [r.novelId, r]));
+
+    return novels.map((n) => {
+      const p = purchaseMap.get(n.id);
+      const g = giftMap.get(n.id);
+      return {
+        id: n.id,
+        name: n.name,
+        author: n.author,
+        views: n.views,
+        nominated: n.nominations,
+        unlocked: p ? Number(p.unlocked) : 0,
+        gifts: g ? Number(g.gifts) : 0,
+        revenue: p ? Number(p.revenue) : 0,
+      };
+    });
   }
 }

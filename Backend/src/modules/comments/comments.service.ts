@@ -1,11 +1,8 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './entities/comment.entity';
+import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { CommentTargetType } from './enums/comment-target-type.enum';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -28,6 +25,7 @@ export class CommentsService {
     const [comments, total] = await this.commentRepository.findAndCount({
       where: { targetType, targetId },
       relations: { user: true },
+      select: { user: { id: true, name: true, avatarUrl: true } },
       order: { createdAt: 'DESC' },
       skip,
       take: limit,
@@ -54,9 +52,20 @@ export class CommentsService {
       }),
     );
 
+    // Cập nhật counter cached — chỉ khi comment gắn vào truyện
+    if (targetType === CommentTargetType.NOVEL) {
+      await this.commentRepository.manager.increment(
+        Novel,
+        { id: targetId },
+        'commentCount',
+        1,
+      );
+    }
+
     const saved = await this.commentRepository.findOne({
       where: { id: comment.id },
       relations: { user: true },
+      select: { user: { id: true, name: true, avatarUrl: true } },
     });
 
     return this.toResponse(saved!);
@@ -64,12 +73,12 @@ export class CommentsService {
 
   async update(userId: string, id: string, dto: UpdateCommentDto) {
     const comment = await this.commentRepository.findOne({
-      where: { id },
-      relations: { user: true },
+      where: { id, user: { id: userId } },
     });
-    if (!comment) throw new NotFoundException('Bình luận không tồn tại');
-    if (comment.user.id !== userId)
-      throw new ForbiddenException('Không có quyền chỉnh sửa');
+    if (!comment)
+      throw new NotFoundException(
+        'Bình luận không tồn tại hoặc bạn không có quyền chỉnh sửa',
+      );
 
     await this.commentRepository.update(id, { content: dto.content });
     return { message: 'Cập nhật bình luận thành công' };
@@ -77,14 +86,25 @@ export class CommentsService {
 
   async remove(userId: string, id: string) {
     const comment = await this.commentRepository.findOne({
-      where: { id },
-      relations: { user: true },
+      where: { id, user: { id: userId } },
     });
-    if (!comment) throw new NotFoundException('Bình luận không tồn tại');
-    if (comment.user.id !== userId)
-      throw new ForbiddenException('Không có quyền xoá');
+    if (!comment)
+      throw new NotFoundException(
+        'Bình luận không tồn tại hoặc bạn không có quyền xoá',
+      );
 
     await this.commentRepository.delete(id);
+
+    // Giảm counter cached tương ứng — chỉ khi comment gắn vào truyện
+    if (comment.targetType === CommentTargetType.NOVEL) {
+      await this.commentRepository.manager.decrement(
+        Novel,
+        { id: comment.targetId },
+        'commentCount',
+        1,
+      );
+    }
+
     return { message: 'Xoá bình luận thành công' };
   }
 

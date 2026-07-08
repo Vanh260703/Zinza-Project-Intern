@@ -10,14 +10,12 @@ import Button from "@/components/ui/Button";
 import { showToast } from "@/lib/toast";
 import { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/userStore";
-import { useLibraryStore } from "@/stores/libraryStore";
 
 export default function LoginForm() {
   const router = useRouter();
   const setUser = useAuthStore((state) => state.setUser);
   const setWallet = useAuthStore((state) => state.setWallet);
   const user = useAuthStore((state) => state.user);
-  const initLibrary = useLibraryStore((state) => state.init);
   const [serverError, setServerError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -51,10 +49,9 @@ export default function LoginForm() {
       return;
     }
 
-    const { accessToken, user, wallet, history, bookmarks, purchasedChapterIds } = await res.json();
-    setUser(user, accessToken);
+    const { user, wallet } = await res.json();
+    setUser(user, "cookie-auth");
     setWallet(wallet);
-    initLibrary(user.id, history, bookmarks, purchasedChapterIds);
     showToast.success("Chào mừng trở lại!", user.name);
 
     router.push(user.role === "admin" ? "/admin" : "/");

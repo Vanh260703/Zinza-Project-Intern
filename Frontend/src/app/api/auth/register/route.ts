@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { registerSchema } from "@/schemas/auth";
-import { db } from "@/lib/mock-db";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -13,32 +14,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, email, password, gender } = result.data;
-
-  await new Promise((r) => setTimeout(r, 600));
-
-  if (db.users.findByEmail(email)) {
-    return NextResponse.json({ message: "Email đã được sử dụng" }, { status: 409 });
-  }
-
-  const user = db.users.create({
-    name,
-    email,
-    password,
-    gender,
-    avatarUrl: "",
-    role: "user",
-    candy: 0,
-    chaptersRead: 0,
-    joinedAt: new Date().toISOString(),
-    isRead: [],
-    storiesMark: [],
-    unlockedChapters: [],
-    recommendationTicket: 0,
+  const beRes = await fetch(`${BE_URL}/api/v1/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(result.data),
   });
 
-  return NextResponse.json(
-    { message: "Đăng ký thành công", user: { id: user.id, name, email } },
-    { status: 201 }
-  );
+  const json = await beRes.json().catch(() => ({}));
+
+  if (!beRes.ok) {
+    return NextResponse.json(
+      { message: (json as { message?: string }).message ?? "Đăng ký thất bại" },
+      { status: beRes.status }
+    );
+  }
+
+  return NextResponse.json({ message: "Đăng ký thành công" }, { status: 201 });
 }

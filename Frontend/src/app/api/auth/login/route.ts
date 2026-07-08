@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loginSchema } from "@/schemas/auth";
-import { db } from "@/lib/mock-db";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -13,26 +14,46 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { email, password } = result.data;
+  // 1. Gọi BE login
+  const beRes = await fetch(`${BE_URL}/api/v1/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(result.data),
+  });
 
-  await new Promise((r) => setTimeout(r, 600));
-
-  const user = db.users.findByEmail(email);
-  if (!user || user.password !== password) {
-    return NextResponse.json({ message: "Email hoặc mật khẩu không đúng" }, { status: 401 });
+  if (!beRes.ok) {
+    const err = await beRes.json().catch(() => ({}));
+    return NextResponse.json(
+      { message: err.message ?? "Email hoặc mật khẩu không đúng" },
+      { status: beRes.status }
+    );
   }
 
-  // DbUser có tất cả field của JSON — tách ra trước khi trả về FE:
-  //   candy, isRead, storiesMark, unlockedChapters → từng bảng riêng trên BE thật
-  //   safeUser → phần còn lại, đúng với User type của FE
-  const { candy, isRead, storiesMark, unlockedChapters, ...safeUser } = user;
+  const { user: beUser } = await beRes.json();
 
-  return NextResponse.json({
-    accessToken: `mock-token-${user.id}`,
-    user: safeUser,
-    wallet: { userId: user.id, balance: candy },
-    history: isRead, // → LibraryStore.history
-    bookmarks: storiesMark, // → LibraryStore.bookmarks
-    purchasedChapterIds: unlockedChapters, // → LibraryStore.purchasedChapterIds
+  // 2. Lấy Set-Cookie từ BE (access_token + refresh_token httpOnly)
+  const setCookies = beRes.headers.getSetCookie();
+
+  // 3. Fetch wallet bằng cookie mới vừa nhận
+  const cookieStr = setCookies.map((c) => c.split(";")[0]).join("; ");
+  const walletRes = await fetch(`${BE_URL}/api/v1/user/wallet`, {
+    headers: { Cookie: cookieStr },
   });
+
+  let wallet = { userId: beUser.id, balance: 0 };
+  if (walletRes.ok) {
+    const walletData = await walletRes.json();
+    wallet = { userId: beUser.id, balance: walletData.balance ?? 0 };
+  }
+
+  // 4. Normalize: BE trả role UPPERCASE, FE dùng lowercase
+  const user = { ...beUser, role: (beUser.role as string).toLowerCase() };
+
+  // 5. Forward cookies xuống browser
+  const res = NextResponse.json({ user, wallet });
+  for (const cookie of setCookies) {
+    res.headers.append("Set-Cookie", cookie);
+  }
+
+  return res;
 }

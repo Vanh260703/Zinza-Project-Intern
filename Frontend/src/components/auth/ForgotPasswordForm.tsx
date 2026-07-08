@@ -49,7 +49,7 @@ export default function ForgotPasswordForm() {
           </p>
         </div>
         <Link
-          href="/login"
+          href="/auth/login"
           className="mt-2 text-xs text-amber-400 hover:text-amber-300 transition-colors"
         >
           Quay lại đăng nhập
@@ -75,7 +75,7 @@ export default function ForgotPasswordForm() {
       <Button loading={isSubmitting}>Gửi link đặt lại</Button>
 
       <Link
-        href="/login"
+        href="/auth/login"
         className="flex items-center justify-center gap-1.5 text-xs text-stone-500 hover:text-stone-300 transition-colors"
       >
         <ArrowLeft size={13} />

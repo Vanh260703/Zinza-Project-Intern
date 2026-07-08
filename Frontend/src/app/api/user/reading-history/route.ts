@@ -1,32 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
 
-// DELETE /api/user/reading-history?userId=...&storyId=...
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// GET /api/user/reading-history — danh sách truyện đã đọc
+export async function GET(req: NextRequest) {
+  const res = await fetch(`${BE_URL}/api/v1/user/read-history`, {
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
+
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
+}
+
+// DELETE /api/user/reading-history?id=<recordId>
 export async function DELETE(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
-  const storyId = req.nextUrl.searchParams.get("storyId");
+  const id = req.nextUrl.searchParams.get("id");
 
-  if (!userId || !storyId) {
+  if (!id) {
     return NextResponse.json({ message: "Thiếu thông tin" }, { status: 400 });
   }
 
-  const user = db.users.findById(userId);
-  if (!user) {
-    return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
-  }
+  const res = await fetch(`${BE_URL}/api/v1/user/read-history/${id}`, {
+    method: "DELETE",
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
 
-  const current = user.lastReadChapters ?? {};
-  if (!current[storyId]) {
-    return NextResponse.json({ message: "Truyện không có trong lịch sử" }, { status: 404 });
-  }
-
-  // Xoá storyId khỏi lastReadChapters
-  const { [storyId]: _, ...updated } = current;
-
-  const result = db.users.update(userId, { lastReadChapters: updated });
-  if (!result) {
-    return NextResponse.json({ message: "Cập nhật thất bại" }, { status: 500 });
-  }
-
-  return NextResponse.json({ ok: true });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
 }

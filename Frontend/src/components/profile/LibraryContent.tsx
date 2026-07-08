@@ -2,16 +2,15 @@
 
 import Link from "next/link";
 import { useStoriesByIds } from "@/hooks/useStories";
-import { useLibraryStore } from "@/stores/libraryStore";
-import { useAuthStore } from "@/stores/userStore";
-import { useRemoveReadingHistory } from "@/hooks/useUser";
+import { useBookmarks } from "@/hooks/useBookmarks";
+import { useRemoveReadingHistory, useReadingHistory } from "@/hooks/useUser";
 import { BookOpen, BookMarked, History, Compass, X, Loader2 } from "lucide-react";
-import type { User } from "@/types/user";
+import type { ReadChapterInfo } from "@/lib/api/user";
 import type { Story } from "@/types/story";
 
-// ── Story card ────────────────────────────────────────────────────────────────
+// Story card
 
-type LastChapter = NonNullable<User["lastReadChapters"]>[string];
+type LastChapter = ReadChapterInfo;
 
 function StoryCard({
   story,
@@ -37,7 +36,7 @@ function StoryCard({
         <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
           {story.posterUrl ? (
             <img
-              src={`/api/cover/${story.id}`}
+              src={story.posterUrl}
               alt={story.name}
               className="w-full h-full object-cover"
             />
@@ -83,21 +82,22 @@ function StoryCard({
   );
 }
 
-// ── Section ───────────────────────────────────────────────────────────────────
-
+// Section
 function Section({
   title,
   icon: Icon,
   stories,
   emptyText,
-  lastReadChapters,
+  lastChapterByNovel,
+  recordIdByNovel,
   removeMutation,
 }: {
   title: string;
   icon: React.ElementType;
   stories: Story[];
   emptyText: string;
-  lastReadChapters?: User["lastReadChapters"];
+  lastChapterByNovel?: Record<string, ReadChapterInfo>;
+  recordIdByNovel?: Record<string, string>;
   removeMutation?: ReturnType<typeof useRemoveReadingHistory>;
 }) {
   return (
@@ -111,35 +111,48 @@ function Section({
         <p className="text-stone-600 text-sm px-1">{emptyText}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-          {stories.map((story) => (
-            <StoryCard
-              key={story.id}
-              story={story}
-              lastChapter={lastReadChapters?.[story.id]}
-              onRemove={removeMutation ? () => removeMutation.mutate(story.id) : undefined}
-              removing={removeMutation?.isPending && removeMutation.variables === story.id}
-            />
-          ))}
+          {stories.map((story) => {
+            const recordId = recordIdByNovel?.[story.id];
+            return (
+              <StoryCard
+                key={story.id}
+                story={story}
+                lastChapter={lastChapterByNovel?.[story.id]}
+                onRemove={
+                  removeMutation && recordId
+                    ? () => removeMutation.mutate(recordId)
+                    : undefined
+                }
+                removing={removeMutation?.isPending && removeMutation.variables === recordId}
+              />
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
+// Root
 
 export default function LibraryContent() {
-  const { bookmarks } = useLibraryStore();
-  const lastReadChapters = useAuthStore((s) => s.user?.lastReadChapters);
+  const { data: bookmarkList = [] } = useBookmarks();
+  const { data: history = [], isLoading: historyLoading } = useReadingHistory();
   const removeMutation = useRemoveReadingHistory();
 
-  // Dùng lastReadChapters keys (DB-backed) thay vì history (localStorage only)
-  const readIds = Object.keys(lastReadChapters ?? {});
+  // Truyện đã lưu (BE user_novel_bookmarks) → lấy id để resolve Story qua useStoriesByIds
+  const bookmarks = bookmarkList.map((b) => b.novel.id);
+
+  // Lịch sử đọc từ BE (bảng user_novel_reads), sắp theo lần đọc gần nhất
+  const readIds = history.map((h) => h.novelId);
+  const lastChapterByNovel = Object.fromEntries(history.map((h) => [h.novelId, h.chapter]));
+  const recordIdByNovel = Object.fromEntries(history.map((h) => [h.novelId, h.id]));
 
   const isEmpty = readIds.length === 0 && bookmarks.length === 0;
   const allIds = [...new Set([...readIds, ...bookmarks])];
 
-  const { data: stories = [], isLoading: loading } = useStoriesByIds(allIds, !isEmpty);
+  const { data: stories = [], isLoading: storiesLoading } = useStoriesByIds(allIds, !isEmpty);
+  const loading = historyLoading || storiesLoading;
 
   const byId = Object.fromEntries(stories.map((s) => [s.id, s]));
   const historyStories = readIds.map((id) => byId[id]).filter(Boolean) as Story[];
@@ -186,7 +199,8 @@ export default function LibraryContent() {
         title="Đã đọc"
         icon={History}
         stories={historyStories}
-        lastReadChapters={lastReadChapters}
+        lastChapterByNovel={lastChapterByNovel}
+        recordIdByNovel={recordIdByNovel}
         emptyText="Chưa có lịch sử đọc."
         removeMutation={removeMutation}
       />

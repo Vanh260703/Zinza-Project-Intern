@@ -1,9 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, notificationsApi } from "@/lib/api/user";
+import { userApi, notificationsApi, type ReadHistoryEntry } from "@/lib/api/user";
+import { apiFetch } from "@/lib/api/client";
 import { useAuthStore } from "@/stores/userStore";
 import { showToast } from "@/lib/toast";
 
-// ── Queries ───────────────────────────────────────────────────────────────────
+// Queries
 
 export function useNotifications() {
   const user = useAuthStore((s) => s.user);
@@ -15,8 +16,17 @@ export function useNotifications() {
   });
 }
 
-// ── Mutations ─────────────────────────────────────────────────────────────────
+export function useReadingHistory() {
+  const user = useAuthStore((s) => s.user);
 
+  return useQuery({
+    queryKey: ["read-history", user?.id],
+    queryFn: () => userApi.getReadHistory(),
+    enabled: !!user,
+  });
+}
+
+// Mutations
 export function useMarkAllRead() {
   const user = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
@@ -39,12 +49,12 @@ export function useMarkAllRead() {
 }
 
 export function useUpdateProfile() {
-  const { setUser } = useAuthStore();
-
   return useMutation({
     mutationFn: (data: object) => userApi.updateProfile(data),
     onSuccess: (json) => {
-      setUser(json.user, useAuthStore.getState().accessToken ?? "");
+      const { user: currentUser, accessToken } = useAuthStore.getState();
+      // Merge để giữ các field client-side không có trong response BE
+      useAuthStore.getState().setUser({ ...currentUser!, ...json.user }, accessToken ?? "");
       showToast.success("Đã lưu thay đổi");
     },
     onError: () => showToast.error("Lỗi kết nối, thử lại sau"),
@@ -58,8 +68,12 @@ export function useUploadAvatar() {
     mutationFn: (file: File) => {
       const form = new FormData();
       form.append("avatar", file);
-      return fetch(`/api/user/avatar/${user!.id}`, { method: "POST", body: form })
-        .then((res) => res.json() as Promise<{ avatarUrl: string }>);
+      return apiFetch(`/api/user/avatar/${user!.id}`, { method: "POST", body: form })
+        .then(async (res) => {
+          const data = await res.json() as { avatarUrl?: string; message?: string };
+          if (!res.ok) throw new Error(data.message ?? "Upload thất bại");
+          return data as { avatarUrl: string };
+        });
     },
     onSuccess: (data) => {
       setUser({ ...user!, avatarUrl: data.avatarUrl }, accessToken!);
@@ -73,33 +87,48 @@ export function useChangePassword() {
   return useMutation({
     mutationFn: (data: object) => userApi.changePassword(data),
     onSuccess: () => showToast.success("Đổi mật khẩu thành công"),
-    onError: () => showToast.error("Lỗi kết nối, thử lại sau"),
+    onError: (err: Error) => showToast.error(err.message ?? "Lỗi kết nối, thử lại sau"),
   });
 }
 
-export function useGiftCandy(novelId: string) {
+export function useGiftCandy(slug: string) {
   const { user, setWallet } = useAuthStore();
 
   return useMutation({
-    mutationFn: (amount: number) => userApi.giftCandy(novelId, user!.id, amount),
+    mutationFn: (amount: number) => userApi.giftCandy(slug, amount),
     onSuccess: (data, amount) => {
-      setWallet(data.wallet);
+      if (user) setWallet({ userId: user.id, balance: data.remainingBalance });
       showToast.success(
         `Đã tặng ${amount} kẹo! 🍬`,
-        `Bạn còn ${data.wallet.balance.toLocaleString()} kẹo`
+        `Bạn còn ${data.remainingBalance.toLocaleString()} kẹo`
       );
     },
-    onError: () => showToast.error("Không thể kết nối máy chủ"),
+    onError: (err: Error) => showToast.error(err.message ?? "Không thể kết nối máy chủ"),
+  });
+}
+
+export function useDailyProgress() {
+  const user = useAuthStore((s) => s.user);
+
+  return useQuery({
+    queryKey: ["daily-progress", user?.id],
+    queryFn: () => userApi.getDailyProgress(),
+    enabled: !!user,
   });
 }
 
 export function useClaimDailyTicket() {
   const { user, accessToken, setUser } = useAuthStore();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => userApi.claimDailyTicket(user!.id),
-    onSuccess: (data) => {
-      setUser(data.user, accessToken!);
+    onSuccess: (data: { message: string; recommendationTicket: number }) => {
+      if (user && accessToken) {
+        setUser({ ...user, recommendationTicket: data.recommendationTicket }, accessToken);
+      }
+      // Cập nhật lại card tiến độ (đã nhận hôm nay)
+      queryClient.invalidateQueries({ queryKey: ["daily-progress", user?.id] });
       showToast.success("Nhận vé thành công! 🎫");
     },
     onError: () => showToast.error("Không thể kết nối máy chủ"),
@@ -107,16 +136,17 @@ export function useClaimDailyTicket() {
 }
 
 export function useRemoveReadingHistory() {
-  const { user, accessToken, setUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (storyId: string) =>
-      userApi.removeReadingHistory(user!.id, storyId).then(() => storyId),
-    onSuccess: (storyId: string) => {
-      if (!user || !accessToken) return;
-      const updated = { ...user.lastReadChapters };
-      delete updated[storyId];
-      setUser({ ...user, lastReadChapters: updated }, accessToken);
+    // recordId = UserNovelRead.id
+    mutationFn: (recordId: string) =>
+      userApi.removeReadingHistory(recordId).then(() => recordId),
+    onSuccess: (recordId: string) => {
+      queryClient.setQueryData<ReadHistoryEntry[]>(["read-history", user?.id], (prev) =>
+        prev ? prev.filter((h) => h.id !== recordId) : prev
+      );
     },
     onError: () => showToast.error("Xóa thất bại"),
   });

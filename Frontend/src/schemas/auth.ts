@@ -43,7 +43,21 @@ export const updateProfileSchema = z.object({
 
 export type UpdateProfileSchema = z.infer<typeof updateProfileSchema>;
 
-// Reset password
+// Reset password by token (từ email link)
+
+export const resetPasswordByTokenSchema = z
+  .object({
+    newPassword: z.string().min(6, "Mật khẩu ít nhất 6 ký tự"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Mật khẩu xác nhận không khớp",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordByTokenFormData = z.infer<typeof resetPasswordByTokenSchema>;
+
+// Reset password (đổi mật khẩu trong profile)
 
 export const resetPasswordSchema = z
   .object({
