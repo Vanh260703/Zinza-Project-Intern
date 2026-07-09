@@ -27,7 +27,7 @@ const MEMBER_ITEMS: NavItem[] = [
   { href: "/profile/library", icon: BookMarked, label: "Tủ truyện" },
 ];
 
-const STORY_ITEMS: NavItem[] = [
+const NOVEL_ITEMS: NavItem[] = [
   { href: "/my-novels", icon: BookOpenText, label: "Đã đăng" },
   { href: "/my-novels/create", icon: PlusCircle, label: "Đăng truyện mới" },
   { href: "/my-novels/import", icon: Upload, label: "Import ZIP" },
@@ -126,7 +126,7 @@ export default function ProfileSidebar() {
             ))}
 
             <SectionLabel>Truyện của tôi</SectionLabel>
-            {STORY_ITEMS.map((item) => (
+            {NOVEL_ITEMS.map((item) => (
               <NavLink key={item.href} {...item} pathname={pathname} />
             ))}
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen, BookOpenText, CalendarDays } from "lucide-react";
 import type { PublicUser } from "@/lib/api/publicProfile";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 
 function formatJoinedAt(joinedAt?: string) {
   if (!joinedAt) return "Không rõ";
@@ -12,17 +12,17 @@ function formatJoinedAt(joinedAt?: string) {
   });
 }
 
-function StoryCard({ story }: { story: Story }) {
+function NovelCard({ novel }: { novel: Novel }) {
   return (
     <Link
-      href={`/novels/${story.slug}`}
+      href={`/novels/${novel.slug}`}
       className="flex gap-3 p-3 rounded-xl border border-stone-800 hover:border-stone-700 hover:bg-stone-800/50 transition-colors group"
     >
       <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-        {story.posterUrl ? (
+        {novel.posterUrl ? (
           <img
-            src={story.posterUrl}
-            alt={story.name}
+            src={novel.posterUrl}
+            alt={novel.name}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -33,11 +33,11 @@ function StoryCard({ story }: { story: Story }) {
       </div>
       <div className="flex flex-col gap-1 min-w-0 justify-center">
         <p className="text-stone-200 text-sm font-medium truncate group-hover:text-amber-400 transition-colors">
-          {story.name}
+          {novel.name}
         </p>
-        <p className="text-stone-500 text-xs">{story.chapterCount} chương</p>
+        <p className="text-stone-500 text-xs">{novel.chapterCount} chương</p>
         <div className="flex gap-1.5 flex-wrap mt-0.5">
-          {story.categories.slice(0, 2).map((g) => (
+          {novel.categories.slice(0, 2).map((g) => (
             <span
               key={g.slug}
               className="text-[10px] px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-md"
@@ -45,7 +45,7 @@ function StoryCard({ story }: { story: Story }) {
               {g.name}
             </span>
           ))}
-          {story.vip && (
+          {novel.vip && (
             <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
               VIP
             </span>
@@ -56,9 +56,9 @@ function StoryCard({ story }: { story: Story }) {
   );
 }
 
-type Props = { user: PublicUser; stories: Story[] };
+type Props = { user: PublicUser; novels: Novel[] };
 
-export default function PublicProfile({ user, stories }: Props) {
+export default function PublicProfile({ user, novels }: Props) {
   return (
     <div className="min-h-screen bg-stone-950">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col gap-6">
@@ -98,23 +98,23 @@ export default function PublicProfile({ user, stories }: Props) {
           </div>
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 flex flex-col gap-1">
             <p className="text-stone-500 text-xs">Truyện đã đăng</p>
-            <p className="text-white text-2xl font-bold">{stories.length}</p>
+            <p className="text-white text-2xl font-bold">{novels.length}</p>
           </div>
         </div>
 
-        {/* Posted stories */}
+        {/* Posted novels */}
         <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <BookOpenText className="w-4 h-4 text-amber-400" />
             <h2 className="text-white font-semibold">Truyện đã đăng</h2>
           </div>
 
-          {stories.length === 0 ? (
+          {novels.length === 0 ? (
             <p className="text-stone-600 text-sm py-6 text-center">Chưa đăng truyện nào.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {stories.map((story) => (
-                <StoryCard key={story.id} story={story} />
+              {novels.map((novel) => (
+                <NovelCard key={novel.id} novel={novel} />
               ))}
             </div>
           )}

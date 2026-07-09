@@ -9,11 +9,11 @@ type Props = {
 
 export default async function VipPage({ searchParams }: Props) {
   const { page } = await searchParams;
-  const stories = db.stories.getVip();
+  const novels = db.novels.getVip();
 
-  const totalPages = Math.ceil(stories.length / PAGE_SIZE);
+  const totalPages = Math.ceil(novels.length / PAGE_SIZE);
   const currentPage = Math.min(Math.max(1, parseInt(page ?? "1") || 1), totalPages);
-  const visible = stories.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const visible = novels.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
-  return <VipContent stories={visible} currentPage={currentPage} totalPages={totalPages} />;
+  return <VipContent novels={visible} currentPage={currentPage} totalPages={totalPages} />;
 }

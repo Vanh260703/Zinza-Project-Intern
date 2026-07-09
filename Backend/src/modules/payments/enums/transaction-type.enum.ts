@@ -4,4 +4,5 @@ export enum TransactionType {
   REFUND = 'refund', // Hoàn tiền
   BONUS = 'bonus', // Admin tặng candy
   GIFT = 'gift', // Tặng kẹo cho truyện
+  EARN = 'earn', // Nhận kẹo từ tặng / mở khoá chương (về ví người đăng)
 }

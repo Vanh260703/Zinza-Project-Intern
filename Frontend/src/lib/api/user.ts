@@ -44,7 +44,7 @@ export const userApi = {
 
   trackDailyRead: (data: {
     userId: string;
-    storyId: string;
+    novelId: string;
     chapterId: string;
     chapterTitle?: string;
     chapterNumber?: number;

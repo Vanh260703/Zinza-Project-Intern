@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { validate } from './config/env.validation';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -41,6 +42,7 @@ import { Comment } from './modules/comments/entities/comment.entity';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate,
     }),
 
     TypeOrmModule.forRootAsync({

@@ -16,13 +16,13 @@ import { useDeleteNovel } from "@/hooks/useNovels";
 import { useAuthStore } from "@/stores/userStore";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ErrorPage from "@/components/error/ErrorPage";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 import InfoTab from "./InfoTab";
 import ChaptersTab from "./ChaptersTab";
 import EditTab from "./EditTab";
 import ScheduleTab from "./ScheduleTab";
 
-import { getStoryStatus } from "@/config/statuses";
+import { getNovelStatus } from "@/config/statuses";
 
 const TABS = [
   { id: "info", label: "Thông tin truyện" },
@@ -39,10 +39,10 @@ function formatDate(date?: Date | string) {
   });
 }
 
-type Props = { story: Story };
+type Props = { novel: Novel };
 
-export default function ManageNovelContent({ story: initialStory }: Props) {
-  const [story, setStory] = useState(initialStory);
+export default function ManageNovelContent({ novel: initialNovel }: Props) {
+  const [novel, setNovel] = useState(initialNovel);
   const [active, setActive] = useState("info");
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -61,12 +61,12 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
   }, []);
 
   const router = useRouter();
-  const status = getStoryStatus(story.status);
+  const status = getNovelStatus(novel.status);
   const deleteMutation = useDeleteNovel();
 
   if (!hydrated) return null;
 
-  if (!user || user.id !== story.postedBy) {
+  if (!user || user.id !== novel.postedBy) {
     return (
       <ErrorPage
         code={403}
@@ -82,11 +82,11 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
       {showDelete && (
         <ConfirmModal
           title="Xóa truyện này?"
-          description={`"${story.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
+          description={`"${novel.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
           confirmLabel="Xóa truyện"
           loading={deleteMutation.isPending}
           onConfirm={() =>
-            deleteMutation.mutate(story.id, { onSuccess: () => router.push("/my-novels") })
+            deleteMutation.mutate(novel.slug, { onSuccess: () => router.push("/my-novels") })
           }
           onCancel={() => setShowDelete(false)}
         />
@@ -107,10 +107,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
           <div className="flex gap-4 items-start">
             {/* Cover */}
             <div className="w-20 h-28 rounded-xl overflow-hidden bg-stone-800 shrink-0">
-              {story.posterUrl ? (
+              {novel.posterUrl ? (
                 <img
-                  src={`/api/cover/${story.id}`}
-                  alt={story.name}
+                  src={novel.posterUrl}
+                  alt={novel.name}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -123,8 +123,8 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
             {/* Info + actions */}
             <div className="flex flex-col gap-2 flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-white font-bold text-lg leading-snug">{story.name}</h1>
-                {story.vip && (
+                <h1 className="text-white font-bold text-lg leading-snug">{novel.name}</h1>
+                {novel.vip && (
                   <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md">
                     <Crown className="w-2.5 h-2.5" />
                     VIP
@@ -139,10 +139,10 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
                 )}
               </div>
 
-              {story.updatedAt && (
+              {novel.updatedAt && (
                 <p className="text-stone-500 text-xs flex items-center gap-1.5">
                   <CalendarDays className="w-3.5 h-3.5" />
-                  Cập nhật: {formatDate(story.updatedAt)}
+                  Cập nhật: {formatDate(novel.updatedAt)}
                 </p>
               )}
 
@@ -158,7 +158,7 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
                   Cập nhật thông tin
                 </button>
                 <Link
-                  href={`/my-novels/${story.id}/chapters/create`}
+                  href={`/my-novels/${novel.slug}/chapters/create`}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
                 >
                   <PlusCircle className="w-3.5 h-3.5" />
@@ -197,14 +197,14 @@ export default function ManageNovelContent({ story: initialStory }: Props) {
           </div>
 
           <div className="p-5">
-            {active === "info" && <InfoTab story={story} />}
-            {active === "chapters" && <ChaptersTab novelId={story.id} />}
+            {active === "info" && <InfoTab novel={novel} />}
+            {active === "chapters" && <ChaptersTab slug={novel.slug} />}
             {active === "schedule" && <ScheduleTab />}
             {active === "edit" && (
               <EditTab
-                story={story}
+                novel={novel}
                 onUpdated={(s) => {
-                  setStory(s);
+                  setNovel(s);
                   setActive("info");
                 }}
               />

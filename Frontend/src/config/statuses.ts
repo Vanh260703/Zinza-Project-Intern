@@ -1,6 +1,6 @@
-export type StoryStatus = "PENDING" | "COMPLETED";
+export type NovelStatus = "PENDING" | "COMPLETED";
 
-export const STORY_STATUS_CONFIG = {
+export const NOVEL_STATUS_CONFIG = {
   PENDING: {
     label: "Đang ra", // dùng trong filter chip, text thường
     labelUpper: "ĐANG RA", // dùng trong badge trên card
@@ -20,6 +20,6 @@ export const STATUS_FALLBACK = {
   cls: "text-stone-400 bg-stone-800 border-stone-700",
 } as const;
 
-export function getStoryStatus(status: string) {
-  return STORY_STATUS_CONFIG[status as StoryStatus] ?? STATUS_FALLBACK;
+export function getNovelStatus(status: string) {
+  return NOVEL_STATUS_CONFIG[status as NovelStatus] ?? STATUS_FALLBACK;
 }

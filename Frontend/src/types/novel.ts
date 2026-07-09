@@ -1,9 +1,9 @@
-import type { Status } from "@/enums/story";
+import type { Status } from "@/enums/novel";
 import type { Category } from "@/config/category";
 
 export type { Category };
 
-export interface Story {
+export interface Novel {
   id: string;
   slug: string;
   name: string;
@@ -14,6 +14,8 @@ export interface Story {
   ratingCount: number;
   commentCount: number;
   nominations: number;
+  views: number;
+  candyReceived: number;
   author: string;
   postedBy: string;
   categories: Category[];

@@ -1,6 +1,6 @@
 export interface Review {
   id: string;
-  storyId: string;
+  novelId: string;
   userId: string;
   userName: string;
   avatarUrl: string | null;

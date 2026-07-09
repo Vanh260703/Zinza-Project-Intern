@@ -11,7 +11,7 @@ import { useAuthStore } from "@/stores/userStore";
 import { useCreateNovel } from "@/hooks/useNovels";
 import { createNovelSchema } from "@/schemas/novel";
 import { CATEGORIES } from "@/config/category";
-import { STATUS_OPTIONS } from "@/enums/story";
+import { STATUS_OPTIONS } from "@/enums/novel";
 
 const formSchema = createNovelSchema.omit({ userId: true });
 type FormData = z.infer<typeof formSchema>;

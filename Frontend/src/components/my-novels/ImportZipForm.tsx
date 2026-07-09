@@ -117,23 +117,6 @@ export default function ImportZipForm() {
   const [phase, setPhase] = useState<Phase>("upload");
   const [error, setError] = useState<string | null>(null);
 
-  // Phase 2: fake processing animation 70→100%
-  const runProcessingAnimation = () =>
-    new Promise<void>((resolve) => {
-      let pct = 70;
-      const tick = () => {
-        if (pct >= 100) {
-          setProgress(100);
-          resolve();
-          return;
-        }
-        pct = Math.min(pct + Math.random() * 2 + 0.5, 100);
-        setProgress(Math.floor(pct));
-        setTimeout(tick, 150);
-      };
-      setTimeout(tick, 100);
-    });
-
   const reset = () => {
     setImporting(false);
     setProgress(0);
@@ -183,20 +166,24 @@ export default function ImportZipForm() {
     setError(null);
 
     try {
-      // Phase 1 (0–70%): upload
-      // onUploadProgress nhận ratio 0→1, map sang 0→70%
-      await importZip(file, "", (ratio) => {
-        setProgress(Math.min(Math.floor(ratio * 70), 70));
-      });
+      // Phase 1 (0–70%): upload — progress thật từ XHR upload event
+      // Phase 2 (70–95%): mỗi lần poll trạng thái job (BE đang xử lý ZIP) → nhích tiếp
+      const result = await importZip(
+        file,
+        (ratio) => {
+          setProgress(Math.min(Math.floor(ratio * 70), 70));
+        },
+        () => {
+          setPhase("processing");
+          setProgress((p) => Math.min(Math.floor(p + Math.random() * 4 + 2), 95));
+        }
+      );
 
-      // Phase 2 (70–100%): server processing
-      setPhase("processing");
-      await runProcessingAnimation();
-
+      setProgress(100);
       setPhase("done");
       await new Promise((r) => setTimeout(r, 400));
-      showToast.success("Import thành công! 🎉");
-      router.push("/my-novels");
+      showToast.success(`Import thành công! Đã thêm ${result.chapterCount} chương 🎉`);
+      router.push(`/my-novels/${result.slug}`);
     } catch (err) {
       // Lỗi từ BE (413, validation...): progress đứng tại vị trí hiện tại
       const msg = err instanceof Error ? err.message : "Import thất bại";

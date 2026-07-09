@@ -7,9 +7,12 @@ import { BookOpen, PlusCircle } from "lucide-react";
 import Link from "next/link";
 
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import Pagination from "@/components/ui/Pagination";
 import type { Chapter } from "@/types/chapter";
 
-type Props = { novelId: string };
+const PAGE_SIZE = 15;
+
+type Props = { slug: string };
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -17,11 +20,16 @@ function formatDate(iso?: string) {
   return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 }
 
-export default function ChaptersTab({ novelId }: Props) {
+export default function ChaptersTab({ slug }: Props) {
   const [confirmChapter, setConfirmChapter] = useState<Chapter | null>(null);
+  const [page, setPage] = useState(1);
 
-  const { data: chapters = [], isLoading } = useChapters(novelId);
-  const deleteMutation = useDeleteChapter(novelId);
+  const { data: chapters = [], isLoading } = useChapters(slug);
+  const deleteMutation = useDeleteChapter(slug);
+
+  const totalPages = Math.max(1, Math.ceil(chapters.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages); // clamp khi list co lại (vd xoá chương)
+  const pageChapters = chapters.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   if (isLoading) {
     return (
@@ -37,7 +45,7 @@ export default function ChaptersTab({ novelId }: Props) {
         <div className="flex items-center justify-between">
           <p className="text-stone-500 text-sm">{chapters.length} chương</p>
           <Link
-            href={`/my-novels/${novelId}/chapters/create`}
+            href={`/my-novels/${slug}/chapters/create`}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-colors"
           >
             <PlusCircle className="w-3.5 h-3.5" />
@@ -64,9 +72,6 @@ export default function ChaptersTab({ novelId }: Props) {
                   <th className="text-right text-[11px] font-semibold text-stone-500 uppercase tracking-wide px-4 py-3 w-24 hidden sm:table-cell">
                     Số chữ
                   </th>
-                  <th className="text-right text-[11px] font-semibold text-stone-500 uppercase tracking-wide px-4 py-3 w-24 hidden sm:table-cell">
-                    Lượt xem
-                  </th>
                   <th className="text-center text-[11px] font-semibold text-stone-500 uppercase tracking-wide px-4 py-3 w-24">
                     Giá kẹo
                   </th>
@@ -79,7 +84,7 @@ export default function ChaptersTab({ novelId }: Props) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-800">
-                {chapters.map((ch) => (
+                {pageChapters.map((ch) => (
                   <tr key={ch.id} className="hover:bg-stone-800/30 transition-colors">
                     <td className="px-4 py-3 text-stone-500 text-sm">{ch.number}</td>
                     <td className="px-4 py-3 text-stone-300 text-sm max-w-0">
@@ -87,9 +92,6 @@ export default function ChaptersTab({ novelId }: Props) {
                     </td>
                     <td className="px-4 py-3 text-stone-400 text-sm text-right hidden sm:table-cell">
                       {(ch.wordCount ?? 0).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-stone-400 text-sm text-right hidden sm:table-cell">
-                      {(ch.views ?? 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 text-center">
                       {ch.price ? (
@@ -106,7 +108,7 @@ export default function ChaptersTab({ novelId }: Props) {
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-3">
                         <Link
-                          href={`/my-novels/${novelId}/chapters/${ch.id}/edit`}
+                          href={`/my-novels/${slug}/chapters/${ch.id}/edit`}
                           className="text-stone-400 hover:text-white text-sm transition-colors"
                         >
                           Sửa
@@ -125,6 +127,14 @@ export default function ChaptersTab({ novelId }: Props) {
             </table>
           </div>
         )}
+
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalItems={chapters.length}
+          itemLabel="chương"
+        />
       </div>
 
       {confirmChapter && (

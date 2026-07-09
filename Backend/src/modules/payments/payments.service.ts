@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import * as crypto from 'crypto';
 import { UserWallet } from './entities/user-wallet.entity';
 import { WalletTransaction } from './entities/wallet-transaction.entity';
@@ -268,6 +268,13 @@ export class PaymentsService {
     novel: Novel,
     amount: number,
   ): Promise<{ message: string; remainingBalance: number }> {
+    // Không cho tặng kẹo cho truyện của chính mình
+    if (novel.postedBy?.id === userId) {
+      throw new BadRequestException(
+        'Không thể tặng kẹo cho truyện của chính mình',
+      );
+    }
+
     return this.dataSource.transaction(async (em) => {
       // SELECT ... FOR UPDATE locks the row for this transaction
       const wallet = await em.findOne(UserWallet, {
@@ -299,8 +306,50 @@ export class PaymentsService {
         }),
       );
 
+      // Cộng kẹo vào ví người đăng truyện (postedBy có thể null nếu người đăng đã bị xoá)
+      if (novel.postedBy) {
+        await this.creditAuthorWallet(
+          em,
+          novel.postedBy.id,
+          amount,
+          'novel',
+          novel.id,
+          `Nhận ${amount} kẹo từ truyện "${novel.name}"`,
+        );
+      }
+
       return { message: 'Tặng kẹo thành công', remainingBalance: balanceAfter };
     });
+  }
+
+  // Cộng kẹo cho ví người đăng + ghi lịch sử EARN. Dùng increment atomic (không lock
+  // ví người nhận) để tránh deadlock khi có nhiều giao dịch cùng lúc.
+  private async creditAuthorWallet(
+    em: EntityManager,
+    authorId: string,
+    amount: number,
+    referenceType: string,
+    referenceId: string,
+    description: string,
+  ): Promise<void> {
+    const authorWallet = await em.findOne(UserWallet, {
+      where: { user: { id: authorId } },
+    });
+    if (!authorWallet) return;
+
+    await em.increment(UserWallet, { id: authorWallet.id }, 'balance', amount);
+    await em.save(
+      em.create(WalletTransaction, {
+        user: { id: authorId },
+        type: TransactionType.EARN,
+        amount,
+        balanceBefore: authorWallet.balance,
+        balanceAfter: authorWallet.balance + amount,
+        referenceType,
+        referenceId,
+        description,
+      }),
+    );
   }
 
   async findOrderById(userId: string, id: string): Promise<PaymentOrder> {

@@ -1,31 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/mock-db";
 import { createNovelSchema } from "@/schemas/novel";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
-// GET /api/novels?ids=id1,id2,id3
-// GET /api/novels?postedBy=userId
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// Các param đẩy thẳng xuống BE GET /novels
+const FORWARD_PARAMS = ["ids", "vip", "sort", "status", "limit", "category", "q", "page"];
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
 
   if (searchParams.get("all") === "true") {
-    return NextResponse.json(db.stories.getAll());
+    return NextResponse.json(db.novels.getAll());
   }
 
   const postedBy = searchParams.get("postedBy");
   if (postedBy) {
-    return NextResponse.json(db.stories.getByUser(postedBy));
+    return NextResponse.json(db.novels.getByUser(postedBy));
   }
 
-  const ids = searchParams.get("ids");
-  if (!ids) return NextResponse.json([]);
+  // Còn lại → BE thật, chuẩn hoá BE novel → Novel
+  const be = new URL(`${BE_URL}/api/v1/novels`);
+  for (const key of FORWARD_PARAMS) {
+    const v = searchParams.get(key);
+    if (v !== null) be.searchParams.set(key, v);
+  }
 
-  const stories = ids
-    .split(",")
-    .filter(Boolean)
-    .map((id) => db.stories.findById(id))
-    .filter(Boolean);
+  const res = await fetch(be, { headers: { Cookie: req.headers.get("cookie") ?? "" } });
+  if (!res.ok) return NextResponse.json([], { status: res.status });
 
-  return NextResponse.json(stories);
+  const json = (await res.json()) as { data?: BeNovel[] };
+  return NextResponse.json((json.data ?? []).map(normalizeNovel));
 }
 
 // POST /api/novels
@@ -41,6 +47,6 @@ export async function POST(req: NextRequest) {
 
   await new Promise((r) => setTimeout(r, 500));
 
-  const story = db.stories.create(result.data);
-  return NextResponse.json({ story }, { status: 201 });
+  const novel = db.novels.create(result.data);
+  return NextResponse.json({ novel }, { status: 201 });
 }

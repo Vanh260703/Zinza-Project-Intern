@@ -1,39 +1,39 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { BookOpen, Star, BookMarked, Play } from "lucide-react";
-import type { Story } from "@/types/story";
-import { getStoryStatus } from "@/config/statuses";
+import type { Novel } from "@/types/novel";
+import { getNovelStatus } from "@/config/statuses";
 import SectionHeader from "./SectionHeader";
 
 type RandomSectionProps = {
-  story: Story;
+  novel: Novel;
 };
 
-function CoverImage({
-  storyId,
-  hasPoster,
-  name,
-}: {
-  storyId: string;
-  hasPoster: boolean;
-  name: string;
-}) {
-  if (!hasPoster) {
+function CoverImage({ posterUrl, name }: { posterUrl: string | null; name: string }) {
+  if (!posterUrl) {
     return (
       <div className="w-full h-full bg-linear-to-br from-stone-700 to-stone-800 flex items-center justify-center">
         <BookOpen className="w-12 h-12 text-stone-600" strokeWidth={1.5} />
       </div>
     );
   }
-  return <img src={`/api/cover/${storyId}`} alt={name} className="w-full h-full object-cover" />;
+  return (
+    <Image
+      src={posterUrl}
+      alt={name}
+      fill
+      sizes="(max-width: 640px) 128px, 144px"
+      className="object-cover"
+    />
+  );
 }
 
-export default function RandomSection({ story }: RandomSectionProps) {
+export default function RandomSection({ novel }: RandomSectionProps) {
   const router = useRouter();
   const {
-    id,
     slug,
     name,
     posterUrl,
@@ -46,7 +46,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
     vip,
     nominations,
     description,
-  } = story;
+  } = novel;
 
   return (
     <section>
@@ -64,7 +64,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
           className="relative shrink-0 w-32 sm:w-36 mx-auto sm:mx-0 rounded-xl overflow-hidden bg-stone-800 group"
           style={{ aspectRatio: "3/4" }}
         >
-          <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
+          <CoverImage posterUrl={posterUrl} name={name} />
 
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Play className="w-8 h-8 text-white fill-white" />
@@ -83,7 +83,7 @@ export default function RandomSection({ story }: RandomSectionProps) {
                 : "bg-stone-700/90 text-stone-300"
             }`}
           >
-            {getStoryStatus(status).label}
+            {getNovelStatus(status).label}
           </span>
         </Link>
 

@@ -1,20 +1,21 @@
 import { notFound } from "next/navigation";
-import { db } from "@/lib/mock-db";
-import type { Chapter } from "@/types/chapter";
 import NovelDetailPage from "@/components/novels/NovelDetailPage";
+import { getNovelDetail } from "@/lib/api/novelDetail";
 
 type Props = { params: Promise<{ slug: string }> };
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-  const story = db.stories.findBySlug(slug);
-  if (!story) notFound();
+  const detail = await getNovelDetail(slug);
+  if (!detail) notFound();
 
-  let chapters: Chapter[] = [];
-  try {
-    chapters = db.chapters.getIndex(slug);
-  } catch {}
-
-  const reviews = db.reviews.getByStory(story.id);
-  return <NovelDetailPage story={story} chapters={chapters} slug={slug} reviews={reviews} />;
+  return (
+    <NovelDetailPage
+      novel={detail.novel}
+      chapters={detail.chapters}
+      slug={slug}
+      reviews={detail.reviews}
+      posterName={detail.posterName}
+    />
+  );
 }

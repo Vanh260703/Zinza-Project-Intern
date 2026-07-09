@@ -9,5 +9,5 @@ export default async function UserProfilePage({ params }: Props) {
   const data = await getPublicProfile(id);
   if (!data) notFound();
 
-  return <PublicProfile user={data.user} stories={data.stories} />;
+  return <PublicProfile user={data.user} novels={data.novels} />;
 }

@@ -35,6 +35,7 @@ import { UpdateCommentDto } from 'src/modules/comments/dto/update-comment.dto';
 import { QueryNovelsDto } from './dto/query-novels.dto';
 import { GiftCandyDto } from './dto/gift-candy.dto';
 import { CreateNovelDto } from './dto/create-novel.dto';
+import { UpdateNovelDto } from './dto/update-novel.dto';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
 import { JwtAuthGuard } from 'src/shared/guards';
@@ -129,10 +130,43 @@ export class NovelsController {
     };
   }
 
+  // [GET] /api/v1/novels/random — 1 truyện ngẫu nhiên (rating ≥ 4.5, fallback bất kỳ)
+  // Đặt TRƯỚC :slug để route param không nuốt mất
+  @Get('random')
+  findRandom() {
+    return this.novelsService.findRandom();
+  }
+
+  // [GET] /api/v1/novels/rankings — BXH ngày/tuần/tháng theo lượt đọc
+  @Get('rankings')
+  getRankings() {
+    return this.novelsService.getRankingsAll();
+  }
+
   // [GET] /api/v1/novels/:slug
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.novelsService.findOne(slug);
+  }
+
+  // [PATCH] /api/v1/novels/:slug — sửa truyện (chỉ người đăng)
+  @UseGuards(JwtAuthGuard)
+  @Patch(':slug')
+  update(
+    @CurrentUser() user: User,
+    @Param('slug') slug: string,
+    @Body() dto: UpdateNovelDto,
+  ) {
+    return this.novelsService.update(user.id, slug, dto);
+  }
+
+  // [DELETE] /api/v1/novels/:slug — xoá truyện (chỉ người đăng)
+  @UseGuards(JwtAuthGuard)
+  @Delete(':slug')
+  @HttpCode(HttpStatus.OK)
+  async remove(@CurrentUser() user: User, @Param('slug') slug: string) {
+    await this.novelsService.remove(user.id, slug);
+    return { message: 'Xoá truyện thành công' };
   }
 
   // [POST] /api/v1/novels/:slug/nominate

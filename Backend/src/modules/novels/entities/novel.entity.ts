@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -41,6 +42,7 @@ export class Novel {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
+  @Index()
   @Column({
     type: 'enum',
     enum: Status,
@@ -60,6 +62,7 @@ export class Novel {
   @Column({ default: 0 })
   nominations: number; // Tổng số lượt đề cửp
 
+  @Index()
   @Column({
     type: 'numeric',
     precision: 3,
@@ -77,6 +80,7 @@ export class Novel {
   @Column({ default: 0 })
   views: number;
 
+  @Index()
   @CreateDateColumn()
   createdAt: Date;
 

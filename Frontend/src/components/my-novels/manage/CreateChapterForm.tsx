@@ -8,7 +8,7 @@ import { z } from "zod";
 import { useAuthStore } from "@/stores/userStore";
 import ErrorPage from "@/components/error/ErrorPage";
 
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 import { createChapterFormSchema } from "@/schemas/chapter";
 
 type FormData = z.infer<typeof createChapterFormSchema>;
@@ -16,12 +16,12 @@ type FormData = z.infer<typeof createChapterFormSchema>;
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
-type Props = { story: Story; nextNumber: number };
+type Props = { novel: Novel; nextNumber: number };
 
-export default function CreateChapterForm({ story, nextNumber }: Props) {
+export default function CreateChapterForm({ novel, nextNumber }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
-  const createMutation = useCreateChapter(story.id, nextNumber);
+  const createMutation = useCreateChapter(novel.slug, nextNumber);
 
   const {
     register,
@@ -41,7 +41,7 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
   const price = useWatch({ control, name: "price" }) ?? 0;
   const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
-  if (user && user.id !== story.postedBy) {
+  if (user && user.id !== novel.postedBy) {
     return (
       <ErrorPage
         code={403}
@@ -56,12 +56,11 @@ export default function CreateChapterForm({ story, nextNumber }: Props) {
     if (!user) return;
     createMutation.mutate(
       {
-        userId: user.id,
         title: data.title.trim(),
         content: data.content,
-        ...(data.price > 0 ? { price: data.price } : {}),
+        ...((data.price ?? 0) > 0 ? { price: data.price } : {}),
       },
-      { onSuccess: () => router.push(`/my-novels/${story.id}`) }
+      { onSuccess: () => router.push(`/my-novels/${novel.slug}`) }
     );
   };
 

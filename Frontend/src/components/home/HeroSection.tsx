@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
 import { CATEGORIES } from "@/config/category";
-import { STATUS_OPTIONS } from "@/enums/story";
+import { STATUS_OPTIONS } from "@/enums/novel";
 
 function FilterSelect({
   value,

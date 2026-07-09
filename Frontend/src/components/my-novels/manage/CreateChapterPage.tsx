@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import CreateChapterForm from "@/components/my-novels/manage/CreateChapterForm";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 
-type Props = { story: Story; nextNumber: number };
+type Props = { novel: Novel; nextNumber: number };
 
-export default function CreateChapterPage({ story, nextNumber }: Props) {
+export default function CreateChapterPage({ novel, nextNumber }: Props) {
   return (
     <div className="flex flex-col gap-5">
       <Link
-        href={`/my-novels/${story.id}`}
+        href={`/my-novels/${novel.slug}`}
         className="flex items-center gap-1.5 text-stone-500 hover:text-stone-300 text-sm transition-colors w-fit"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -19,10 +19,10 @@ export default function CreateChapterPage({ story, nextNumber }: Props) {
         <div>
           <h2 className="text-white font-bold text-lg">Đăng chương mới</h2>
           <p className="text-stone-500 text-sm mt-0.5">
-            {story.name} — Chương {nextNumber}
+            {novel.name} — Chương {nextNumber}
           </p>
         </div>
-        <CreateChapterForm story={story} nextNumber={nextNumber} />
+        <CreateChapterForm novel={novel} nextNumber={nextNumber} />
       </div>
     </div>
   );

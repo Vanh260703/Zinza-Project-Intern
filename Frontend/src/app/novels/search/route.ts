@@ -1,31 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
-import { removeDiacritics } from "@/utils/removeDiacritics";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// GET /novels/search?q=...&limit=4 — gợi ý nhanh cho ô tìm kiếm ở Navbar
+// Proxy sang BE GET /novels (search theo name + slug + author) rồi chuẩn hoá → Novel[]
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const q = searchParams.get("q")?.trim() ?? "";
-  const limit = parseInt(searchParams.get("limit") ?? "4", 10);
+  const limit = searchParams.get("limit") ?? "4";
 
   if (!q) return NextResponse.json({ results: [], total: 0 });
 
-  const normalizedQ = removeDiacritics(q.toLowerCase());
-  const all = db.stories.getAll();
+  const be = new URL(`${BE_URL}/api/v1/novels`);
+  be.searchParams.set("q", q);
+  be.searchParams.set("limit", limit);
 
-  const matched = all.filter((s) => {
-    const name = removeDiacritics(s.name.toLowerCase());
-    const author = removeDiacritics(s.author.toLowerCase());
-    return name.includes(normalizedQ) || author.includes(normalizedQ);
+  const res = await fetch(be);
+  if (!res.ok) {
+    return NextResponse.json({ results: [], total: 0 }, { status: res.status });
+  }
+
+  const json = (await res.json()) as { data?: BeNovel[]; meta?: { total?: number } };
+  return NextResponse.json({
+    results: (json.data ?? []).map(normalizeNovel),
+    total: json.meta?.total ?? 0,
   });
-
-  const results = matched.slice(0, limit).map((s) => ({
-    id: s.id,
-    slug: s.slug,
-    name: s.name,
-    author: s.author,
-    posterUrl: s.posterUrl ?? null,
-    categories: s.categories ?? [],
-  }));
-
-  return NextResponse.json({ results, total: matched.length });
 }

@@ -16,6 +16,7 @@ import { NovelRating } from './entities/novel-rating.entity';
 import { NovelCategory } from './entities/novel-category.entity';
 import { NovelTag } from './entities/novel-tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UserDailyRead } from 'src/modules/users/entities/user-daily-read.entity';
 import { Category } from 'src/modules/categories/entities/category.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
@@ -29,6 +30,7 @@ import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
       NovelCategory,
       NovelTag,
       User,
+      UserDailyRead,
       Category,
       Tag,
       Chapter,

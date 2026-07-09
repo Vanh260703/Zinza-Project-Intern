@@ -1,6 +1,6 @@
 export interface Notification {
-  id: number;
-  userId: string;
+  id: string;
+  userId?: string;
   title: string;
   content: string;
   isRead: boolean;
