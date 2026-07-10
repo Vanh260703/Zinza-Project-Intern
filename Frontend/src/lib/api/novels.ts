@@ -26,12 +26,16 @@ export const novelsApi = {
   getMyNovelsStats: (): Promise<MyNovelStats[]> =>
     apiFetch(`/api/user/my-novels/stats`).then((r) => r.json()),
 
-  create: (data: FormData | object) =>
+  // Nhận FormData (kèm cover trong cùng request, khớp BE POST /novels) để tạo truyện.
+  create: (data: FormData) =>
     apiFetch("/api/novels", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }).then((r) => r.json()),
+      body: data, // không set Content-Type — browser tự set multipart boundary
+    }).then(async (r) => {
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.message ?? "Đăng truyện thất bại");
+      return json;
+    }),
 
   // Sửa truyện theo slug. BE check owner qua cookie.
   update: (slug: string, data: object) =>
@@ -39,11 +43,19 @@ export const novelsApi = {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }).then((r) => r.json()),
+    }).then(async (r) => {
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.message ?? "Cập nhật thất bại");
+      return json;
+    }),
 
   // Xoá truyện theo slug. BE check owner qua cookie (không cần userId body).
   delete: (slug: string) =>
-    apiFetch(`/api/novels/${slug}`, { method: "DELETE" }).then((r) => r.json()),
+    apiFetch(`/api/novels/${slug}`, { method: "DELETE" }).then(async (r) => {
+      const json = await r.json();
+      if (!r.ok) throw new Error(json.message ?? "Xóa truyện thất bại");
+      return json;
+    }),
 
   // Đề cử theo slug (BE dùng @CurrentUser qua cookie, không cần body)
   nominate: (slug: string): Promise<{ message: string; remainingTickets: number }> =>

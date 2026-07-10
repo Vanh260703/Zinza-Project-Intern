@@ -1,6 +1,7 @@
-import { db } from "@/lib/mock-db";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 import VipContent from "@/components/novels/VipContent";
 
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 const PAGE_SIZE = 10;
 
 type Props = {
@@ -9,11 +10,18 @@ type Props = {
 
 export default async function VipPage({ searchParams }: Props) {
   const { page } = await searchParams;
-  const novels = db.novels.getVip();
+  const currentPage = Math.max(1, parseInt(page ?? "1") || 1);
 
-  const totalPages = Math.ceil(novels.length / PAGE_SIZE);
-  const currentPage = Math.min(Math.max(1, parseInt(page ?? "1") || 1), totalPages);
-  const visible = novels.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  // Dữ liệu công khai, không cá nhân hoá → cache với revalidate thay vì no-store.
+  const res = await fetch(
+    `${BE_URL}/api/v1/novels?vip=true&page=${currentPage}&limit=${PAGE_SIZE}`,
+    { next: { revalidate: 60 } }
+  );
 
-  return <VipContent novels={visible} currentPage={currentPage} totalPages={totalPages} />;
+  const json = (await res.json()) as { data: BeNovel[]; meta: { totalPages: number } };
+  const novels = json.data.map(normalizeNovel);
+
+  return (
+    <VipContent novels={novels} currentPage={currentPage} totalPages={json.meta.totalPages} />
+  );
 }

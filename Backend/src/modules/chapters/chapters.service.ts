@@ -97,6 +97,42 @@ export class ChaptersService {
         }),
       );
 
+      // Chỉ số kẹo truyện nhận được
+      await em.increment(
+        Novel,
+        { id: chapter.novel.id },
+        'candyReceived',
+        chapter.price,
+      );
+
+      // Cộng kẹo vào ví người đăng truyện. Owner đã bị chặn ở trên nên buyer ≠ postedBy.
+      // increment atomic → không lock ví người nhận, tránh deadlock. postedBy có thể null.
+      const authorWallet = chapter.novel.postedBy
+        ? await em.findOne(UserWallet, {
+            where: { user: { id: chapter.novel.postedBy.id } },
+          })
+        : null;
+      if (chapter.novel.postedBy && authorWallet) {
+        await em.increment(
+          UserWallet,
+          { id: authorWallet.id },
+          'balance',
+          chapter.price,
+        );
+        await em.save(
+          em.create(WalletTransaction, {
+            user: { id: chapter.novel.postedBy.id },
+            type: TransactionType.EARN,
+            amount: chapter.price,
+            balanceBefore: authorWallet.balance,
+            balanceAfter: authorWallet.balance + chapter.price,
+            referenceType: 'chapter',
+            referenceId: chapterId,
+            description: `Nhận ${chapter.price} kẹo từ mở khoá chương "${chapter.title}"`,
+          }),
+        );
+      }
+
       return { message: 'Mở khoá thành công', remainingBalance: balanceAfter };
     });
   }
@@ -273,7 +309,14 @@ export class ChaptersService {
 
     const [chapters, total] = await this.chapterRepository.findAndCount({
       where: { novel: { id: novel.id } },
-      select: { id: true, number: true, title: true, price: true },
+      select: {
+        id: true,
+        number: true,
+        title: true,
+        price: true,
+        wordCount: true,
+        createdAt: true,
+      },
       order: { number: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,

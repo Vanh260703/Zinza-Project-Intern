@@ -48,34 +48,19 @@ export function useDeleteNovel(onDeleted?: (slug: string) => void) {
   });
 }
 
-export function useCreateNovel(coverFileRef?: { current: File | null }) {
+// BE nhận cover trong CÙNG request tạo truyện (FileInterceptor('cover') trên POST /novels)
+// → chỉ cần 1 lần gọi, không cần bước upload ảnh riêng như trước.
+export function useCreateNovel() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
 
   return useMutation({
-    mutationFn: async (data: object) => {
-      const json = await novelsApi.create(data);
-      if (json.message) throw new Error(json.message);
-      const file = coverFileRef?.current;
-      if (file) {
-        const form = new FormData();
-        form.append("cover", file);
-        const res = await fetch(`/api/cover/${json.novel.id}`, { method: "POST", body: form });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          showToast.error(err.message ?? "Upload ảnh bìa thất bại");
-          throw new Error("cover_upload_failed");
-        }
-      }
-      return json;
-    },
+    mutationFn: (formData: FormData) => novelsApi.create(formData),
     onSuccess: () => {
       showToast.success("Đăng truyện thành công");
       queryClient.invalidateQueries({ queryKey: ["my-novels", user?.id] });
     },
-    onError: (e: Error) => {
-      if (e.message !== "cover_upload_failed") showToast.error(e.message ?? "Đăng truyện thất bại");
-    },
+    onError: (e: Error) => showToast.error(e.message ?? "Đăng truyện thất bại"),
   });
 }
 

@@ -93,7 +93,11 @@ export default function EditTab({ novel, onUpdated }: Props) {
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
-        const coverRes = await fetch(`/api/cover/${novel.slug}`, { method: "POST", body: form });
+        // Dùng slug MỚI trả về từ update — đổi tên có thể làm đổi slug (BE tự sinh lại theo tên mới)
+        const coverRes = await fetch(`/api/cover/${result.novel.slug}`, {
+          method: "POST",
+          body: form,
+        });
         if (!coverRes.ok) {
           const err = await coverRes.json().catch(() => ({}));
           showToast.error(err.message ?? "Upload ảnh bìa thất bại");
@@ -109,7 +113,8 @@ export default function EditTab({ novel, onUpdated }: Props) {
       showToast.success("Đã lưu thay đổi");
       onUpdated(result.novel);
     } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
+      // updateMutation.mutateAsync ném lỗi khi BE trả lỗi (vd trùng tên) — hook
+      // useUpdateNovel đã tự hiện toast đúng message qua onError, không lặp lại ở đây.
     }
   };
 

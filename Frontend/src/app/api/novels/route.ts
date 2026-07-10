@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/mock-db";
-import { createNovelSchema } from "@/schemas/novel";
 import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
 const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -34,19 +33,33 @@ export async function GET(req: NextRequest) {
   return NextResponse.json((json.data ?? []).map(normalizeNovel));
 }
 
-// POST /api/novels
+// POST /api/novels — tạo truyện mới. BE nhận cover trong CÙNG request (multipart)
+// và tự validate (name/author/categories UUID...) qua ValidationPipe.
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const result = createNovelSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json(
-      { message: "Dữ liệu không hợp lệ", errors: result.error.flatten() },
-      { status: 400 }
-    );
-  }
+  const formData = await req.formData();
 
-  await new Promise((r) => setTimeout(r, 500));
+  const res = await fetch(`${BE_URL}/api/v1/novels`, {
+    method: "POST",
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+    body: formData,
+  });
 
-  const novel = db.novels.create(result.data);
-  return NextResponse.json({ novel }, { status: 201 });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
+
+  // Response tạo mới thiếu nhiều field so với Novel đầy đủ (rating, chapterCount...)
+  // → không ép qua normalizeNovel; chỉ trả field cần cho toast + redirect.
+  return NextResponse.json(
+    {
+      novel: {
+        id: data.id,
+        slug: data.slug,
+        name: data.name,
+        author: data.author,
+        posterUrl: data.poster ?? null,
+        status: data.status,
+      },
+    },
+    { status: res.status }
+  );
 }

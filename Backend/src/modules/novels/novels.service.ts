@@ -131,9 +131,22 @@ export class NovelsService {
       }
     }
 
+    // Đổi tên → sinh lại slug theo tên mới (chấp nhận vỡ URL cũ đang dùng)
+    let newSlug = slug;
+    if (dto.name !== undefined && dto.name !== novel.name) {
+      newSlug = generateSlug(dto.name);
+      if (newSlug !== slug) {
+        const exists = await this.novelRepository.existsBy({ slug: newSlug });
+        if (exists) {
+          throw new ConflictException('Truyện với tên này đã tồn tại');
+        }
+      }
+    }
+
     await this.dataSource.transaction(async (em) => {
       const patch: Partial<Novel> = {};
       if (dto.name !== undefined) patch.name = dto.name;
+      if (newSlug !== slug) patch.slug = newSlug;
       if (dto.author !== undefined) patch.author = dto.author;
       if (dto.description !== undefined) patch.description = dto.description;
       if (dto.status !== undefined) patch.status = dto.status;
@@ -154,8 +167,7 @@ export class NovelsService {
       }
     });
 
-    // Giữ nguyên slug (không đổi theo tên) để không vỡ URL đang dùng
-    return this.findOne(slug);
+    return this.findOne(newSlug);
   }
 
   // Xoá truyện — chỉ người đăng mới được xoá. CASCADE tự xoá chương/rating/nomination/bookmark/read/purchase.

@@ -206,6 +206,11 @@ export default function ManageNovelContent({ novel: initialNovel }: Props) {
                 onUpdated={(s) => {
                   setNovel(s);
                   setActive("info");
+                  // Đổi tên có thể làm đổi slug (BE tự sinh lại theo tên mới) — cập nhật URL
+                  // để khớp thực tế, tránh 404 khi user refresh/chia sẻ link cũ.
+                  if (s.slug !== novel.slug) {
+                    router.replace(`/my-novels/${s.slug}`);
+                  }
                 }}
               />
             )}

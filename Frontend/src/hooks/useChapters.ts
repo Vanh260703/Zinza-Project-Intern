@@ -2,29 +2,28 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { chaptersApi } from "@/lib/api/novels";
 import { userApi } from "@/lib/api/user";
 import { useAuthStore } from "@/stores/userStore";
-import { useLibraryStore } from "@/stores/libraryStore";
 import { showToast } from "@/lib/toast";
 
 // ── Queries ───────────────────────────────────────────────────────────────────
 
-export function useChapters(novelId: string) {
+export function useChapters(slug: string) {
   return useQuery({
-    queryKey: ["chapters", novelId],
-    queryFn: () => chaptersApi.getByNovel(novelId),
-    enabled: !!novelId,
+    queryKey: ["chapters", slug],
+    queryFn: () => chaptersApi.getByNovel(slug),
+    enabled: !!slug,
   });
 }
 
 // ── Mutations ─────────────────────────────────────────────────────────────────
 
-export function useDeleteChapter(novelId: string) {
+export function useDeleteChapter(slug: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (chapterId: string) => chaptersApi.delete(novelId, chapterId),
+    mutationFn: (chapterId: string) => chaptersApi.delete(slug, chapterId),
     onSuccess: (_, chapterId) => {
       queryClient.setQueryData(
-        ["chapters", novelId],
+        ["chapters", slug],
         (prev: Awaited<ReturnType<typeof chaptersApi.getByNovel>> | undefined) =>
           prev ? prev.filter((c) => c.id !== chapterId) : []
       );
@@ -33,55 +32,57 @@ export function useDeleteChapter(novelId: string) {
   });
 }
 
-export function useCreateChapter(novelId: string, nextNumber: number) {
+export function useCreateChapter(slug: string, nextNumber: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: object) => chaptersApi.create(novelId, data),
+    mutationFn: (data: object) => chaptersApi.create(slug, data),
     onSuccess: () => {
       showToast.success(`Đã đăng chương ${nextNumber}`);
-      queryClient.invalidateQueries({ queryKey: ["chapters", novelId] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", slug] });
     },
   });
 }
 
-export function useUpdateChapter(novelId: string, chapterId: string) {
+export function useUpdateChapter(slug: string, chapterId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: object) => chaptersApi.update(novelId, chapterId, data),
+    mutationFn: (data: object) => chaptersApi.update(slug, chapterId, data),
     onSuccess: () => {
       showToast.success("Đã cập nhật chương");
-      queryClient.invalidateQueries({ queryKey: ["chapters", novelId] });
+      queryClient.invalidateQueries({ queryKey: ["chapters", slug] });
     },
   });
 }
 
-export function useUnlockChapter(storyId: string, chapterId: string) {
+export function useUnlockChapter(slug: string, chapterId: string) {
   const { user, setWallet } = useAuthStore();
-  const addPurchasedChapter = useLibraryStore((s) => s.addPurchasedChapter);
 
   return useMutation({
-    mutationFn: () => chaptersApi.unlock(storyId, chapterId, user!.id),
+    mutationFn: () => chaptersApi.unlock(slug, chapterId),
     onSuccess: (data) => {
-      setWallet(data.wallet);
-      addPurchasedChapter(chapterId);
+      if (user) setWallet({ userId: user.id, balance: data.remainingBalance });
     },
+    onError: (err: Error) => showToast.error(err.message ?? "Mở khoá thất bại"),
   });
 }
 
 export function useTrackDailyRead() {
-  const { user, accessToken, setUser } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: {
-      storyId: string;
+      novelId: string;
       chapterId: string;
       chapterTitle?: string;
       chapterNumber?: number;
     }) => userApi.trackDailyRead({ userId: user!.id, ...data }),
-    onSuccess: (data) => {
-      if (data.user) setUser(data.user, accessToken!);
+    onSuccess: () => {
+      // BE đã ghi vào user_novel_reads → refetch lịch sử đọc + tiến độ vé
+      queryClient.invalidateQueries({ queryKey: ["read-history", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["daily-progress", user?.id] });
     },
   });
 }
