@@ -187,7 +187,12 @@ export class NovelsController {
     @Body() dto: GiftCandyDto,
   ) {
     const novel = await this.novelsService.findOneEntity(slug);
-    return this.paymentsService.giftCandy(user.id, novel, dto.amount);
+    return this.paymentsService.giftCandy(
+      user.id,
+      novel,
+      dto.amount,
+      user.name,
+    );
   }
 
   // [GET] /api/v1/novels/:slug/ratings?page=1&limit=5

@@ -5,14 +5,14 @@ import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
 import { useCreateNovel } from "@/hooks/useNovels";
 import { useCategories } from "@/hooks/useCategories";
 import { createNovelSchema } from "@/schemas/novel";
-import type { Category } from "@/config/category";
 import { STATUS_OPTIONS } from "@/enums/novel";
+import GenreSelector from "./GenreSelector";
 
 const formSchema = createNovelSchema.omit({ userId: true });
 type CreateNovelFormData = z.infer<typeof formSchema>;
@@ -20,7 +20,7 @@ type CreateNovelFormData = z.infer<typeof formSchema>;
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
-// ── Cover Upload ──────────────────────────────────────────────────────────────
+// Cover Upload
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE_MB = 2;
@@ -120,44 +120,6 @@ function CoverUpload({ onChange }: { onChange: (file: File | null, error?: strin
   );
 }
 
-// ── Genre Selector ────────────────────────────────────────────────────────────
-
-function GenreSelector({
-  categories,
-  selected,
-  onChange,
-}: {
-  categories: Category[];
-  selected: string[];
-  onChange: (g: string[]) => void;
-}) {
-  const toggle = (id: string) =>
-    onChange(selected.includes(id) ? selected.filter((g) => g !== id) : [...selected, id]);
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {categories.map((genre) => {
-        const active = selected.includes(genre.id);
-        return (
-          <button
-            key={genre.id}
-            type="button"
-            onClick={() => toggle(genre.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-              active
-                ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
-            }`}
-          >
-            {genre.name}
-            {active && <X className="w-3 h-3" />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── Field wrapper ─────────────────────────────────────────────────────────────
 
 function Field({
@@ -183,7 +145,7 @@ function Field({
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
+// Root
 
 export default function CreateNovelForm() {
   const user = useAuthStore((s) => s.user);

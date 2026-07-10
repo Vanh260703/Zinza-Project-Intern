@@ -1,6 +1,6 @@
-import { CATEGORY_BY_NAME, type Category } from "@/config/category";
 import type { Status } from "@/enums/novel";
 import type { Novel } from "@/types/novel";
+import type { Category } from "@/types/category";
 
 // Shape BE trả về (list toResponse + detail findOne). Các field detail là optional.
 export type BeNovel = {
@@ -16,7 +16,7 @@ export type BeNovel = {
   views?: number;
   candyReceived?: number;
   vip: boolean;
-  categories: string[]; // tên thể loại
+  categories: Category[];
   tags: string[];
   updatedAt?: string;
   // detail-only
@@ -25,14 +25,6 @@ export type BeNovel = {
   description?: string | null;
   postedBy?: { id: string; name: string } | null;
 };
-
-// BE trả category là tên (string). Map sang Category object của FE; nếu lạ thì tự dựng slug.
-function toCategory(name: string): Category {
-  const known = CATEGORY_BY_NAME[name];
-  if (known) return known;
-  const slug = name.trim().toLowerCase().replace(/\s+/g, "-");
-  return { id: slug, name, slug };
-}
 
 export function normalizeNovel(n: BeNovel): Novel {
   return {
@@ -51,7 +43,7 @@ export function normalizeNovel(n: BeNovel): Novel {
     candyReceived: Number(n.candyReceived ?? 0),
     author: n.author ?? "",
     postedBy: n.postedBy?.id ?? "", // id người đăng — dùng cho owner check (hiển thị tên qua field khác)
-    categories: (n.categories ?? []).map(toCategory),
+    categories: n.categories ?? [],
     tags: n.tags ?? [],
     description: n.description ?? "",
     vip: n.vip ?? false,

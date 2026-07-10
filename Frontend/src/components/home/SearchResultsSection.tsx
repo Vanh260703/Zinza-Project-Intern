@@ -1,12 +1,11 @@
+"use client";
+
+import { useMemo } from "react";
 import { BookOpen } from "lucide-react";
 import type { Novel } from "@/types/novel";
 import NovelCard from "./NovelCard";
 import { getNovelStatus } from "@/config/statuses";
-import { CATEGORY_BY_SLUG } from "@/config/category";
-
-const GENRE_LABELS: Record<string, string> = Object.fromEntries(
-  Object.entries(CATEGORY_BY_SLUG).map(([slug, g]) => [slug, g.name])
-);
+import { useCategories } from "@/hooks/useCategories";
 
 const SORT_LABELS: Record<string, string> = {
   latest: "Mới nhất",
@@ -29,9 +28,15 @@ export default function SearchResultsSection({
   status,
   sort,
 }: SearchResultsSectionProps) {
+  const { data: categories = [] } = useCategories();
+  const genreLabels = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.slug, c.name])),
+    [categories]
+  );
+
   const activeFilters = [
     q && { label: `"${q}"` },
-    genre && { label: GENRE_LABELS[genre] ?? genre },
+    genre && { label: genreLabels[genre] ?? genre },
     status && { label: getNovelStatus(status).label },
     sort && sort !== "latest" && { label: SORT_LABELS[sort] ?? sort },
   ].filter(Boolean) as { label: string }[];

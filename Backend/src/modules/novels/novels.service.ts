@@ -105,7 +105,11 @@ export class NovelsService {
       author: novel.author,
       poster: novel.poster ?? null,
       status: novel.status,
-      categories: categories.map((c) => c.name),
+      categories: categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
     };
   }
 
@@ -352,7 +356,12 @@ export class NovelsService {
       nominations: novel.nominations,
       commentCount: novel.commentCount,
       views: novel.views,
-      categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
+      categories:
+        novel.novelCategories?.map((nc) => ({
+          id: nc.category.id,
+          name: nc.category.name,
+          slug: nc.category.slug,
+        })) ?? [],
       tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
       postedBy: novel.postedBy
         ? { id: novel.postedBy.id, name: novel.postedBy.name }
@@ -725,7 +734,11 @@ export class NovelsService {
       poster: novel.poster ?? null,
       status: novel.status,
       chapterCount: novel.chapterCount,
-      categories: categories.map((c) => c.name),
+      categories: categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
       tags: tags.map((t) => t.name),
     };
   }
@@ -752,7 +765,12 @@ export class NovelsService {
     views: novel.views,
     candyReceived: novel.candyReceived,
     vip: novel.vip,
-    categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
+    categories:
+      novel.novelCategories?.map((nc) => ({
+        id: nc.category.id,
+        name: nc.category.name,
+        slug: nc.category.slug,
+      })) ?? [],
     tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
     updatedAt: novel.updatedAt,
   });

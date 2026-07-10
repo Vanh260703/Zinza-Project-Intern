@@ -1,7 +1,5 @@
 import type { Status } from "@/enums/novel";
-import type { Category } from "@/config/category";
-
-export type { Category };
+import type { Category } from "./category";
 
 export interface Novel {
   id: string;

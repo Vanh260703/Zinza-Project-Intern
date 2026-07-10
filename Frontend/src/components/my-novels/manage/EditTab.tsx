@@ -10,9 +10,10 @@ import { useUpdateNovel } from "@/hooks/useNovels";
 import { showToast } from "@/lib/toast";
 
 import type { Novel } from "@/types/novel";
-import { CATEGORIES } from "@/config/category";
+import { useCategories } from "@/hooks/useCategories";
 import { STATUS_OPTIONS } from "@/enums/novel";
 import { editNovelFormSchema } from "@/schemas/novel";
+import GenreSelector from "../GenreSelector";
 
 type EditNovelFormData = z.infer<typeof editNovelFormSchema>;
 
@@ -28,6 +29,7 @@ export default function EditTab({ novel, onUpdated }: Props) {
   const user = useAuthStore((s) => s.user);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const updateMutation = useUpdateNovel(novel.slug);
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
   const {
     register,
@@ -40,7 +42,7 @@ export default function EditTab({ novel, onUpdated }: Props) {
       name: novel.name,
       author: novel.author,
       status: novel.status,
-      categoryIds: novel.categories.map((c) => c.name),
+      categoryIds: novel.categories.map((c) => c.id),
       description: novel.description ?? "",
     },
   });
@@ -82,12 +84,13 @@ export default function EditTab({ novel, onUpdated }: Props) {
   const onSubmit = async (data: EditNovelFormData) => {
     if (!user || coverError) return;
     try {
-      // BE check owner qua cookie (không gửi userId). Categories chưa hỗ trợ đổi qua BE nên bỏ qua.
+      // BE check owner qua cookie (không gửi userId)
       const result = await updateMutation.mutateAsync({
         name: data.name,
         author: data.author,
         status: data.status,
         description: data.description,
+        categories: data.categoryIds,
       });
 
       if (coverFile) {
@@ -224,33 +227,22 @@ export default function EditTab({ novel, onUpdated }: Props) {
 
       <div className="flex flex-col gap-2">
         <label className="text-stone-400 text-xs font-medium">
-          Thể loại <span className="text-stone-600 font-normal">(chưa hỗ trợ chỉnh sửa)</span>
+          Thể loại <span className="text-red-400">*</span>
         </label>
-        <Controller
-          name="categoryIds"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-wrap gap-2 opacity-60">
-              {CATEGORIES.map((g) => {
-                const active = field.value.includes(g.name);
-                return (
-                  <button
-                    key={g.slug}
-                    type="button"
-                    disabled
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border cursor-not-allowed ${
-                      active
-                        ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                        : "bg-stone-800 border-stone-700 text-stone-400"
-                    }`}
-                  >
-                    {g.name}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        />
+        {categoriesLoading ? (
+          <p className="text-stone-600 text-xs">Đang tải thể loại...</p>
+        ) : (
+          <Controller
+            name="categoryIds"
+            control={control}
+            render={({ field }) => (
+              <GenreSelector categories={categories} selected={field.value} onChange={field.onChange} />
+            )}
+          />
+        )}
+        {errors.categoryIds && (
+          <p className="text-red-400 text-xs">{errors.categoryIds.message}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">

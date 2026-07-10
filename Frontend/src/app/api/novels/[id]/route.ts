@@ -10,9 +10,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Params }) {
   const { id: slug } = await params;
   const body = await req.json();
 
-  // Chỉ forward field BE cho phép (ValidationPipe forbidNonWhitelisted) — bỏ userId, categoryIds...
+  // Chỉ forward field BE cho phép (ValidationPipe forbidNonWhitelisted) — bỏ userId...
   const patch: Record<string, unknown> = {};
-  for (const k of ["name", "author", "description", "status"] as const) {
+  for (const k of ["name", "author", "description", "status", "categories"] as const) {
     if (body[k] !== undefined) patch[k] = body[k];
   }
 
