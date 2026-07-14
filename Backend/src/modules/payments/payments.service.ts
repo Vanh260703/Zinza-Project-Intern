@@ -387,17 +387,21 @@ export class PaymentsService {
   ): Promise<void> {
     const authorWallet = await em.findOne(UserWallet, {
       where: { user: { id: authorId } },
+      lock: { mode: 'pessimistic_write' },
     });
     if (!authorWallet) throw new NotFoundException('Ví không tồn tại');
 
-    await em.increment(UserWallet, { id: authorWallet.id }, 'balance', amount);
+    const balanceBefore = authorWallet.balance;
+    const balanceAfter = balanceBefore + amount;
+
+    await em.update(UserWallet, authorWallet.id, { balance: balanceAfter });
     await em.save(
       em.create(WalletTransaction, {
         user: { id: authorId },
         type: TransactionType.EARN,
         amount,
-        balanceBefore: authorWallet.balance,
-        balanceAfter: authorWallet.balance + amount,
+        balanceBefore,
+        balanceAfter,
         referenceType,
         referenceId,
         description,
