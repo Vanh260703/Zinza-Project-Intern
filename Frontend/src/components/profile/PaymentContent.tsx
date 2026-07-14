@@ -1,17 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { Candy, CheckCircle2, Zap, Copy, Check, Info } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Candy, CheckCircle2, Zap, Copy, Check, Info, XCircle, Clock } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { buildTransferContent, type PaymentPackage, type BankConfig } from "@/lib/services/payment";
+import { useCreatePaymentOrder, usePaymentOrderStatus } from "@/hooks/usePaymentOrder";
+import { BANK_CONFIG } from "@/config/payment";
+import type { CandyPackage } from "@/types/payment";
 
 type Props = {
-  packages: PaymentPackage[];
-  bankConfig: BankConfig;
+  packages: CandyPackage[];
 };
 
 function formatVND(n: number) {
   return n.toLocaleString("vi-VN") + "đ";
+}
+
+function useCountdown(targetIso: string) {
+  const [remainingMs, setRemainingMs] = useState(0);
+
+  useEffect(() => {
+    const target = new Date(targetIso).getTime();
+    const tick = () => setRemainingMs(Math.max(0, target - Date.now()));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [targetIso]);
+
+  return remainingMs;
+}
+
+function formatCountdown(ms: number) {
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -44,36 +66,141 @@ function CopyField({ label, value }: { label: string; value: string }) {
   );
 }
 
-function QRCode({
-  amount,
-  content,
-  bankConfig,
+// Đơn đang chờ thanh toán — poll trạng thái, đếm ngược hết hạn
+function PendingOrder({
+  orderId,
+  orderCode,
+  amountVnd,
+  qrUrl,
+  expiredAt,
+  onDone,
 }: {
-  amount: number;
-  content: string;
-  bankConfig: BankConfig;
+  orderId: string;
+  orderCode: string;
+  amountVnd: number;
+  qrUrl: string;
+  expiredAt: string;
+  onDone: (candyAmount: number) => void;
 }) {
-  const qrUrl =
-    `https://img.vietqr.io/image/${bankConfig.code}-${bankConfig.accountNo}-compact2.png` +
-    `?amount=${amount}&addInfo=${encodeURIComponent(content)}&accountName=${encodeURIComponent(bankConfig.accountName)}`;
+  const { data: order } = usePaymentOrderStatus(orderId);
+  const remainingMs = useCountdown(expiredAt);
+  const [creditedOrderId, setCreditedOrderId] = useState<string | null>(null);
+
+  const clientExpired = remainingMs <= 0;
+  const status = order?.status ?? "pending";
+
+  useEffect(() => {
+    if (status === "completed" && creditedOrderId !== orderId && order) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCreditedOrderId(orderId);
+      onDone(order.candyAmount);
+    }
+  }, [status, orderId, creditedOrderId, order, onDone]);
+
+  if (status === "completed" && order) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8 text-center">
+        <CheckCircle2 className="w-12 h-12 text-emerald-400" strokeWidth={1.5} />
+        <div>
+          <p className="text-white font-semibold text-lg">Nạp kẹo thành công!</p>
+          <p className="text-stone-500 text-sm mt-1">
+            +{order.candyAmount.toLocaleString()} kẹo đã được cộng vào ví
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === "failed" || status === "expired" || clientExpired) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-8 text-center">
+        <XCircle className="w-12 h-12 text-red-400" strokeWidth={1.5} />
+        <div>
+          <p className="text-white font-semibold text-lg">
+            {status === "failed" ? "Giao dịch thất bại" : "Đơn đã hết hạn"}
+          </p>
+          <p className="text-stone-500 text-sm mt-1">Vui lòng tạo đơn nạp mới.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="w-40 h-40 rounded-xl overflow-hidden bg-white p-2 shadow-lg shadow-black/40">
-        <img src={qrUrl} alt="QR chuyển khoản" className="w-full h-full object-contain" />
+    <div className="flex flex-col gap-4 p-5 bg-stone-800/40 border border-stone-700 rounded-2xl">
+      <div className="flex items-center justify-between">
+        <p className="text-stone-400 text-xs font-semibold uppercase tracking-widest">
+          Quét mã để chuyển khoản
+        </p>
+        <span className="flex items-center gap-1.5 text-amber-400 text-xs font-semibold">
+          <Clock className="w-3.5 h-3.5" />
+          {formatCountdown(remainingMs)}
+        </span>
       </div>
-      <p className="text-stone-500 text-[11px]">Quét bằng app ngân hàng</p>
+
+      <div className="flex flex-col sm:flex-row gap-6 items-start">
+        <div className="shrink-0 mx-auto sm:mx-0 flex flex-col items-center gap-2">
+          <div className="w-40 h-40 rounded-xl overflow-hidden bg-white p-2 shadow-lg shadow-black/40">
+            <img src={qrUrl} alt="QR chuyển khoản" className="w-full h-full object-contain" />
+          </div>
+          <p className="text-stone-500 text-[11px]">Quét bằng app ngân hàng</p>
+        </div>
+        <div className="flex-1 w-full flex flex-col">
+          <CopyField label="Ngân hàng" value={BANK_CONFIG.name} />
+          <CopyField label="Số tài khoản" value={BANK_CONFIG.accountNo} />
+          <CopyField label="Tên tài khoản" value={BANK_CONFIG.accountName} />
+          <CopyField label="Số tiền" value={formatVND(amountVnd)} />
+          <CopyField label="Nội dung CK" value={orderCode} />
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2 pt-1">
+        <div className="flex items-start gap-2 text-amber-400/80 text-xs">
+          <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+          <span>
+            Nhập <span className="font-semibold text-amber-400">đúng nội dung chuyển khoản</span>{" "}
+            để hệ thống tự động xác nhận.
+          </span>
+        </div>
+        <div className="flex items-start gap-2 text-stone-500 text-xs">
+          <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" />
+          <span>Kẹo sẽ được cộng tự động sau 1–2 phút khi nhận được giao dịch.</span>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default function PaymentContent({ packages, bankConfig }: Props) {
-  const user = useAuthStore((s) => s.user);
+export default function PaymentContent({ packages }: Props) {
   const wallet = useAuthStore((s) => s.wallet);
+  const updateBalance = useAuthStore((s) => s.updateBalance);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [activeOrder, setActiveOrder] = useState<{
+    orderId: string;
+    orderCode: string;
+    amountVnd: number;
+    qrUrl: string;
+    expiredAt: string;
+  } | null>(null);
 
+  const createOrder = useCreatePaymentOrder();
   const pkg = packages.find((p) => p.id === selectedId) ?? null;
-  const transferContent = pkg && user ? buildTransferContent(user.id, pkg.id) : "";
+
+  const handleSelectPackage = (id: string) => {
+    setSelectedId(id);
+    setConfirming(true);
+    setActiveOrder(null);
+  };
+
+  const handleConfirmOrder = () => {
+    if (!pkg) return;
+    createOrder.mutate(pkg.id, {
+      onSuccess: (order) => {
+        setConfirming(false);
+        setActiveOrder(order);
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,7 +235,7 @@ export default function PaymentContent({ packages, bankConfig }: Props) {
               <button
                 key={p.id}
                 type="button"
-                onClick={() => setSelectedId(p.id)}
+                onClick={() => handleSelectPackage(p.id)}
                 className={`relative flex flex-col gap-2 p-4 rounded-2xl border text-left transition-all ${
                   isSelected
                     ? "bg-amber-500/10 border-amber-500/50 ring-1 ring-amber-500/40"
@@ -155,46 +282,46 @@ export default function PaymentContent({ packages, bankConfig }: Props) {
         </div>
       </div>
 
-      {/* Transfer info */}
-      {pkg && (
+      {/* Confirm step — chưa tạo đơn thật, tránh rác payment_orders khi user chỉ bấm thử */}
+      {confirming && pkg && (
         <div className="flex flex-col gap-4 p-5 bg-stone-800/40 border border-stone-700 rounded-2xl">
           <p className="text-stone-400 text-xs font-semibold uppercase tracking-widest">
-            Thông tin chuyển khoản
+            Xác nhận tạo đơn nạp
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-6 items-start">
-            <div className="shrink-0 mx-auto sm:mx-0">
-              <QRCode amount={pkg.price} content={transferContent} bankConfig={bankConfig} />
-            </div>
-            <div className="flex-1 w-full flex flex-col">
-              <CopyField label="Ngân hàng" value={bankConfig.name} />
-              <CopyField label="Số tài khoản" value={bankConfig.accountNo} />
-              <CopyField label="Tên tài khoản" value={bankConfig.accountName} />
-              <CopyField label="Số tiền" value={formatVND(pkg.price)} />
-              <CopyField label="Nội dung CK" value={transferContent} />
-            </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-stone-500">Gói</span>
+            <span className="text-white font-semibold">🍬 {pkg.candy.toLocaleString()}</span>
           </div>
-
-          <div className="flex flex-col gap-2 pt-1">
-            <div className="flex items-start gap-2 text-amber-400/80 text-xs">
-              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <span>
-                Nhập{" "}
-                <span className="font-semibold text-amber-400">đúng nội dung chuyển khoản</span> để
-                hệ thống tự động xác nhận.
-              </span>
-            </div>
-            <div className="flex items-start gap-2 text-stone-500 text-xs">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" />
-              <span>Kẹo sẽ được cộng tự động sau 1–2 phút khi nhận được giao dịch.</span>
-            </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-stone-500">Số tiền</span>
+            <span className="text-amber-400 font-bold">{formatVND(pkg.price)}</span>
+          </div>
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setConfirming(false)}
+              className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-stone-700 text-stone-300 hover:bg-stone-800 transition-colors"
+            >
+              Huỷ
+            </button>
+            <button
+              type="button"
+              disabled={createOrder.isPending}
+              onClick={handleConfirmOrder}
+              className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-white transition-colors"
+            >
+              {createOrder.isPending ? "Đang tạo đơn..." : "Tạo đơn nạp"}
+            </button>
           </div>
         </div>
       )}
 
-      {!pkg && (
+      {/* Đơn đã tạo — QR thật + polling */}
+      {activeOrder && <PendingOrder {...activeOrder} onDone={(candyAmount) => updateBalance(candyAmount)} />}
+
+      {!confirming && !activeOrder && (
         <p className="text-stone-600 text-sm italic text-center py-2">
-          ← Chọn một gói để xem thông tin chuyển khoản
+          ← Chọn một gói để bắt đầu nạp kẹo
         </p>
       )}
     </div>

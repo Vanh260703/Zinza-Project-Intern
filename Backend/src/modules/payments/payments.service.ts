@@ -16,6 +16,7 @@ import { PaymentStatus } from './enums/payment-status.enum';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { CreatePaymentOrderDto } from './dto/create-payment-order.dto';
 import { SepayWebhookDto } from './dto/sepay-webhook.dto';
+import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
 import { NotificationType } from 'src/modules/notifications/enums/notification-type.enum';
 
@@ -196,6 +197,22 @@ export class PaymentsService {
       log.isProcessed = true;
       log.processedAt = new Date();
       await this.webhookLogRepository.save(log);
+
+      // Thông báo sau khi đã xử lý xong — không để lỗi ở đây làm webhook báo fail
+      // (SePay sẽ retry dù tiền đã cộng xong, gây khó hiểu).
+      try {
+        await this.notificationsService.create({
+          userId: order.user.id,
+          type: NotificationType.PAYMENT_SUCCESS,
+          title: 'Nạp kẹo thành công',
+          content: `Bạn đã nạp thành công ${order.candyAmount.toLocaleString('vi-VN')} kẹo (${order.amountVnd.toLocaleString('vi-VN')}đ).`,
+          referenceType: 'payment_order',
+          referenceId: order.id,
+        });
+      } catch {
+        // bỏ qua — thanh toán đã xử lý xong, không chặn vì lỗi thông báo
+      }
+
       return { success: true, message: 'Payment completed' };
     } catch (err) {
       log.errorMessage = err instanceof Error ? err.message : String(err);
@@ -396,5 +413,35 @@ export class PaymentsService {
     if (!order) throw new NotFoundException('Order không tồn tại');
 
     return order;
+  }
+
+  async getUserTransactions(userId: string, dto: QueryTransactionsDto) {
+    const { type, from, to, page = 1, limit = 20 } = dto;
+
+    const qb = this.transactionRepository
+      .createQueryBuilder('t')
+      .where('t.user_id = :userId', { userId })
+      .orderBy('t.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    if (type) {
+      qb.andWhere('t.type = :type', { type });
+    }
+    if (from) {
+      qb.andWhere('t.createdAt >= :from', { from: new Date(from) });
+    }
+    if (to) {
+      // Lấy hết ngày `to` — nếu không cộng thêm sẽ bị hiểu là 00:00:00, loại mất cả ngày đó
+      const toDate = new Date(`${to}T23:59:59.999`);
+      qb.andWhere('t.createdAt <= :to', { to: toDate });
+    }
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
   }
 }

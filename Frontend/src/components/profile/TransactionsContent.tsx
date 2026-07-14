@@ -1,59 +1,32 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { CreditCard, Filter, CheckCircle2, Clock, XCircle } from "lucide-react";
-import { useAuthStore } from "@/stores/userStore";
-import { PAYMENT_PACKAGES } from "@/config/payment";
-import type { PaymentStatus } from "@/types/payment";
-import paymentsData from "@/lib/data/payments.json";
-import type { Payment } from "@/types/payment";
+import { CreditCard, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTransactions } from "@/hooks/useTransactions";
+import type { TransactionType } from "@/types/transaction";
 
-const MOCK_PAYMENTS = paymentsData as Payment[];
-
-const FILTER_OPTIONS = [
+const FILTER_OPTIONS: { value: TransactionType | "all"; label: string }[] = [
   { value: "all", label: "Tất cả loại" },
   { value: "topup", label: "Nạp kẹo" },
-  { value: "unlock", label: "Mở khóa chương" },
-  { value: "gift", label: "Tặng quà" },
+  { value: "spend", label: "Mở khoá chương" },
+  { value: "gift", label: "Tặng kẹo" },
+  { value: "earn", label: "Nhận kẹo" },
+  { value: "bonus", label: "Admin tặng" },
+  { value: "refund", label: "Hoàn tiền" },
 ];
 
-type Transaction = {
-  id: string;
-  type: "topup" | "unlock" | "gift";
-  amount: number; // kẹo (+/-)
-  description: string;
-  createdAt: string;
-  status?: PaymentStatus;
-};
-
-const STATUS_CONFIG = {
-  completed: {
-    label: "Thành công",
-    icon: CheckCircle2,
-    cls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
-  },
-  pending: {
-    label: "Đang chờ",
-    icon: Clock,
-    cls: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-  },
-  failed: { label: "Thất bại", icon: XCircle, cls: "text-red-400 bg-red-500/10 border-red-500/20" },
-} as const;
-
-function formatVND(n: number) {
-  return n.toLocaleString("vi-VN") + "đ";
-}
+const PAGE_SIZE = 15;
 
 export default function TransactionsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const user = useAuthStore((s) => s.user);
 
   const [filter, setFilter] = useState(searchParams.get("type") ?? "all");
   const [fromDate, setFromDate] = useState(searchParams.get("from") ?? "");
   const [toDate, setToDate] = useState(searchParams.get("to") ?? "");
+  const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
 
   const syncParams = (type: string, from: string, to: string) => {
@@ -65,33 +38,16 @@ export default function TransactionsContent() {
     router.replace(qs ? `${pathname}?${qs}` : pathname);
   };
 
-  // Map MOCK_PAYMENTS → Transaction[]
-  const allTransactions = useMemo((): Transaction[] => {
-    return MOCK_PAYMENTS.filter((p) => p.userId === user?.id).map((p) => {
-      const pkg = PAYMENT_PACKAGES.find((x) => x.id === p.packageId);
-      return {
-        id: p.id,
-        type: "topup" as const,
-        amount: p.candyAmount,
-        description: `Nạp kẹo${pkg ? ` — ${formatVND(p.amountVnd)}` : ""}`,
-        createdAt: p.createdAt,
-        status: p.status,
-      };
-    });
-  }, [user?.id]);
+  const { data, isLoading } = useTransactions({
+    type: filter !== "all" ? (filter as TransactionType) : undefined,
+    from: fromDate || undefined,
+    to: toDate || undefined,
+    page,
+    limit: PAGE_SIZE,
+  });
 
-  const filtered = useMemo(() => {
-    const transactions = allTransactions;
-    return transactions.filter((t) => {
-      if (filter !== "all" && t.type !== filter) return false;
-      if (fromDate && t.createdAt < fromDate) return false;
-      if (toDate && t.createdAt > toDate) return false;
-      return true;
-    });
-  }, [allTransactions, filter, fromDate, toDate]);
-
-  const total = filtered.reduce((sum, t) => sum + t.amount, 0);
-
+  const transactions = data?.data ?? [];
+  const meta = data?.meta;
   const selectedLabel = FILTER_OPTIONS.find((o) => o.value === filter)?.label ?? "Tất cả loại";
 
   return (
@@ -110,7 +66,6 @@ export default function TransactionsContent() {
 
         {/* Filters */}
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          {/* Type dropdown */}
           <div className="relative">
             <button
               onClick={() => setOpen((v) => !v)}
@@ -137,6 +92,7 @@ export default function TransactionsContent() {
                     key={opt.value}
                     onClick={() => {
                       setFilter(opt.value);
+                      setPage(1);
                       setOpen(false);
                       syncParams(opt.value, fromDate, toDate);
                     }}
@@ -168,6 +124,7 @@ export default function TransactionsContent() {
             value={fromDate}
             onChange={(e) => {
               setFromDate(e.target.value);
+              setPage(1);
               syncParams(filter, e.target.value, toDate);
             }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
@@ -177,6 +134,7 @@ export default function TransactionsContent() {
             value={toDate}
             onChange={(e) => {
               setToDate(e.target.value);
+              setPage(1);
               syncParams(filter, fromDate, e.target.value);
             }}
             className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
@@ -187,13 +145,17 @@ export default function TransactionsContent() {
       {/* Summary card */}
       <div className="p-4 bg-stone-900 border border-stone-800 rounded-xl flex flex-col gap-1">
         <p className="text-stone-600 text-[10px] font-semibold tracking-wider">
-          TỔNG KẸO ĐÃ GIAO DỊCH TRONG RANGE
+          SỐ GIAO DỊCH TRONG BỘ LỌC
         </p>
-        <p className="text-2xl font-bold text-amber-400">{total.toLocaleString()}</p>
+        <p className="text-2xl font-bold text-amber-400">{(meta?.total ?? 0).toLocaleString()}</p>
       </div>
 
-      {/* Empty state / table */}
-      {filtered.length === 0 ? (
+      {/* Loading / empty / table */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-5 h-5 border-2 border-stone-700 border-t-amber-500 rounded-full animate-spin" />
+        </div>
+      ) : transactions.length === 0 ? (
         <div className="bg-stone-900 border border-stone-800 rounded-xl flex flex-col items-center py-16 gap-3 text-stone-600">
           <Filter className="w-10 h-10" strokeWidth={1.5} />
           <div className="text-center">
@@ -215,8 +177,8 @@ export default function TransactionsContent() {
                 <th className="px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-center">
                   SỐ KẸO
                 </th>
-                <th className="hidden sm:table-cell px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-center">
-                  TRẠNG THÁI
+                <th className="hidden sm:table-cell px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-right">
+                  SỐ DƯ SAU
                 </th>
                 <th className="px-4 py-3 text-[10px] font-semibold tracking-wider text-stone-500 text-right">
                   NGÀY
@@ -224,7 +186,7 @@ export default function TransactionsContent() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((t) => (
+              {transactions.map((t) => (
                 <tr
                   key={t.id}
                   className="border-b border-stone-800/60 last:border-0 hover:bg-stone-800/30 transition-colors"
@@ -239,20 +201,8 @@ export default function TransactionsContent() {
                     {t.amount >= 0 ? "+" : ""}
                     {t.amount.toLocaleString()}
                   </td>
-                  <td className="hidden sm:table-cell px-4 py-3.5 text-center">
-                    {t.status &&
-                      (() => {
-                        const s = STATUS_CONFIG[t.status];
-                        const Icon = s.icon;
-                        return (
-                          <span
-                            className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${s.cls}`}
-                          >
-                            <Icon className="w-3 h-3" />
-                            {s.label}
-                          </span>
-                        );
-                      })()}
+                  <td className="hidden sm:table-cell px-4 py-3.5 text-stone-500 text-sm text-right">
+                    {t.balanceAfter.toLocaleString()}
                   </td>
                   <td className="px-4 py-3.5 text-stone-500 text-sm text-right">
                     {new Date(t.createdAt).toLocaleDateString("vi-VN")}
@@ -261,6 +211,31 @@ export default function TransactionsContent() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between pt-1">
+          <p className="text-stone-600 text-xs">
+            Trang {meta.page} / {meta.totalPages}
+          </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={meta.page === 1}
+              className="p-1.5 rounded-lg border border-stone-800 text-stone-400 hover:bg-stone-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
+              disabled={meta.page === meta.totalPages}
+              className="p-1.5 rounded-lg border border-stone-800 text-stone-400 hover:bg-stone-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
     </div>

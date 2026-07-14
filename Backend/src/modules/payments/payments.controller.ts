@@ -8,6 +8,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   RawBodyRequest,
   Req,
   UseGuards,
@@ -18,6 +19,7 @@ import { JwtAuthGuard } from 'src/shared/guards';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { CreatePaymentOrderDto } from './dto/create-payment-order.dto';
 import { SepayWebhookDto } from './dto/sepay-webhook.dto';
+import { QueryTransactionsDto } from './dto/query-transactions.dto';
 import { User } from 'src/modules/users/entities/user.entity';
 
 @Controller('payments')
@@ -65,5 +67,16 @@ export class PaymentsController {
     @Param('orderId', ParseUUIDPipe) id: string,
   ) {
     return this.paymentsService.findOrderById(user.id, id);
+  }
+
+  // [GET] /api/v1/payments/transactions?type=&from=&to=&page=&limit=
+  @Get('transactions')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  getUserTransactions(
+    @CurrentUser() user: User,
+    @Query() dto: QueryTransactionsDto,
+  ) {
+    return this.paymentsService.getUserTransactions(user.id, dto);
   }
 }
