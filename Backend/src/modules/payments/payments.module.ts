@@ -8,6 +8,7 @@ import { CandyPackage } from './entities/candy-package.entity';
 import { PaymentOrder } from './entities/payment-order.entity';
 import { SepayWebhookLog } from './entities/sepay-webhook-log.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
+import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { Novel } from 'src/modules/novels/entities/novel.entity';
       SepayWebhookLog,
       Novel,
     ]),
+    NotificationsModule,
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],

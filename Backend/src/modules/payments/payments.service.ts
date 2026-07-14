@@ -16,6 +16,8 @@ import { PaymentStatus } from './enums/payment-status.enum';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { CreatePaymentOrderDto } from './dto/create-payment-order.dto';
 import { SepayWebhookDto } from './dto/sepay-webhook.dto';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { NotificationType } from 'src/modules/notifications/enums/notification-type.enum';
 
 @Injectable()
 export class PaymentsService {
@@ -33,6 +35,7 @@ export class PaymentsService {
     private readonly webhookLogRepository: Repository<SepayWebhookLog>,
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async handleSepayWebhook(
@@ -267,6 +270,7 @@ export class PaymentsService {
     userId: string,
     novel: Novel,
     amount: number,
+    gifterName: string,
   ): Promise<{ message: string; remainingBalance: number }> {
     // Không cho tặng kẹo cho truyện của chính mình
     if (novel.postedBy?.id === userId) {
@@ -275,7 +279,7 @@ export class PaymentsService {
       );
     }
 
-    return this.dataSource.transaction(async (em) => {
+    const result = await this.dataSource.transaction(async (em) => {
       // SELECT ... FOR UPDATE locks the row for this transaction
       const wallet = await em.findOne(UserWallet, {
         where: { user: { id: userId } },
@@ -318,8 +322,40 @@ export class PaymentsService {
         );
       }
 
-      return { message: 'Tặng kẹo thành công', remainingBalance: balanceAfter };
+      return { remainingBalance: balanceAfter };
     });
+
+    // Thông báo sau khi transaction đã commit — không chặn/làm fail giao dịch chính
+    try {
+      const notifications = [
+        {
+          userId,
+          type: NotificationType.GIFT_CANDY,
+          title: 'Tặng kẹo thành công',
+          content: `Bạn đã tặng ${amount} kẹo cho truyện "${novel.name}"`,
+          referenceType: 'novel',
+          referenceId: novel.id,
+        },
+      ];
+      if (novel.postedBy) {
+        notifications.push({
+          userId: novel.postedBy.id,
+          type: NotificationType.GIFT_CANDY,
+          title: 'Bạn vừa được tặng kẹo',
+          content: `${gifterName} đã tặng ${amount} kẹo cho truyện "${novel.name}"`,
+          referenceType: 'novel',
+          referenceId: novel.id,
+        });
+      }
+      await this.notificationsService.createMany(notifications);
+    } catch {
+      // Không fail giao dịch tặng kẹo nếu tạo thông báo lỗi
+    }
+
+    return {
+      message: 'Tặng kẹo thành công',
+      remainingBalance: result.remainingBalance,
+    };
   }
 
   // Cộng kẹo cho ví người đăng + ghi lịch sử EARN. Dùng increment atomic (không lock
