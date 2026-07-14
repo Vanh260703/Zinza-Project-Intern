@@ -334,7 +334,6 @@ export class NovelsService {
 
   async findOne(slug: string) {
     const novel = await this.baseQuery()
-      .leftJoinAndSelect('novel.postedBy', 'postedBy')
       .where('novel.slug = :slug', { slug })
       .getOne();
 
@@ -749,7 +748,8 @@ export class NovelsService {
       .leftJoinAndSelect('novel.novelCategories', 'nc')
       .leftJoinAndSelect('nc.category', 'category')
       .leftJoinAndSelect('novel.novelTags', 'nt')
-      .leftJoinAndSelect('nt.tag', 'tag');
+      .leftJoinAndSelect('nt.tag', 'tag')
+      .leftJoinAndSelect('novel.postedBy', 'postedBy');
   }
 
   private readonly toResponse = (novel: Novel) => ({
@@ -765,6 +765,9 @@ export class NovelsService {
     views: novel.views,
     candyReceived: novel.candyReceived,
     vip: novel.vip,
+    postedBy: novel.postedBy
+      ? { id: novel.postedBy.id, name: novel.postedBy.name }
+      : null,
     categories:
       novel.novelCategories?.map((nc) => ({
         id: nc.category.id,
