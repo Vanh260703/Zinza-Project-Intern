@@ -17,7 +17,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { useLibraryStore } from "@/stores/libraryStore";
 import { useRouter } from "next/navigation";
 
 type NavItem = { href: string; icon: React.ElementType; label: string };
@@ -69,12 +68,10 @@ export default function ProfileSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const clearLibrary = useLibraryStore((s) => s.clear);
   const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
-    clearLibrary();
     router.push("/");
   };
 

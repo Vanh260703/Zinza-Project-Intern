@@ -1,43 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
-import { updateProfileSchema } from "@/schemas/auth";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
+  const { userId: _, ...patch } = body as Record<string, unknown>;
 
-  const result = updateProfileSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json(
-      { message: "Dữ liệu không hợp lệ", errors: result.error.flatten() },
-      { status: 400 }
-    );
-  }
+  const res = await fetch(`${BE_URL}/api/v1/user/profile`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Cookie: req.headers.get("cookie") ?? "",
+    },
+    body: JSON.stringify(patch),
+  });
 
-  const { userId, ...patch } = result.data;
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
 
-  await new Promise((r) => setTimeout(r, 400));
-
-  const updated = db.users.update(userId, patch);
-  if (!updated) {
-    return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
-  }
-
-  const {
-    password: _,
-    candy,
-    isRead,
-    storiesMark,
-    unlockedChapters,
-    ...safeUser
-  } = updated as typeof updated & {
-    candy: number;
-    isRead: string[];
-    storiesMark: string[];
-    unlockedChapters: string[];
-  };
-  void candy;
-  void isRead;
-  void storiesMark;
-  void unlockedChapters;
-  return NextResponse.json({ user: safeUser });
+  const user = { ...data, role: (data.role as string).toLowerCase() };
+  return NextResponse.json({ user });
 }

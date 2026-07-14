@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BookOpen, BookOpenText, CalendarDays } from "lucide-react";
-import type { User } from "@/types/user";
+import type { PublicUser } from "@/lib/api/publicProfile";
 import type { Story } from "@/types/story";
 
 function formatJoinedAt(joinedAt?: string) {
@@ -21,7 +21,7 @@ function StoryCard({ story }: { story: Story }) {
       <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
         {story.posterUrl ? (
           <img
-            src={`/api/cover/${story.id}`}
+            src={story.posterUrl}
             alt={story.name}
             className="w-full h-full object-cover"
           />
@@ -56,7 +56,7 @@ function StoryCard({ story }: { story: Story }) {
   );
 }
 
-type Props = { user: User; stories: Story[] };
+type Props = { user: PublicUser; stories: Story[] };
 
 export default function PublicProfile({ user, stories }: Props) {
   return (

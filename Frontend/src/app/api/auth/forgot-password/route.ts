@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { forgotPasswordSchema } from "@/schemas/auth";
-import { db } from "@/lib/mock-db";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -10,15 +11,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Email không hợp lệ" }, { status: 400 });
   }
 
-  await new Promise((r) => setTimeout(r, 800));
-
-  // Không tiết lộ email có tồn tại hay không — luôn trả về thành công
-  // để tránh user enumeration attack
-  const user = db.users.findByEmail(result.data.email);
-  if (user) {
-    // TODO: gửi email thật (nodemailer, resend, v.v.)
-    console.log(`[mock] Reset link sent to ${result.data.email}`);
-  }
+  // Gọi BE — không quan tâm response để tránh user enumeration attack
+  await fetch(`${BE_URL}/api/v1/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(result.data),
+  }).catch(() => {});
 
   return NextResponse.json({
     message: "Nếu email tồn tại, chúng tôi đã gửi link đặt lại mật khẩu.",

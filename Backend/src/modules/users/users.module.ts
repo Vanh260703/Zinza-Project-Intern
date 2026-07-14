@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { UserController } from './users.controller';
+import { UserController, PublicUserController } from './users.controller';
 import { CloudinaryModule } from 'src/shared/cloudinary/cloudinary.module';
 import { PaymentsModule } from 'src/modules/payments/payments.module';
+import { NovelsModule } from 'src/modules/novels/novels.module';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { UserNovelBookMark } from './entities/user-novel-bookmark.entity';
 import { UserNovelRead } from './entities/user-novel-read.entity';
@@ -23,8 +24,9 @@ import { Novel } from 'src/modules/novels/entities/novel.entity';
     ]),
     CloudinaryModule,
     PaymentsModule,
+    NovelsModule,
   ],
-  controllers: [UserController],
+  controllers: [UserController, PublicUserController],
   providers: [UsersService],
   exports: [UsersService],
 })

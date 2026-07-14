@@ -12,6 +12,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -22,6 +23,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { TrackDailyReadDto } from './dto/track-daily-read.dto';
 import { PaymentsService } from 'src/modules/payments/payments.service';
+import { NovelsService } from 'src/modules/novels/novels.service';
+import { QueryNovelsDto } from 'src/modules/novels/dto/query-novels.dto';
 import { JwtAuthGuard } from 'src/shared/guards';
 import { CurrentUser } from 'src/shared/decorators';
 import { User } from './entities/user.entity';
@@ -31,6 +34,7 @@ export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly paymentsService: PaymentsService,
+    private readonly novelsService: NovelsService,
   ) {}
 
   // [GET] /api/v1/user
@@ -103,6 +107,13 @@ export class UserController {
     return this.usersService.toggleBookmark(user.id, storyId);
   }
 
+  // [GET] /api/v1/user/daily-ticket — tiến độ vé đề cử hôm nay
+  @UseGuards(JwtAuthGuard)
+  @Get('daily-ticket')
+  getDailyProgress(@CurrentUser() user: User) {
+    return this.usersService.getDailyProgress(user.id);
+  }
+
   // [POST] /api/v1/user/daily-ticket/claim — nhận vé đề cử nếu đọc đủ 10 chương/ngày
   @UseGuards(JwtAuthGuard)
   @Post('daily-ticket/claim')
@@ -117,6 +128,27 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   trackDailyRead(@CurrentUser() user: User, @Body() dto: TrackDailyReadDto) {
     return this.usersService.trackDailyRead(user.id, dto);
+  }
+
+  // [GET] /api/v1/user/my-novels — danh sách truyện của chính mình (lọc theo postedBy qua cookie)
+  @UseGuards(JwtAuthGuard)
+  @Get('/my-novels')
+  getMyNovels(@CurrentUser() user: User, @Query() dto: QueryNovelsDto) {
+    return this.novelsService.findAll({ ...dto, postedBy: user.id });
+  }
+
+  // [GET] /api/v1/user/my-novels/stats — thống kê truyện của chính mình
+  @UseGuards(JwtAuthGuard)
+  @Get('/my-novels/stats')
+  getMyNovelsStats(@CurrentUser() user: User) {
+    return this.usersService.getMyNovelsStats(user.id);
+  }
+
+  // [GET] /api/v1/user/read-history — danh sách truyện đã đọc (theo lần đọc gần nhất)
+  @UseGuards(JwtAuthGuard)
+  @Get('/read-history')
+  getReadHistory(@CurrentUser() user: User) {
+    return this.usersService.getReadHistory(user.id);
   }
 
   // [DELETE] /api/v1/user/read-history — xoá toàn bộ lịch sử
@@ -138,5 +170,17 @@ export class UserController {
   ) {
     await this.usersService.deleteReadHistory(user.id, id);
     return { message: 'Xoá lịch sử đọc thành công' };
+  }
+}
+
+// Hồ sơ công khai của user khác (sử dụng users)
+@Controller('users')
+export class PublicUserController {
+  constructor(private readonly usersService: UsersService) {}
+
+  // [GET] /api/v1/users/:id
+  @Get(':id')
+  getPublicProfile(@Param('id', ParseUUIDPipe) id: string) {
+    return this.usersService.getPublicProfile(id);
   }
 }

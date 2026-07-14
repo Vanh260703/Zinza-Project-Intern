@@ -133,7 +133,7 @@ function AvatarTab() {
     });
   };
 
-  const currentAvatar = preview ?? (user?.avatarUrl ? `/api/user/avatar/${user.id}` : null);
+  const currentAvatar = preview ?? user?.avatarUrl ?? null;
 
   return (
     <div className="flex flex-col items-center gap-6 py-4">

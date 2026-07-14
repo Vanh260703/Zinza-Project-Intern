@@ -1,25 +1,20 @@
 "use client";
 
-import { useClaimDailyTicket } from "@/hooks/useUser";
+import { useClaimDailyTicket, useDailyProgress } from "@/hooks/useUser";
 import { Ticket, BookOpen, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 
-const REQUIRED = 10;
-
-function today(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
 export default function DailyTicketCard() {
   const user = useAuthStore((s) => s.user);
+  const { data } = useDailyProgress();
   const claimMutation = useClaimDailyTicket();
 
   if (!user) return null;
 
-  const todayStr = today();
-  const isToday = user.dailyReadDate === todayStr;
-  const count = isToday ? (user.dailyReadCount ?? 0) : 0;
-  const claimed = isToday && !!user.dailyTicketClaimed;
+  // Tiến độ thật từ BE
+  const REQUIRED = data?.required ?? 10;
+  const count = data?.todayCount ?? 0;
+  const claimed = data?.claimed ?? false;
   const pct = Math.min((count / REQUIRED) * 100, 100);
   const remaining = Math.max(REQUIRED - count, 0);
 
