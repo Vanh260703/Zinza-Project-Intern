@@ -5,7 +5,7 @@ const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Params = Promise<{ id: string }>; // [id] = slug (BE định danh theo slug)
 
-// GET /api/novels/:slug — chi tiết truyện 
+// GET /api/novels/:slug — chi tiết truyện
 export async function GET(_req: NextRequest, { params }: { params: Params }) {
   const { id: slug } = await params;
   const res = await fetch(`${BE_URL}/api/v1/novels/${slug}`, { cache: "no-store" });
