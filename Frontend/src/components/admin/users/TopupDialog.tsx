@@ -31,7 +31,7 @@ export default function TopupDialog({ user, onClose, onSuccess }: Props) {
       {
         onSuccess: (data) => {
           setStep("success");
-          onSuccess(data.user.candy);
+          onSuccess(data.candy);
         },
         onError: (e: Error) => {
           setErrMsg(e.message ?? "Lỗi kết nối, thử lại sau");

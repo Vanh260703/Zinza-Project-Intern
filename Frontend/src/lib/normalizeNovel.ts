@@ -19,11 +19,11 @@ export type BeNovel = {
   categories: Category[];
   tags: string[];
   updatedAt?: string;
+  postedBy?: { id: string; name: string } | null;
   // detail-only
   ratingCount?: number;
   commentCount?: number;
   description?: string | null;
-  postedBy?: { id: string; name: string } | null;
 };
 
 export function normalizeNovel(n: BeNovel): Novel {

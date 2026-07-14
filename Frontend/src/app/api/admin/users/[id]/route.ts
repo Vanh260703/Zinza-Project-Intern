@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Params = { params: Promise<{ id: string }> };
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
   const { id } = await params;
-  const user = db.users.findById(id);
-  if (!user) return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
-  const { password: _, ...safe } = user;
-  return NextResponse.json(safe);
+  const res = await fetch(`${BE_URL}/api/v1/admin/users/${id}`, {
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
+
+  return NextResponse.json({ ...data, role: (data.role as string).toLowerCase() });
 }

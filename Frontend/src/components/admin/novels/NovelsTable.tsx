@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { Search, BookOpen, Crown, ChevronLeft, ChevronRight, Star } from "lucide-react";
 
-import { getStoryStatus } from "@/config/statuses";
-import { STATUS_OPTIONS } from "@/enums/story";
+import { getNovelStatus } from "@/config/statuses";
+import { STATUS_OPTIONS } from "@/enums/novel";
 
 const PAGE_SIZE = 12;
 
@@ -106,14 +106,14 @@ export default function NovelsTable() {
           {paginated.map((n) => (
             <div
               key={n.id}
-              onClick={() => router.push(`/admin/novels/${n.id}`)}
+              onClick={() => router.push(`/admin/novels/${n.slug}`)}
               className="flex gap-4 p-4 bg-stone-900/60 border border-stone-800 rounded-2xl hover:border-stone-600 hover:bg-stone-800/40 transition-colors cursor-pointer"
             >
               {/* Cover */}
               <div className="w-14 h-20 rounded-xl overflow-hidden bg-stone-800 shrink-0">
                 {n.posterUrl ? (
                   <img
-                    src={`/api/cover/${n.id}`}
+                    src={n.posterUrl}
                     alt={n.name}
                     className="w-full h-full object-cover"
                   />
@@ -135,9 +135,9 @@ export default function NovelsTable() {
                     </span>
                   )}
                   <span
-                    className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold ${getStoryStatus(n.status).cls}`}
+                    className={`text-[11px] px-2 py-0.5 rounded-md border font-semibold ${getNovelStatus(n.status).cls}`}
                   >
-                    {getStoryStatus(n.status).label}
+                    {getNovelStatus(n.status).label}
                   </span>
                 </div>
 

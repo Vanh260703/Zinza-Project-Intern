@@ -22,11 +22,10 @@ import type { User } from "@/types/user";
 import { useAdminUserById } from "@/hooks/useAdmin";
 import { useAuthStore } from "@/stores/userStore";
 
-// Admin API trả DbUser (trừ password): User + các field internal bị strip khỏi login
 type UserDetail = User & {
   candy: number;
-  unlockedChapters: string[];
-  storiesMark: string[];
+  unlockedChapters: number;
+  bookmarksCount: number;
 };
 
 function StatCard({
@@ -198,7 +197,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
           <StatCard
             icon={Lock}
             label="Chương đã mở"
-            value={user.unlockedChapters?.length ?? 0}
+            value={user.unlockedChapters ?? 0}
             color="bg-violet-500/15 text-violet-400"
           />
         </div>
@@ -213,7 +212,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
             <Row label="Tên hiển thị" value={user.name} />
             <Row label="Email" value={user.email} />
             <Row label="Ngày tham gia" value={formatDate(user.joinedAt)} />
-            <Row label="Truyện đã lưu" value={`${user.storiesMark?.length ?? 0} truyện`} />
+            <Row label="Truyện đã lưu" value={`${user.bookmarksCount ?? 0} truyện`} />
           </div>
 
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-5 flex flex-col gap-1">
@@ -247,7 +246,7 @@ export default function UserDetailContent({ userId }: { userId: string }) {
               label="Vé đề cử tháng"
               value={<span className="text-sky-400">{user.recommendationTicket} vé</span>}
             />
-            <Row label="Chương đã mở khoá" value={`${user.unlockedChapters?.length ?? 0} chương`} />
+            <Row label="Chương đã mở khoá" value={`${user.unlockedChapters ?? 0} chương`} />
           </div>
         </div>
       </div>
