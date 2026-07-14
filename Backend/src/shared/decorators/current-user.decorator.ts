@@ -10,7 +10,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 export const CurrentUser = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext): User => {
     const request = ctx.switchToHttp().getRequest();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+
     return request.user;
   },
 );

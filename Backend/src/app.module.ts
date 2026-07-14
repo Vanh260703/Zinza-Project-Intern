@@ -38,6 +38,7 @@ import { ChaptersModule } from './modules/chapters/chapters.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { Comment } from './modules/comments/entities/comment.entity';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -110,6 +111,7 @@ import { Comment } from './modules/comments/entities/comment.entity';
     ChaptersModule,
     NotificationsModule,
     CategoriesModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
