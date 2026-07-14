@@ -111,27 +111,27 @@ export class ChaptersService {
         chapter.price,
       );
 
-      // Cộng kẹo vào ví người đăng truyện. Owner đã bị chặn ở trên nên buyer ≠ postedBy.
-      // increment atomic → không lock ví người nhận, tránh deadlock. postedBy có thể null.
+      // Cộng kẹo vào ví người đăng truyện
+      // Lock ví người nhận để balanceBefore/After ghi vào lịch sử luôn khớp thứ tự khi có nhiều giao dịch cộng dồn
       const authorWallet = chapter.novel.postedBy
         ? await em.findOne(UserWallet, {
             where: { user: { id: chapter.novel.postedBy.id } },
+            lock: { mode: 'pessimistic_write' },
           })
         : null;
       if (chapter.novel.postedBy && authorWallet) {
-        await em.increment(
-          UserWallet,
-          { id: authorWallet.id },
-          'balance',
-          chapter.price,
-        );
+        const authorBalanceBefore = authorWallet.balance;
+        const authorBalanceAfter = authorBalanceBefore + chapter.price;
+        await em.update(UserWallet, authorWallet.id, {
+          balance: authorBalanceAfter,
+        });
         await em.save(
           em.create(WalletTransaction, {
             user: { id: chapter.novel.postedBy.id },
             type: TransactionType.EARN,
             amount: chapter.price,
-            balanceBefore: authorWallet.balance,
-            balanceAfter: authorWallet.balance + chapter.price,
+            balanceBefore: authorBalanceBefore,
+            balanceAfter: authorBalanceAfter,
             referenceType: 'chapter',
             referenceId: chapterId,
             description: `Nhận ${chapter.price} kẹo từ mở khoá chương "${chapter.title}"`,
