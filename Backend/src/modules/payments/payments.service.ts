@@ -388,7 +388,7 @@ export class PaymentsService {
     const authorWallet = await em.findOne(UserWallet, {
       where: { user: { id: authorId } },
     });
-    if (!authorWallet) return;
+    if (!authorWallet) throw new NotFoundException('Ví không tồn tại');
 
     await em.increment(UserWallet, { id: authorWallet.id }, 'balance', amount);
     await em.save(
