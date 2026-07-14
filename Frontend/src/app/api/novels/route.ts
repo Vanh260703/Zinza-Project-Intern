@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
 import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
 const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -10,16 +9,6 @@ const FORWARD_PARAMS = ["ids", "vip", "sort", "status", "limit", "category", "q"
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
 
-  if (searchParams.get("all") === "true") {
-    return NextResponse.json(db.novels.getAll());
-  }
-
-  const postedBy = searchParams.get("postedBy");
-  if (postedBy) {
-    return NextResponse.json(db.novels.getByUser(postedBy));
-  }
-
-  // Còn lại → BE thật, chuẩn hoá BE novel → Novel
   const be = new URL(`${BE_URL}/api/v1/novels`);
   for (const key of FORWARD_PARAMS) {
     const v = searchParams.get(key);
