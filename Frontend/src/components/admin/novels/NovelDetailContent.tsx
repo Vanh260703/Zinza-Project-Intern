@@ -236,10 +236,6 @@ export default function NovelDetailContent({ novelSlug }: { novelSlug: string })
             value={<span className="font-mono text-xs text-stone-500">{novel.slug}</span>}
           />
           <Row label="Thể loại" value={novel.categories.map((g) => g.name).join(", ") || "—"} />
-          <Row
-            label="Giá mặc định"
-            value={novel.price > 0 ? `${novel.price} kẹo / chương` : "Miễn phí"}
-          />
           <Row label="Trạng thái" value={getNovelStatus(novel.status).label} />
           <Row
             label="VIP"
