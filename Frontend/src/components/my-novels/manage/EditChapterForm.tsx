@@ -17,16 +17,16 @@ const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
 type Props = {
-  novelId: string;
+  slug: string;
   postedBy: string;
   chapter: Chapter;
   initialContent: string;
 };
 
-export default function EditChapterForm({ novelId, postedBy, chapter, initialContent }: Props) {
+export default function EditChapterForm({ slug, postedBy, chapter, initialContent }: Props) {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
-  const updateMutation = useUpdateChapter(novelId, chapter.id);
+  const updateMutation = useUpdateChapter(slug, chapter.id);
 
   const {
     register,
@@ -60,7 +60,7 @@ export default function EditChapterForm({ novelId, postedBy, chapter, initialCon
   const onSubmit = (data: FormData) => {
     updateMutation.mutate(
       { title: data.title.trim(), content: data.content, price: data.price },
-      { onSuccess: () => router.push(`/my-novels/${novelId}`) }
+      { onSuccess: () => router.push(`/my-novels/${slug}`) }
     );
   };
 

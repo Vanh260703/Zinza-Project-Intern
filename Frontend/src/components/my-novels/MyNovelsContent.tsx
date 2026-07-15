@@ -6,9 +6,13 @@ import Link from "next/link";
 import { useMyNovels } from "@/hooks/useNovels";
 import NovelCard from "./NovelCard";
 import EmptyState from "./EmptyState";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 8;
 
 export default function MyNovelsContent() {
   const [q, setQ] = useState("");
+  const [page, setPage] = useState(1);
 
   const { data: novels = [], isLoading } = useMyNovels();
 
@@ -17,6 +21,10 @@ export default function MyNovelsContent() {
       q.trim() ? novels.filter((n) => n.name.toLowerCase().includes(q.toLowerCase())) : novels,
     [novels, q]
   );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   if (isLoading) {
     return (
@@ -40,7 +48,10 @@ export default function MyNovelsContent() {
             <Search className="w-3.5 h-3.5 text-stone-500 shrink-0" />
             <input
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1); // đổi từ khoá → về trang 1, tránh kẹt ở trang trống
+              }}
               placeholder="Tìm kiếm truyện..."
               className="bg-transparent text-stone-200 text-sm placeholder-stone-600 outline-none w-full sm:w-36"
             />
@@ -72,11 +83,20 @@ export default function MyNovelsContent() {
           Không tìm thấy truyện nào khớp với &ldquo;{q}&rdquo;.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {filtered.map((novel) => (
-            <NovelCard key={novel.id} story={novel} />
-          ))}
-        </div>
+        <>
+          <div className="flex flex-col gap-3">
+            {paged.map((novel) => (
+              <NovelCard key={novel.id} novel={novel} />
+            ))}
+          </div>
+          <Pagination
+            page={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalItems={filtered.length}
+            itemLabel="truyện"
+          />
+        </>
       )}
     </div>
   );

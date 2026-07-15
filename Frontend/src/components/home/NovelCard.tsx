@@ -1,23 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Star, BookMarked } from "lucide-react";
-import type { Story } from "@/types/story";
-import { getStoryStatus } from "@/config/statuses";
+import type { Novel } from "@/types/novel";
+import { getNovelStatus } from "@/config/statuses";
 
-type StoryCardProps = {
-  story: Story;
+type NovelCardProps = {
+  novel: Novel;
 };
 
-function CoverImage({
-  storyId,
-  hasPoster,
-  name,
-}: {
-  storyId: string;
-  hasPoster: boolean;
-  name: string;
-}) {
-  if (!hasPoster) {
+function CoverImage({ posterUrl, name }: { posterUrl: string | null; name: string }) {
+  if (!posterUrl) {
     return (
       <div className="w-full h-full bg-linear-to-br from-stone-700 to-stone-800 flex items-center justify-center">
         <BookOpen className="w-10 h-10 text-stone-600" strokeWidth={1.5} />
@@ -26,7 +18,7 @@ function CoverImage({
   }
   return (
     <Image
-      src={`/api/cover/${storyId}`}
+      src={posterUrl}
       alt={name}
       width={300}
       height={400}
@@ -36,15 +28,15 @@ function CoverImage({
   );
 }
 
-export default function StoryCard({ story }: StoryCardProps) {
-  const { id, slug, name, posterUrl, author, categories, rating, chapterCount, status, vip, nominations } =
-    story;
+export default function NovelCard({ novel }: NovelCardProps) {
+  const { slug, name, posterUrl, author, categories, rating, chapterCount, status, vip, nominations } =
+    novel;
 
   return (
     <Link href={`/novels/${slug}`} className="group flex flex-col">
       {/* Cover */}
       <div className="relative aspect-3/4 rounded-xl overflow-hidden mb-3 bg-stone-800">
-        <CoverImage storyId={id} hasPoster={!!posterUrl} name={name} />
+        <CoverImage posterUrl={posterUrl} name={name} />
 
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -64,7 +56,7 @@ export default function StoryCard({ story }: StoryCardProps) {
               : "bg-stone-700/90 text-stone-300"
           }`}
         >
-          {getStoryStatus(status).label}
+          {getNovelStatus(status).label}
         </span>
 
         {/* Nominations */}

@@ -1,40 +1,30 @@
-import { db } from "@/lib/mock-db";
-import { removeDiacritics } from "@/utils/removeDiacritics";
-import type { Story } from "@/types/story";
 import NovelsPage from "@/components/novels/NovelsPage";
+import { homeApi } from "@/lib/api/home";
 
 type SearchParams = { q?: string; genre?: string; status?: string; sort?: string };
 
-function filterAndSort(stories: Story[], params: SearchParams): Story[] {
-  let result = [...stories];
-  if (params.q) {
-    const q = removeDiacritics(params.q);
-    result = result.filter(
-      (s) => removeDiacritics(s.name).includes(q) || removeDiacritics(s.author).includes(q)
-    );
-  }
-  if (params.genre) {
-    result = result.filter((s) => s.categories.some((g) => g.slug === params.genre));
-  }
-  if (params.status) {
-    result = result.filter((s) => s.status === params.status);
-  }
-  if (params.sort === "rating") {
-    result.sort((a, b) => b.rating - a.rating);
-  } else if (params.sort === "views") {
-    result.sort((a, b) => b.nominations - a.nominations);
-  } else if (params.sort === "latest") {
-    result.reverse();
-  }
-  return result;
-}
+// FE dùng latest/views/rating → BE dùng newest/views/rating
+const SORT_MAP: Record<string, string> = {
+  latest: "newest",
+  views: "views",
+  rating: "rating",
+};
 
 export default async function Page({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
-  const results = filterAndSort(db.stories.getAll(), params);
+
+  const sp = new URLSearchParams();
+  if (params.q) sp.set("q", params.q);
+  if (params.genre) sp.set("category", params.genre); // BE lọc theo category slug
+  if (params.status) sp.set("status", params.status);
+  if (params.sort) sp.set("sort", SORT_MAP[params.sort] ?? params.sort);
+  sp.set("limit", "60");
+
+  const novels = await homeApi.list(sp.toString());
+
   return (
     <NovelsPage
-      stories={results}
+      novels={novels}
       q={params.q}
       genre={params.genre}
       status={params.status}

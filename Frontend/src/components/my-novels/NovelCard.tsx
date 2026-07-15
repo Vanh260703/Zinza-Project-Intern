@@ -5,8 +5,8 @@ import { useState } from "react";
 import { BookOpen, Eye, Candy, Crown } from "lucide-react";
 import { useDeleteNovel } from "@/hooks/useNovels";
 import ConfirmModal from "@/components/ui/ConfirmModal";
-import type { Story } from "@/types/story";
-import { getStoryStatus } from "@/config/statuses";
+import type { Novel } from "@/types/novel";
+import { getNovelStatus } from "@/config/statuses";
 
 function formatDate(date?: Date | string) {
   if (!date) return "—";
@@ -17,11 +17,11 @@ function formatDate(date?: Date | string) {
   });
 }
 
-type Props = { story: Story };
+type Props = { novel: Novel };
 
-export default function NovelCard({ story }: Props) {
+export default function NovelCard({ novel }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const status = getStoryStatus(story.status);
+  const status = getNovelStatus(novel.status);
   const deleteMutation = useDeleteNovel(() => setShowConfirm(false));
 
   return (
@@ -29,20 +29,20 @@ export default function NovelCard({ story }: Props) {
       {showConfirm && (
         <ConfirmModal
           title="Xóa truyện này?"
-          description={`"${story.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
+          description={`"${novel.name}" sẽ bị xóa vĩnh viễn và không thể khôi phục.`}
           confirmLabel="Xóa truyện"
           loading={deleteMutation.isPending}
-          onConfirm={() => deleteMutation.mutate(story.id)}
+          onConfirm={() => deleteMutation.mutate(novel.slug)}
           onCancel={() => setShowConfirm(false)}
         />
       )}
       <div className="flex gap-4 p-4 bg-stone-900 border border-stone-800 rounded-2xl hover:border-stone-700 transition-colors">
         {/* Cover */}
         <div className="w-16 h-21.5 rounded-xl overflow-hidden bg-stone-800 shrink-0">
-          {story.posterUrl ? (
+          {novel.posterUrl ? (
             <img
-              src={`/api/cover/${story.id}`}
-              alt={story.name}
+              src={novel.posterUrl}
+              alt={novel.name}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -55,8 +55,8 @@ export default function NovelCard({ story }: Props) {
         {/* Info */}
         <div className="flex flex-col gap-2 flex-1 min-w-0 justify-center">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-stone-100 font-semibold text-sm">{story.name}</h3>
-            {story.vip && (
+            <h3 className="text-stone-100 font-semibold text-sm">{novel.name}</h3>
+            {novel.vip && (
               <span className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-md">
                 <Crown className="w-2.5 h-2.5" />
                 VIP
@@ -72,23 +72,25 @@ export default function NovelCard({ story }: Props) {
             </span>
             <span className="text-stone-600 text-xs flex items-center gap-1">
               <BookOpen className="w-3 h-3" />
-              {story.chapterCount} chương
+              {novel.chapterCount} chương
             </span>
             <span className="text-stone-600 text-xs flex items-center gap-1">
-              <Eye className="w-3 h-3" />0 lượt đọc
+              <Eye className="w-3 h-3" />
+              {novel.views.toLocaleString()} lượt đọc
             </span>
             <span className="text-stone-600 text-xs flex items-center gap-1">
-              <Candy className="w-3 h-3" />0 kẹo
+              <Candy className="w-3 h-3" />
+              {novel.candyReceived.toLocaleString()} kẹo
             </span>
           </div>
 
-          <p className="text-stone-600 text-xs">Cập nhật: {formatDate(story.updatedAt)}</p>
+          <p className="text-stone-600 text-xs">Cập nhật: {formatDate(novel.updatedAt)}</p>
         </div>
 
         {/* Actions */}
         <div className="flex flex-col gap-2 justify-center shrink-0">
           <Link
-            href={`/my-novels/${story.id}`}
+            href={`/my-novels/${novel.slug}`}
             className="px-4 py-1.5 rounded-lg text-xs font-medium border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors text-center"
           >
             Quản lý

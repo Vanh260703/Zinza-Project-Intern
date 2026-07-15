@@ -2,6 +2,17 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
+import { NotificationType } from './enums/notification-type.enum';
+
+export type CreateNotificationInput = {
+  userId: string;
+  type: NotificationType;
+  title: string;
+  content: string;
+  referenceType?: string;
+  referenceId?: string;
+  metadata?: Record<string, unknown>;
+};
 
 @Injectable()
 export class NotificationsService {
@@ -9,6 +20,39 @@ export class NotificationsService {
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
   ) {}
+
+  // Dùng để gửi thông báo cho 1 user
+  async create(input: CreateNotificationInput): Promise<Notification> {
+    return this.notificationRepository.save(
+      this.notificationRepository.create({
+        user: { id: input.userId },
+        type: input.type,
+        title: input.title,
+        content: input.content,
+        referenceType: input.referenceType,
+        referenceId: input.referenceId,
+        metadata: input.metadata,
+      }),
+    );
+  }
+
+  // Bulk insert — dùng để gửi thông báo cho nhiều user cùng lúc
+  async createMany(inputs: CreateNotificationInput[]): Promise<void> {
+    if (inputs.length === 0) return;
+    await this.notificationRepository.insert(
+      inputs.map((input) =>
+        this.notificationRepository.create({
+          user: { id: input.userId },
+          type: input.type,
+          title: input.title,
+          content: input.content,
+          referenceType: input.referenceType,
+          referenceId: input.referenceId,
+          metadata: input.metadata,
+        }),
+      ),
+    );
+  }
 
   async findAll(userId: string, page: number = 1, limit: number = 20) {
     const [notifications, total] =

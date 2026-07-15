@@ -1,12 +1,11 @@
-import { BookOpen } from "lucide-react";
-import type { Story } from "@/types/story";
-import StoryCard from "./StoryCard";
-import { getStoryStatus } from "@/config/statuses";
-import { CATEGORY_BY_SLUG } from "@/config/category";
+"use client";
 
-const GENRE_LABELS: Record<string, string> = Object.fromEntries(
-  Object.entries(CATEGORY_BY_SLUG).map(([slug, g]) => [slug, g.name])
-);
+import { useMemo } from "react";
+import { BookOpen } from "lucide-react";
+import type { Novel } from "@/types/novel";
+import NovelCard from "./NovelCard";
+import { getNovelStatus } from "@/config/statuses";
+import { useCategories } from "@/hooks/useCategories";
 
 const SORT_LABELS: Record<string, string> = {
   latest: "Mới nhất",
@@ -15,7 +14,7 @@ const SORT_LABELS: Record<string, string> = {
 };
 
 type SearchResultsSectionProps = {
-  stories: Story[];
+  novels: Novel[];
   q?: string;
   genre?: string;
   status?: string;
@@ -23,16 +22,22 @@ type SearchResultsSectionProps = {
 };
 
 export default function SearchResultsSection({
-  stories,
+  novels,
   q,
   genre,
   status,
   sort,
 }: SearchResultsSectionProps) {
+  const { data: categories = [] } = useCategories();
+  const genreLabels = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.slug, c.name])),
+    [categories]
+  );
+
   const activeFilters = [
     q && { label: `"${q}"` },
-    genre && { label: GENRE_LABELS[genre] ?? genre },
-    status && { label: getStoryStatus(status).label },
+    genre && { label: genreLabels[genre] ?? genre },
+    status && { label: getNovelStatus(status).label },
     sort && sort !== "latest" && { label: SORT_LABELS[sort] ?? sort },
   ].filter(Boolean) as { label: string }[];
 
@@ -43,7 +48,7 @@ export default function SearchResultsSection({
         <div>
           <h2 className="text-white text-xl font-bold">
             Kết quả tìm kiếm
-            <span className="ml-2 text-amber-400">{stories.length}</span>
+            <span className="ml-2 text-amber-400">{novels.length}</span>
             <span className="text-stone-500 text-base font-normal ml-1">truyện</span>
           </h2>
         </div>
@@ -63,7 +68,7 @@ export default function SearchResultsSection({
       </div>
 
       {/* Results */}
-      {stories.length === 0 ? (
+      {novels.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-16 h-16 rounded-2xl bg-stone-800 flex items-center justify-center mb-4">
             <BookOpen className="w-8 h-8 text-stone-600" strokeWidth={1.5} />
@@ -73,8 +78,8 @@ export default function SearchResultsSection({
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
-          {stories.map((story) => (
-            <StoryCard key={story.id} story={story} />
+          {novels.map((novel) => (
+            <NovelCard key={novel.id} novel={novel} />
           ))}
         </div>
       )}

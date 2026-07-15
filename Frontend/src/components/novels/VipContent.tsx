@@ -1,16 +1,16 @@
 import Link from "next/link";
 import { Crown, ChevronLeft, ChevronRight } from "lucide-react";
 import Footer from "@/components/layout/Footer";
-import StoryCard from "@/components/home/StoryCard";
-import type { Story } from "@/types/story";
+import NovelCard from "@/components/home/NovelCard";
+import type { Novel } from "@/types/novel";
 
 type Props = {
-  stories: Story[];
+  novels: Novel[];
   currentPage: number;
   totalPages: number;
 };
 
-export default function VipContent({ stories, currentPage, totalPages }: Props) {
+export default function VipContent({ novels, currentPage, totalPages }: Props) {
   return (
     <div className="min-h-screen bg-stone-950">
       {/* Hero banner */}
@@ -25,7 +25,7 @@ export default function VipContent({ stories, currentPage, totalPages }: Props) 
             </div>
             <div>
               <h1 className="text-3xl font-black text-white">Truyện VIP</h1>
-              <p className="text-stone-400 text-sm mt-0.5">{stories.length} truyện</p>
+              <p className="text-stone-400 text-sm mt-0.5">{novels.length} truyện</p>
             </div>
           </div>
 
@@ -40,9 +40,9 @@ export default function VipContent({ stories, currentPage, totalPages }: Props) 
         </div>
       </div>
 
-      {/* Story grid */}
+      {/* Novel grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {stories.length === 0 ? (
+        {novels.length === 0 ? (
           <div className="text-center py-24 text-stone-600">
             <Crown className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p>Chưa có truyện VIP nào</p>
@@ -50,8 +50,8 @@ export default function VipContent({ stories, currentPage, totalPages }: Props) 
         ) : (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
-              {stories.map((story) => (
-                <StoryCard key={story.id} story={story} />
+              {novels.map((novel) => (
+                <NovelCard key={novel.id} novel={novel} />
               ))}
             </div>
 

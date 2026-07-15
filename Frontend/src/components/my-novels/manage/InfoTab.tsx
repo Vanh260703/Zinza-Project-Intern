@@ -1,17 +1,5 @@
 import { Eye, BookOpen, Candy, User, Tag, Calendar } from "lucide-react";
-import type { Story } from "@/types/story";
-
-const stats = [
-  { key: "views", label: "LƯỢT ĐỌC", icon: Eye, color: "text-blue-400", value: 0 },
-  {
-    key: "chapters",
-    label: "CHƯƠNG ĐÃ ĐĂNG",
-    icon: BookOpen,
-    color: "text-emerald-400",
-    value: null,
-  },
-  { key: "candy", label: "KẸO NHẬN ĐƯỢC", icon: Candy, color: "text-amber-400", value: 0 },
-];
+import type { Novel } from "@/types/novel";
 
 function formatDate(date?: Date | string) {
   if (!date) return "—";
@@ -22,7 +10,25 @@ function formatDate(date?: Date | string) {
   });
 }
 
-export default function InfoTab({ story }: { story: Story }) {
+export default function InfoTab({ novel }: { novel: Novel }) {
+  const stats = [
+    { key: "views", label: "LƯỢT ĐỌC", icon: Eye, color: "text-blue-400", value: novel.views },
+    {
+      key: "chapters",
+      label: "CHƯƠNG ĐÃ ĐĂNG",
+      icon: BookOpen,
+      color: "text-emerald-400",
+      value: novel.chapterCount,
+    },
+    {
+      key: "candy",
+      label: "KẸO NHẬN ĐƯỢC",
+      icon: Candy,
+      color: "text-amber-400",
+      value: novel.candyReceived,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       {/* Stats */}
@@ -33,11 +39,7 @@ export default function InfoTab({ story }: { story: Story }) {
             className="flex flex-col items-center gap-2 py-5 px-3 bg-stone-800/50 border border-stone-800 rounded-xl"
           >
             <Icon className={`w-5 h-5 ${color}`} strokeWidth={1.8} />
-            <p className="text-white text-xl font-bold">
-              {key === "chapters"
-                ? story.chapterCount.toLocaleString()
-                : (value ?? 0).toLocaleString()}
-            </p>
+            <p className="text-white text-xl font-bold">{(value ?? 0).toLocaleString()}</p>
             <p className="text-stone-600 text-[10px] font-semibold tracking-wider">{label}</p>
           </div>
         ))}
@@ -52,14 +54,14 @@ export default function InfoTab({ story }: { story: Story }) {
             <p className="text-stone-500 text-xs">Tác giả</p>
             <p className="text-stone-200 text-sm flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 text-stone-500" />
-              {story.author}
+              {novel.author}
             </p>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <p className="text-stone-500 text-xs">Thể loại</p>
             <div className="flex flex-wrap gap-1.5">
-              {story.categories.map((g) => (
+              {novel.categories.map((g) => (
                 <span
                   key={g.slug}
                   className="flex items-center gap-1 text-xs px-2 py-0.5 bg-stone-800 border border-stone-700 text-stone-300 rounded-md"
@@ -68,7 +70,7 @@ export default function InfoTab({ story }: { story: Story }) {
                   {g.name}
                 </span>
               ))}
-              {story.categories.length === 0 && <span className="text-stone-600 text-xs">—</span>}
+              {novel.categories.length === 0 && <span className="text-stone-600 text-xs">—</span>}
             </div>
           </div>
 
@@ -76,18 +78,18 @@ export default function InfoTab({ story }: { story: Story }) {
             <p className="text-stone-500 text-xs">Ngày đăng</p>
             <p className="text-stone-200 text-sm flex items-center gap-1.5">
               <Calendar className="w-3.5 h-3.5 text-stone-500" />
-              {formatDate(story.updatedAt)}
+              {formatDate(novel.updatedAt)}
             </p>
           </div>
         </div>
 
-        {story.description && (
+        {novel.description && (
           <>
             <hr className="border-stone-800" />
             <div className="flex flex-col gap-2">
               <p className="text-stone-500 text-xs">Tóm tắt</p>
               <p className="text-stone-300 text-sm leading-relaxed whitespace-pre-line">
-                {story.description}
+                {novel.description}
               </p>
             </div>
           </>

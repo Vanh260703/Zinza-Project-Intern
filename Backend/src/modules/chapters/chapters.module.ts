@@ -7,6 +7,8 @@ import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { ChapterPurchase } from 'src/modules/payments/entities/chapter-purchase.entity';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
+import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmark.entity';
+import { NotificationsModule } from 'src/modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -16,7 +18,9 @@ import { WalletTransaction } from 'src/modules/payments/entities/wallet-transact
       ChapterPurchase,
       UserWallet,
       WalletTransaction,
+      UserNovelBookMark,
     ]),
+    NotificationsModule,
   ],
   controllers: [ChaptersController],
   providers: [ChaptersService],

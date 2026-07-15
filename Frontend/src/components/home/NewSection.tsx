@@ -1,18 +1,18 @@
 "use client";
 
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 import SectionHeader from "./SectionHeader";
-import StoryCarousel from "./StoryCarousel";
+import NovelCarousel from "./NovelCarousel";
 
 type NewSectionProps = {
-  stories: Story[];
+  novels: Novel[];
 };
 
-export default function NewSection({ stories }: NewSectionProps) {
+export default function NewSection({ novels }: NewSectionProps) {
   return (
     <section>
       <SectionHeader icon="🆕" title="Truyện mới" />
-      <StoryCarousel stories={stories} autoMs={2000} />
+      <NovelCarousel novels={novels} autoMs={2000} />
     </section>
   );
 }

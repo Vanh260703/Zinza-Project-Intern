@@ -10,7 +10,7 @@ export class MailService {
     // Link trỏ tới trang reset-password phía frontend (form nhập mật khẩu mới),
     // trang đó sẽ gọi POST /auth/reset-password kèm token.
     const frontendUrl = process.env.FRONTEND_URL;
-    const url = `${frontendUrl}/reset-password?token=${token}`;
+    const url = `${frontendUrl}/auth/reset-password?token=${token}`;
 
     await this.mailerService.sendMail({
       to: user.email,

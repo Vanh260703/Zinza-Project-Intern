@@ -1,18 +1,18 @@
 "use client";
 
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 import SectionHeader from "./SectionHeader";
-import StoryCarousel from "./StoryCarousel";
+import NovelCarousel from "./NovelCarousel";
 
 type HotSectionProps = {
-  stories: Story[];
+  novels: Novel[];
 };
 
-export default function HotSection({ stories }: HotSectionProps) {
+export default function HotSection({ novels }: HotSectionProps) {
   return (
     <section>
       <SectionHeader icon="🔥" title="Truyện hot" />
-      <StoryCarousel stories={stories} autoMs={2000} />
+      <NovelCarousel novels={novels} autoMs={2000} />
     </section>
   );
 }

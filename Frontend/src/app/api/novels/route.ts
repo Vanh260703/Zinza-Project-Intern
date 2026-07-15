@@ -1,46 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
-import { createNovelSchema } from "@/schemas/novel";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
-// GET /api/novels?ids=id1,id2,id3
-// GET /api/novels?postedBy=userId
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+// Các param đẩy thẳng xuống BE GET /novels
+const FORWARD_PARAMS = ["ids", "vip", "sort", "status", "limit", "category", "q", "page"];
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
 
-  if (searchParams.get("all") === "true") {
-    return NextResponse.json(db.stories.getAll());
+  const be = new URL(`${BE_URL}/api/v1/novels`);
+  for (const key of FORWARD_PARAMS) {
+    const v = searchParams.get(key);
+    if (v !== null) be.searchParams.set(key, v);
   }
 
-  const postedBy = searchParams.get("postedBy");
-  if (postedBy) {
-    return NextResponse.json(db.stories.getByUser(postedBy));
-  }
+  const res = await fetch(be, { headers: { Cookie: req.headers.get("cookie") ?? "" } });
+  if (!res.ok) return NextResponse.json([], { status: res.status });
 
-  const ids = searchParams.get("ids");
-  if (!ids) return NextResponse.json([]);
-
-  const stories = ids
-    .split(",")
-    .filter(Boolean)
-    .map((id) => db.stories.findById(id))
-    .filter(Boolean);
-
-  return NextResponse.json(stories);
+  const json = (await res.json()) as { data?: BeNovel[] };
+  return NextResponse.json((json.data ?? []).map(normalizeNovel));
 }
 
-// POST /api/novels
+// POST /api/novels — tạo truyện mới. BE nhận cover trong CÙNG request (multipart)
+// và tự validate (name/author/categories UUID...) qua ValidationPipe.
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const result = createNovelSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json(
-      { message: "Dữ liệu không hợp lệ", errors: result.error.flatten() },
-      { status: 400 }
-    );
-  }
+  const formData = await req.formData();
 
-  await new Promise((r) => setTimeout(r, 500));
+  const res = await fetch(`${BE_URL}/api/v1/novels`, {
+    method: "POST",
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+    body: formData,
+  });
 
-  const story = db.stories.create(result.data);
-  return NextResponse.json({ story }, { status: 201 });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
+
+  // Response tạo mới thiếu nhiều field so với Novel đầy đủ (rating, chapterCount...)
+  // → không ép qua normalizeNovel; chỉ trả field cần cho toast + redirect.
+  return NextResponse.json(
+    {
+      novel: {
+        id: data.id,
+        slug: data.slug,
+        name: data.name,
+        author: data.author,
+        posterUrl: data.poster ?? null,
+        status: data.status,
+      },
+    },
+    { status: res.status }
+  );
 }

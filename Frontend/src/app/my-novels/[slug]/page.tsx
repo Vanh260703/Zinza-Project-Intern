@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
-import { db } from "@/lib/mock-db";
+import { getManageNovel } from "@/lib/api/manageNovel";
 import ManageNovelContent from "@/components/my-novels/manage/ManageNovelContent";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 export default async function ManageNovelPage({ params }: Props) {
-  const { id } = await params;
-  const story = db.stories.findById(id);
-  if (!story) notFound();
+  const { slug } = await params;
+  const novel = await getManageNovel(slug);
+  if (!novel) notFound();
 
-  return <ManageNovelContent story={story} />;
+  return <ManageNovelContent novel={novel} />;
 }

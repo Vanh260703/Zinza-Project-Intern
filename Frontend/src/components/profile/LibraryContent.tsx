@@ -1,31 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { useStoriesByIds } from "@/hooks/useStories";
+import { useNovelsByIds } from "@/hooks/useNovels";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { useRemoveReadingHistory, useReadingHistory } from "@/hooks/useUser";
 import { BookOpen, BookMarked, History, Compass, X, Loader2 } from "lucide-react";
 import type { ReadChapterInfo } from "@/lib/api/user";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 
-// Story card
+// Novel card
 
 type LastChapter = ReadChapterInfo;
 
-function StoryCard({
-  story,
+function NovelCard({
+  novel,
   lastChapter,
   onRemove,
   removing,
 }: {
-  story: Story;
+  novel: Novel;
   lastChapter?: LastChapter;
   onRemove?: () => void;
   removing?: boolean;
 }) {
   const href = lastChapter
-    ? `/novels/${story.slug}/chapters/${lastChapter.id}`
-    : `/novels/${story.slug}`;
+    ? `/novels/${novel.slug}/chapters/${lastChapter.id}`
+    : `/novels/${novel.slug}`;
 
   return (
     <div className="relative group/card">
@@ -34,10 +34,10 @@ function StoryCard({
         className="flex gap-3 p-3 rounded-xl hover:bg-stone-800 transition-colors group"
       >
         <div className="w-12 h-16 rounded-lg overflow-hidden bg-stone-800 shrink-0">
-          {story.posterUrl ? (
+          {novel.posterUrl ? (
             <img
-              src={story.posterUrl}
-              alt={story.name}
+              src={novel.posterUrl}
+              alt={novel.name}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -48,16 +48,16 @@ function StoryCard({
         </div>
         <div className="flex flex-col gap-1 min-w-0 justify-center">
           <p className="text-stone-200 text-sm font-medium truncate group-hover:text-amber-400 transition-colors">
-            {story.name}
+            {novel.name}
           </p>
-          <p className="text-stone-500 text-xs truncate">{story.author}</p>
+          <p className="text-stone-500 text-xs truncate">{novel.author}</p>
           <div className="flex items-center gap-2 mt-0.5">
             <span className="text-stone-600 text-[11px]">
               {lastChapter
                 ? `Ch.${lastChapter.number}: ${lastChapter.title}`
-                : `${story.chapterCount} chương`}
+                : `${novel.chapterCount} chương`}
             </span>
-            {story.vip && (
+            {novel.vip && (
               <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/15 text-amber-400 rounded-md">
                 VIP
               </span>
@@ -86,7 +86,7 @@ function StoryCard({
 function Section({
   title,
   icon: Icon,
-  stories,
+  novels,
   emptyText,
   lastChapterByNovel,
   recordIdByNovel,
@@ -94,7 +94,7 @@ function Section({
 }: {
   title: string;
   icon: React.ElementType;
-  stories: Story[];
+  novels: Novel[];
   emptyText: string;
   lastChapterByNovel?: Record<string, ReadChapterInfo>;
   recordIdByNovel?: Record<string, string>;
@@ -105,19 +105,19 @@ function Section({
       <div className="flex items-center gap-2">
         <Icon className="w-4 h-4 text-amber-400" />
         <h3 className="text-white font-semibold text-sm">{title}</h3>
-        <span className="text-stone-600 text-xs">({stories.length})</span>
+        <span className="text-stone-600 text-xs">({novels.length})</span>
       </div>
-      {stories.length === 0 ? (
+      {novels.length === 0 ? (
         <p className="text-stone-600 text-sm px-1">{emptyText}</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-          {stories.map((story) => {
-            const recordId = recordIdByNovel?.[story.id];
+          {novels.map((novel) => {
+            const recordId = recordIdByNovel?.[novel.id];
             return (
-              <StoryCard
-                key={story.id}
-                story={story}
-                lastChapter={lastChapterByNovel?.[story.id]}
+              <NovelCard
+                key={novel.id}
+                novel={novel}
+                lastChapter={lastChapterByNovel?.[novel.id]}
                 onRemove={
                   removeMutation && recordId
                     ? () => removeMutation.mutate(recordId)
@@ -140,7 +140,7 @@ export default function LibraryContent() {
   const { data: history = [], isLoading: historyLoading } = useReadingHistory();
   const removeMutation = useRemoveReadingHistory();
 
-  // Truyện đã lưu (BE user_novel_bookmarks) → lấy id để resolve Story qua useStoriesByIds
+  // Truyện đã lưu (BE user_novel_bookmarks) → lấy id để resolve Novel qua useNovelsByIds
   const bookmarks = bookmarkList.map((b) => b.novel.id);
 
   // Lịch sử đọc từ BE (bảng user_novel_reads), sắp theo lần đọc gần nhất
@@ -151,12 +151,12 @@ export default function LibraryContent() {
   const isEmpty = readIds.length === 0 && bookmarks.length === 0;
   const allIds = [...new Set([...readIds, ...bookmarks])];
 
-  const { data: stories = [], isLoading: storiesLoading } = useStoriesByIds(allIds, !isEmpty);
-  const loading = historyLoading || storiesLoading;
+  const { data: novels = [], isLoading: novelsLoading } = useNovelsByIds(allIds, !isEmpty);
+  const loading = historyLoading || novelsLoading;
 
-  const byId = Object.fromEntries(stories.map((s) => [s.id, s]));
-  const historyStories = readIds.map((id) => byId[id]).filter(Boolean) as Story[];
-  const bookmarkStories = bookmarks.map((id) => byId[id]).filter(Boolean) as Story[];
+  const byId = Object.fromEntries(novels.map((s) => [s.id, s]));
+  const historyNovels = readIds.map((id) => byId[id]).filter(Boolean) as Novel[];
+  const bookmarkNovels = bookmarks.map((id) => byId[id]).filter(Boolean) as Novel[];
 
   if (loading) {
     return (
@@ -192,13 +192,13 @@ export default function LibraryContent() {
       <Section
         title="Đang theo dõi"
         icon={BookMarked}
-        stories={bookmarkStories}
+        novels={bookmarkNovels}
         emptyText="Chưa theo dõi truyện nào."
       />
       <Section
         title="Đã đọc"
         icon={History}
-        stories={historyStories}
+        novels={historyNovels}
         lastChapterByNovel={lastChapterByNovel}
         recordIdByNovel={recordIdByNovel}
         emptyText="Chưa có lịch sử đọc."

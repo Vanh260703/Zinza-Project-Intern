@@ -1,47 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
-import { updateNovelSchema, deleteNovelSchema } from "@/schemas/novel";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const body = await req.json();
-  const result = updateNovelSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
-  }
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-  const story = db.stories.findById(id);
-  if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
-  if (story.postedBy !== result.data.userId) {
-    return NextResponse.json(
-      { message: "Bạn không có quyền chỉnh sửa truyện này" },
-      { status: 403 }
-    );
-  }
+type Params = Promise<{ id: string }>; // [id] = slug (BE định danh theo slug)
 
-  const { userId: _userId, ...patch } = result.data;
-  const updated = db.stories.update(id, patch);
-  return NextResponse.json({ story: updated });
+// GET /api/novels/:slug — chi tiết truyện
+export async function GET(_req: NextRequest, { params }: { params: Params }) {
+  const { id: slug } = await params;
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}`, { cache: "no-store" });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
+  return NextResponse.json(normalizeNovel(data as BeNovel));
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+// PATCH /api/novels/:slug — sửa truyện. BE check owner qua cookie.
+export async function PATCH(req: NextRequest, { params }: { params: Params }) {
+  const { id: slug } = await params;
   const body = await req.json();
 
-  const result = deleteNovelSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
+  // Chỉ forward field BE cho phép
+  const patch: Record<string, unknown> = {};
+  for (const k of ["name", "author", "description", "status", "categories"] as const) {
+    if (body[k] !== undefined) patch[k] = body[k];
   }
 
-  const story = db.stories.findById(id);
-  if (!story) {
-    return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
-  }
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: req.headers.get("cookie") ?? "" },
+    body: JSON.stringify(patch),
+  });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
+  return NextResponse.json({ novel: normalizeNovel(data as BeNovel) });
+}
 
-  if (story.postedBy !== result.data.userId) {
-    return NextResponse.json({ message: "Bạn không có quyền xóa truyện này" }, { status: 403 });
-  }
-
-  db.stories.delete(id);
-  return NextResponse.json({ message: "Đã xóa truyện" });
+// DELETE /api/novels/:slug — xoá truyện. BE check owner qua cookie.
+export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+  const { id: slug } = await params;
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}`, {
+    method: "DELETE",
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
+  const data = await res.json().catch(() => ({ message: "Đã xóa truyện" }));
+  return NextResponse.json(data, { status: res.status });
 }

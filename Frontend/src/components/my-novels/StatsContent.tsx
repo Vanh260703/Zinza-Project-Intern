@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { BarChart2 } from "lucide-react";
-import { useMyNovels } from "@/hooks/useNovels";
-import type { Story } from "@/types/story";
+import { useMyNovelsStats } from "@/hooks/useNovels";
+import Pagination from "@/components/ui/Pagination";
+
+const PAGE_SIZE = 10;
 
 const SUMMARY_STATS = [
   { key: "views", label: "LƯỢT ĐỌC", color: "text-amber-400" },
@@ -11,7 +13,7 @@ const SUMMARY_STATS = [
   { key: "unlocked", label: "MỞ KHOÁ", color: "text-amber-400" },
   { key: "gifts", label: "TIỀN QUÀ", color: "text-amber-400" },
   { key: "revenue", label: "TIỀN MỞ KHOÁ", color: "text-amber-400" },
-];
+] as const;
 
 const TABLE_COLS = [
   { key: "name", label: "TRUYỆN", align: "text-left" },
@@ -23,38 +25,11 @@ const TABLE_COLS = [
   { key: "revenue", label: "TIỀN MỞ KHOÁ", align: "text-center" },
 ];
 
-type StoryStats = {
-  id: string;
-  name: string;
-  author: string;
-  views: number;
-  nominated: number;
-  unlocked: number;
-  gifts: number;
-  revenue: number;
-};
-
-function toStats(story: Story): StoryStats {
-  return {
-    id: story.id,
-    name: story.name,
-    author: story.author,
-    views: 0,
-    nominated: story.nominations ?? 0,
-    unlocked: 0,
-    gifts: 0,
-    revenue: 0,
-  };
-}
-
 export default function StatsContent() {
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const { data: rows = [], isLoading: loading } = useMyNovelsStats();
+  const [page, setPage] = useState(1);
 
-  const { data: novels = [], isLoading: loading } = useMyNovels();
-
-  const rows = novels.map(toStats);
-
+  // Tổng cộng dồn trên TOÀN BỘ truyện (không phụ thuộc trang) → thẻ tổng luôn đúng
   const totals = rows.reduce(
     (acc, r) => ({
       views: acc.views + r.views,
@@ -66,41 +41,22 @@ export default function StatsContent() {
     { views: 0, nominated: 0, unlocked: 0, gifts: 0, revenue: 0 }
   );
 
+  // Phân trang phía client — chỉ cắt phần hiển thị bảng
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages); // clamp khi data đổi (vd list ngắn lại)
+  const pageRows = rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-start gap-4 justify-between">
-        <div>
-          <h2 className="text-white font-bold text-xl flex items-center gap-2">
-            <BarChart2 className="w-5 h-5 text-amber-400" />
-            Thống kê truyện
-          </h2>
-          <p className="text-stone-500 text-sm mt-1">
-            Lượt đọc, đề cử, mở khoá và doanh thu theo dải ngày.
-          </p>
-        </div>
-
-        {/* Date range */}
-        <div className="flex items-center gap-2 shrink-0">
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => {
-              setFromDate(e.target.value);
-              syncUrl(e.target.value, toDate);
-            }}
-            className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
-          />
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => {
-              setToDate(e.target.value);
-              syncUrl(fromDate, e.target.value);
-            }}
-            className="bg-stone-800 border border-stone-700 text-stone-300 text-sm rounded-xl px-3 py-2 outline-none focus:border-amber-500/60 transition-colors"
-          />
-        </div>
+      <div>
+        <h2 className="text-white font-bold text-xl flex items-center gap-2">
+          <BarChart2 className="w-5 h-5 text-amber-400" />
+          Thống kê truyện
+        </h2>
+        <p className="text-stone-500 text-sm mt-1">
+          Tổng lượt đọc, đề cử, mở khoá và doanh thu của các truyện bạn đăng.
+        </p>
       </div>
 
       {/* Summary cards */}
@@ -111,9 +67,7 @@ export default function StatsContent() {
             className="flex flex-col gap-1.5 p-4 bg-stone-900 border border-stone-800 rounded-xl"
           >
             <p className="text-stone-600 text-[10px] font-semibold tracking-wider">{label}</p>
-            <p className={`text-2xl font-bold ${color}`}>
-              {totals[key as keyof typeof totals].toLocaleString()}
-            </p>
+            <p className={`text-2xl font-bold ${color}`}>{totals[key].toLocaleString()}</p>
           </div>
         ))}
       </div>
@@ -149,23 +103,27 @@ export default function StatsContent() {
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
+              pageRows.map((row) => (
                 <tr
                   key={row.id}
                   className="border-b border-stone-800/60 last:border-0 hover:bg-stone-800/30 transition-colors"
                 >
                   <td className="px-4 py-3.5 text-stone-200 text-sm font-medium">{row.name}</td>
                   <td className="px-4 py-3.5 text-stone-500 text-sm">{row.author}</td>
-                  <td className="px-4 py-3.5 text-stone-300 text-sm text-center">{row.views}</td>
                   <td className="px-4 py-3.5 text-stone-300 text-sm text-center">
-                    {row.nominated}
+                    {row.views.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3.5 text-stone-300 text-sm text-center">{row.unlocked}</td>
-                  <td className="px-4 py-3.5 text-amber-400 text-sm text-center font-medium">
-                    {row.gifts}
+                  <td className="px-4 py-3.5 text-stone-300 text-sm text-center">
+                    {row.nominated.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3.5 text-stone-300 text-sm text-center">
+                    {row.unlocked.toLocaleString()}
                   </td>
                   <td className="px-4 py-3.5 text-amber-400 text-sm text-center font-medium">
-                    {row.revenue}
+                    {row.gifts.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3.5 text-amber-400 text-sm text-center font-medium">
+                    {row.revenue.toLocaleString()}
                   </td>
                 </tr>
               ))
@@ -173,6 +131,15 @@ export default function StatsContent() {
           </tbody>
         </table>
       </div>
+
+      {/* Phân trang phía client */}
+      <Pagination
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+        totalItems={rows.length}
+        itemLabel="truyện"
+      />
     </div>
   );
 }

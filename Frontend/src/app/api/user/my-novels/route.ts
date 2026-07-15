@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { normalizeStory, type BeNovel } from "@/lib/normalizeStory";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
 
 const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -22,5 +22,5 @@ export async function GET(req: NextRequest) {
   if (!res.ok) return NextResponse.json([], { status: res.status });
 
   const json = (await res.json()) as { data?: BeNovel[] };
-  return NextResponse.json((json.data ?? []).map(normalizeStory));
+  return NextResponse.json((json.data ?? []).map(normalizeNovel));
 }

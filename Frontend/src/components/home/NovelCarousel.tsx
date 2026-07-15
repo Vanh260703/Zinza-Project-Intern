@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Story } from "@/types/story";
-import StoryCard from "./StoryCard";
+import type { Novel } from "@/types/novel";
+import NovelCard from "./NovelCard";
 
-type StoryCarouselProps = {
-  stories: Story[];
+type NovelCarouselProps = {
+  novels: Novel[];
   autoMs?: number;
 };
 
@@ -42,9 +42,9 @@ function useCarouselConfig() {
   return config;
 }
 
-export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselProps) {
-  const n = stories.length;
-  const items = [...stories, ...stories, ...stories];
+export default function NovelCarousel({ novels, autoMs = 2000 }: NovelCarouselProps) {
+  const n = novels.length;
+  const items = [...novels, ...novels, ...novels];
   const config = useCarouselConfig();
 
   const [idx, setIdx] = useState(n);
@@ -145,13 +145,13 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
           }}
           onTransitionEnd={onTransitionEnd}
         >
-          {items.map((story, i) => (
+          {items.map((novel, i) => (
             <div
-              key={`${story.id}-${i}`}
+              key={`${novel.id}-${i}`}
               style={{ width: `${itemWidthPct}%` }}
               className="shrink-0 px-2"
             >
-              <StoryCard story={story} />
+              <NovelCard novel={novel} />
             </div>
           ))}
         </div>
@@ -181,7 +181,7 @@ export default function StoryCarousel({ stories, autoMs = 2000 }: StoryCarouselP
 
       {/* Dots */}
       <div className="flex justify-center gap-1.5 mt-4">
-        {stories.map((_, i) => (
+        {novels.map((_, i) => (
           <button
             key={i}
             onClick={() => {

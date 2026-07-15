@@ -36,10 +36,12 @@ export class AuthService {
     refreshToken: string;
   }> {
     const user = await this.usersService.findByEmailWithPassword(dto.email);
-    if (!user) throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+    if (!user)
+      throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
 
     const isValid = await bcrypt.compare(dto.password, user.password);
-    if (!isValid) throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
+    if (!isValid)
+      throw new UnauthorizedException('Email hoặc mật khẩu không đúng');
 
     const { password: _, ...userData } = user;
     const accessToken = this.tokenService.generateAccessToken(user.id);

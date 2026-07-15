@@ -1,25 +1,26 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ImagePlus, X } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/userStore";
 import { useCreateNovel } from "@/hooks/useNovels";
+import { useCategories } from "@/hooks/useCategories";
 import { createNovelSchema } from "@/schemas/novel";
-import { CATEGORIES } from "@/config/category";
-import { STATUS_OPTIONS } from "@/enums/story";
+import { STATUS_OPTIONS } from "@/enums/novel";
+import GenreSelector from "./GenreSelector";
 
 const formSchema = createNovelSchema.omit({ userId: true });
-type FormData = z.infer<typeof formSchema>;
+type CreateNovelFormData = z.infer<typeof formSchema>;
 
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
-// ── Cover Upload ──────────────────────────────────────────────────────────────
+// Cover Upload
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE_MB = 2;
@@ -119,42 +120,6 @@ function CoverUpload({ onChange }: { onChange: (file: File | null, error?: strin
   );
 }
 
-// ── Genre Selector ────────────────────────────────────────────────────────────
-
-function GenreSelector({
-  selected,
-  onChange,
-}: {
-  selected: string[];
-  onChange: (g: string[]) => void;
-}) {
-  const toggle = (name: string) =>
-    onChange(selected.includes(name) ? selected.filter((g) => g !== name) : [...selected, name]);
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {CATEGORIES.map((genre) => {
-        const active = selected.includes(genre.name);
-        return (
-          <button
-            key={genre.slug}
-            type="button"
-            onClick={() => toggle(genre.name)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-              active
-                ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300"
-            }`}
-          >
-            {genre.name}
-            {active && <X className="w-3 h-3" />}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
 // ── Field wrapper ─────────────────────────────────────────────────────────────
 
 function Field({
@@ -180,29 +145,40 @@ function Field({
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────────
+// Root
 
 export default function CreateNovelForm() {
   const user = useAuthStore((s) => s.user);
   const router = useRouter();
   const [coverError, setCoverError] = useState<string | null>(null);
-  const coverFileRef = useRef<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
 
-  const createMutation = useCreateNovel(coverFileRef);
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const createMutation = useCreateNovel();
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<CreateNovelFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { status: "PENDING", categoryIds: [] },
   });
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: CreateNovelFormData) => {
     if (!user || coverError) return;
-    createMutation.mutate({ ...data, userId: user.id } as FormData & { userId: string }, {
+
+    // BE nhận multipart: fields + categories[] (UUID, field "categories") + cover — cùng 1 request
+    const form = new FormData();
+    form.append("name", data.name);
+    form.append("author", data.author);
+    form.append("status", data.status);
+    if (data.description) form.append("description", data.description);
+    for (const id of data.categoryIds) form.append("categories", id);
+    if (coverFile) form.append("cover", coverFile);
+
+    createMutation.mutate(form, {
       onSuccess: () => router.push("/my-novels"),
     });
   };
@@ -213,7 +189,7 @@ export default function CreateNovelForm() {
         {/* Cover */}
         <CoverUpload
           onChange={(file, err) => {
-            coverFileRef.current = file;
+            setCoverFile(file);
             setCoverError(err ?? null);
           }}
         />
@@ -251,11 +227,19 @@ export default function CreateNovelForm() {
       </div>
 
       <Field label="Thể loại" error={errors.categoryIds?.message}>
-        <Controller
-          name="categoryIds"
-          control={control}
-          render={({ field }) => <GenreSelector selected={field.value} onChange={field.onChange} />}
-        />
+        {categoriesLoading ? (
+          <p className="text-stone-600 text-xs">Đang tải danh sách thể loại...</p>
+        ) : categories.length === 0 ? (
+          <p className="text-stone-600 text-xs">Chưa có thể loại nào</p>
+        ) : (
+          <Controller
+            name="categoryIds"
+            control={control}
+            render={({ field }) => (
+              <GenreSelector categories={categories} selected={field.value} onChange={field.onChange} />
+            )}
+          />
+        )}
       </Field>
 
       <Field label="Mô tả" error={errors.description?.message}>
@@ -270,7 +254,7 @@ export default function CreateNovelForm() {
       <div className="flex items-center gap-3 pt-2">
         <button
           type="submit"
-          disabled={createMutation.isPending || !!coverError}
+          disabled={createMutation.isPending || !!coverError || categoriesLoading}
           className="px-6 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
         >
           {createMutation.isPending ? "Đang đăng..." : "Đăng truyện"}

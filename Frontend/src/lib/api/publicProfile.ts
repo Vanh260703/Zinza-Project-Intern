@@ -1,5 +1,5 @@
-import { normalizeStory, type BeNovel } from "@/lib/normalizeStory";
-import type { Story } from "@/types/story";
+import { normalizeNovel, type BeNovel } from "@/lib/normalizeNovel";
+import type { Novel } from "@/types/novel";
 import type { Role } from "@/enums/auth";
 
 const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -24,7 +24,7 @@ type BePublicUser = {
 // Hồ sơ công khai của 1 user + danh sách truyện họ đã đăng (server component).
 export async function getPublicProfile(
   id: string
-): Promise<{ user: PublicUser; stories: Story[] } | null> {
+): Promise<{ user: PublicUser; novels: Novel[] } | null> {
   const userRes = await fetch(`${BE_URL}/api/v1/users/${id}`, { cache: "no-store" });
   if (!userRes.ok) return null; // 404 (không tồn tại) hoặc 400 (id không phải UUID)
   const u = (await userRes.json()) as BePublicUser;
@@ -33,8 +33,8 @@ export async function getPublicProfile(
   const novelsRes = await fetch(`${BE_URL}/api/v1/novels?postedBy=${id}&limit=100`, {
     cache: "no-store",
   });
-  const stories: Story[] = novelsRes.ok
-    ? (((await novelsRes.json()).data ?? []) as BeNovel[]).map(normalizeStory)
+  const novels: Novel[] = novelsRes.ok
+    ? (((await novelsRes.json()).data ?? []) as BeNovel[]).map(normalizeNovel)
     : [];
 
   return {
@@ -45,6 +45,6 @@ export async function getPublicProfile(
       chaptersRead: u.chaptersRead,
       joinedAt: u.joinedAt,
     },
-    stories,
+    novels,
   };
 }

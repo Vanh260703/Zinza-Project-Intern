@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { BookOpen, Crown, Trophy } from "lucide-react";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 
 type Period = "day" | "week" | "month";
 
@@ -20,15 +21,15 @@ const RANK_COLORS: Record<number, string> = {
 };
 
 type Props = {
-  day: Story[];
-  week: Story[];
-  month: Story[];
+  day: Novel[];
+  week: Novel[];
+  month: Novel[];
 };
 
 export default function RankingSection({ day, week, month }: Props) {
   const [period, setPeriod] = useState<Period>("month");
 
-  const stories = { day, week, month }[period];
+  const novels = { day, week, month }[period];
 
   return (
     <aside className="flex flex-col gap-3">
@@ -55,12 +56,12 @@ export default function RankingSection({ day, week, month }: Props) {
 
       {/* List */}
       <div className="flex flex-col bg-stone-900 border border-stone-800 rounded-2xl overflow-hidden">
-        {stories.map((story, i) => {
+        {novels.map((novel, i) => {
           const rank = i + 1;
           return (
             <Link
-              key={story.id}
-              href={`/novels/${story.slug}`}
+              key={novel.id}
+              href={`/novels/${novel.slug}`}
               className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800/60 transition-colors border-b border-stone-800/60 last:border-0 group"
             >
               {/* Rank number */}
@@ -75,12 +76,14 @@ export default function RankingSection({ day, week, month }: Props) {
               </span>
 
               {/* Cover */}
-              <div className="w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
-                {story.posterUrl ? (
-                  <img
-                    src={`/api/cover/${story.id}`}
-                    alt={story.name}
-                    className="w-full h-full object-cover"
+              <div className="relative w-9 h-12 rounded-md overflow-hidden bg-stone-800 shrink-0">
+                {novel.posterUrl ? (
+                  <Image
+                    src={novel.posterUrl}
+                    alt={novel.name}
+                    fill
+                    sizes="36px"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -93,20 +96,20 @@ export default function RankingSection({ day, week, month }: Props) {
               <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                 <div className="flex items-center gap-1">
                   <p className="text-stone-200 text-xs font-semibold line-clamp-1 group-hover:text-amber-400 transition-colors">
-                    {story.name}
+                    {novel.name}
                   </p>
-                  {story.vip && <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
+                  {novel.vip && <Crown className="w-2.5 h-2.5 text-amber-400 shrink-0" />}
                 </div>
-                <p className="text-stone-500 text-[11px] truncate">{story.author}</p>
+                <p className="text-stone-500 text-[11px] truncate">{novel.author}</p>
                 <p className="text-stone-600 text-[10px]">
-                  {story.nominations.toLocaleString()} đề cử
+                  {novel.nominations.toLocaleString()} đề cử
                 </p>
               </div>
             </Link>
           );
         })}
 
-        {stories.length === 0 && (
+        {novels.length === 0 && (
           <div className="px-4 py-10 text-center text-stone-600 text-xs">Chưa có dữ liệu.</div>
         )}
       </div>

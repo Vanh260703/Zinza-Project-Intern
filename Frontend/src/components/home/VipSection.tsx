@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Crown } from "lucide-react";
-import type { Story } from "@/types/story";
-import StoryCard from "./StoryCard";
+import type { Novel } from "@/types/novel";
+import NovelCard from "./NovelCard";
 
 const LIMIT_DESKTOP = 8;
 const LIMIT_MOBILE = 4;
 
 type VipSectionProps = {
-  stories: Story[];
+  novels: Novel[];
 };
 
-export default function VipSection({ stories }: VipSectionProps) {
+export default function VipSection({ novels }: VipSectionProps) {
   // Khởi tạo bằng LIMIT_DESKTOP để SSR và client đồng nhất
   const [limit, setLimit] = useState(LIMIT_DESKTOP);
 
@@ -24,8 +24,8 @@ export default function VipSection({ stories }: VipSectionProps) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const visible = stories.slice(0, limit);
-  const hasMore = stories.length > limit;
+  const visible = novels.slice(0, limit);
+  const hasMore = novels.length > limit;
 
   return (
     <section>
@@ -36,7 +36,7 @@ export default function VipSection({ stories }: VipSectionProps) {
         </div>
         <h2 className="text-white text-xl font-bold">Truyện VIP</h2>
         <span className="text-xs px-2 py-0.5 bg-amber-500/15 text-amber-400 rounded-full font-medium border border-amber-500/30">
-          {stories.length} truyện
+          {novels.length} truyện
         </span>
         <div className="flex-1 h-px bg-stone-700/60 ml-2" />
         {hasMore && (
@@ -61,8 +61,8 @@ export default function VipSection({ stories }: VipSectionProps) {
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-5">
-        {visible.map((story) => (
-          <StoryCard key={story.id} story={story} />
+        {visible.map((novel) => (
+          <NovelCard key={novel.id} novel={novel} />
         ))}
       </div>
 

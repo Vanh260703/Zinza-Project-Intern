@@ -11,17 +11,19 @@ import {
   BookmarkCheck,
   Settings,
   List,
+  Search,
   X,
   ArrowUpDown,
   Minus,
   Plus,
   Lock,
+  Crown,
   CandyIcon,
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { useLibraryStore } from "@/stores/libraryStore";
 import { useAuthStore } from "@/stores/userStore";
+import { useBookmarks, useToggleBookmark } from "@/hooks/useBookmarks";
 import {
   useReaderStore,
   FONT_MIN,
@@ -32,11 +34,11 @@ import {
   type FontFamily,
   type TextColor,
 } from "@/stores/readerStore";
-import type { Story } from "@/types/story";
+import type { Novel } from "@/types/novel";
 import type { Chapter } from "@/types/chapter";
 
 type Props = {
-  story: Story;
+  novel: Novel;
   chapter: Chapter;
   content: string;
   prev: Chapter | null;
@@ -117,19 +119,27 @@ function NavBar({
 
 /* ── TOC modal ──────────────────────────────────────────── */
 function TocModal({
-  story,
+  novel,
   currentChapterId,
   allChapters,
   onClose,
 }: {
-  story: Story;
+  novel: Novel;
   currentChapterId: string;
   allChapters: Chapter[];
   onClose: () => void;
 }) {
   const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [query, setQuery] = useState("");
   const activeRef = useRef<HTMLAnchorElement>(null);
-  const sorted = order === "asc" ? allChapters : [...allChapters].reverse();
+
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? allChapters.filter(
+        (ch) => String(ch.number).includes(q) || ch.title.toLowerCase().includes(q)
+      )
+    : allChapters;
+  const sorted = order === "asc" ? filtered : [...filtered].reverse();
 
   useEffect(() => {
     activeRef.current?.scrollIntoView({ block: "center" });
@@ -148,7 +158,8 @@ function TocModal({
           <div>
             <h2 className="text-white font-bold text-base">Mục lục</h2>
             <p className="text-stone-500 text-xs mt-0.5">
-              {story.name} — {allChapters.length} chương
+              {novel.name} — {q ? `${sorted.length}/${allChapters.length}` : allChapters.length}{" "}
+              chương
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -167,31 +178,53 @@ function TocModal({
             </button>
           </div>
         </div>
+
+        {/* Ô nhảy nhanh tới chương — lọc client-side theo số hoặc tên chương */}
+        <div className="px-5 py-3 border-b border-stone-800 shrink-0">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-600" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Nhập số chương hoặc tên chương…"
+              autoFocus
+              className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-stone-950 border border-stone-700 text-stone-200 placeholder-stone-600 text-sm focus:outline-none focus:border-stone-500"
+            />
+          </div>
+        </div>
+
         <div className="overflow-y-auto flex-1">
-          {sorted.map((ch) => {
-            const active = ch.id === currentChapterId;
-            return (
-              <Link
-                key={ch.id}
-                href={chapterUrl(story.slug, ch.id)}
-                ref={active ? activeRef : undefined}
-                onClick={onClose}
-                className={`flex items-center gap-3 px-5 py-3 text-sm border-b border-stone-800/60 last:border-0 transition-colors ${
-                  active
-                    ? "bg-amber-500/10 text-amber-400"
-                    : "text-stone-300 hover:bg-stone-800 hover:text-white"
-                }`}
-              >
-                <span className="text-stone-600 text-xs w-8 shrink-0 tabular-nums">
-                  {ch.number}
-                </span>
-                <span className="flex-1 truncate">{ch.title}</span>
-                {ch.price && ch.price > 0 && (
-                  <span className="text-[11px] text-amber-400 shrink-0">🍬 {ch.price}</span>
-                )}
-              </Link>
-            );
-          })}
+          {sorted.length === 0 ? (
+            <p className="text-stone-600 text-sm py-10 text-center">
+              Không tìm thấy chương phù hợp
+            </p>
+          ) : (
+            sorted.map((ch) => {
+              const active = ch.id === currentChapterId;
+              return (
+                <Link
+                  key={ch.id}
+                  href={chapterUrl(novel.slug, ch.id)}
+                  ref={active ? activeRef : undefined}
+                  onClick={onClose}
+                  className={`flex items-center gap-3 px-5 py-3 text-sm border-b border-stone-800/60 last:border-0 transition-colors ${
+                    active
+                      ? "bg-amber-500/10 text-amber-400"
+                      : "text-stone-300 hover:bg-stone-800 hover:text-white"
+                  }`}
+                >
+                  <span className="text-stone-600 text-xs w-8 shrink-0 tabular-nums">
+                    {ch.number}
+                  </span>
+                  <span className="flex-1 truncate">{ch.title}</span>
+                  {(ch.price ?? 0) > 0 && (
+                    <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  )}
+                </Link>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
@@ -306,11 +339,11 @@ function SettingsPopover() {
 
 /* ── Paywall overlay ────────────────────────────────────── */
 function ChapterPaywall({
-  story,
+  novel,
   chapter,
   onUnlocked,
 }: {
-  story: Story;
+  novel: Novel;
   chapter: Chapter;
   onUnlocked: (content: string) => void;
 }) {
@@ -320,7 +353,7 @@ function ChapterPaywall({
   const price = chapter.price!;
   const hasEnough = (wallet?.balance ?? 0) >= price;
 
-  const unlockMutation = useUnlockChapter(story.id, chapter.id);
+  const unlockMutation = useUnlockChapter(novel.slug, chapter.id);
 
   function handleUnlock() {
     if (!user) return;
@@ -391,7 +424,7 @@ function ChapterPaywall({
 
 /* ── Main component ─────────────────────────────────────── */
 export default function ChapterReader({
-  story,
+  novel,
   chapter,
   content,
   prev,
@@ -399,8 +432,6 @@ export default function ChapterReader({
   allChapters,
   posterName,
 }: Props) {
-  const addHistory = useLibraryStore((s) => s.addHistory);
-  const purchasedChapterIds = useLibraryStore((s) => s.purchasedChapterIds);
   const { fontSize, lineHeight, fontFamily, textColor } = useReaderStore();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
@@ -409,36 +440,27 @@ export default function ChapterReader({
   const [showSettings, setShowSettings] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const bookmarks = useLibraryStore((s) => s.bookmarks);
-  const toggleBookmark = useLibraryStore((s) => s.toggleBookmark);
-  const isBookmarked = bookmarks.includes(story.id);
+  const { data: bookmarkList } = useBookmarks();
+  const toggleBookmarkMut = useToggleBookmark();
+  const isBookmarked = !!bookmarkList?.some((b) => b.novel.id === novel.id);
   const [showFloating, setShowFloating] = useState(true);
 
   // Nội dung thực (có thể được set sau khi unlock)
   const [unlockedContent, setUnlockedContent] = useState<string | null>(null);
 
-  // Với BE thật: server kiểm tra chapter_purchases và không trả content nếu chưa mua.
-  // Mock mode: check purchasedChapterIds từ LibraryStore (persist qua localStorage).
-  const isOwner = !!user && user.id === story.postedBy;
-  const isLocked =
-    !isOwner &&
-    (chapter.price ?? 0) > 0 &&
-    !purchasedChapterIds.includes(chapter.id) &&
-    !unlockedContent;
+  // BE tự blank content nếu chương có phí & user chưa mua (và không phải tác giả)
+  // → chỉ cần check content rỗng để biết đang khoá.
+  const isLocked = (chapter.price ?? 0) > 0 && !content && !unlockedContent;
 
   const displayContent = unlockedContent ?? content;
 
-  useEffect(() => {
-    addHistory(story.id);
-  }, [story.id, addHistory]);
-
-  // Track daily reading — chỉ đếm chapter chưa bị lock, dedup theo storyId-chapterId
+  // Track daily reading — chỉ đếm chapter chưa bị lock, dedup theo novelId-chapterId
   const trackMutation = useTrackDailyRead();
 
   useEffect(() => {
     if (!user || !accessToken || isLocked) return;
     trackMutation.mutate({
-      storyId: story.id,
+      novelId: novel.id,
       chapterId: chapter.id,
       chapterTitle: chapter.title,
       chapterNumber: chapter.number,
@@ -485,10 +507,10 @@ export default function ChapterReader({
         {/* Header */}
         <div className="flex flex-col items-center gap-2 mb-8 text-center">
           <Link
-            href={`/novels/${story.slug}`}
+            href={`/novels/${novel.slug}`}
             className="text-stone-400 hover:text-amber-400 text-sm transition-colors"
           >
-            {story.name}
+            {novel.name}
           </Link>
           <h1 className="text-amber-400 font-bold text-2xl sm:text-3xl leading-snug">
             {chapter.title}
@@ -497,22 +519,22 @@ export default function ChapterReader({
             <span>
               Người đăng: <span className="text-stone-400">{posterName}</span>
             </span>
-            {story.updatedAt && (
+            {novel.updatedAt && (
               <>
                 <span className="text-stone-700">•</span>
-                <span>{formatDate(story.updatedAt)}</span>
+                <span>{formatDate(novel.updatedAt)}</span>
               </>
             )}
           </p>
         </div>
 
-        <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
+        <NavBar slug={novel.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
 
         {/* Content / Paywall */}
         {isLocked ? (
           <div className="mt-10 mb-10 rounded-2xl border border-stone-800 bg-stone-900/50">
             <ChapterPaywall
-              story={story}
+              novel={novel}
               chapter={chapter}
               onUnlocked={(c) => setUnlockedContent(c)}
             />
@@ -527,7 +549,7 @@ export default function ChapterReader({
           </article>
         )}
 
-        <NavBar slug={story.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
+        <NavBar slug={novel.slug} prev={prev} next={next} onOpenToc={() => setShowToc(true)} />
       </div>
 
       {/* Floating buttons */}
@@ -556,7 +578,7 @@ export default function ChapterReader({
           {/* Lưu truyện */}
           <button
             title={isBookmarked ? "Đã lưu" : "Lưu truyện"}
-            onClick={() => toggleBookmark(story.id)}
+            onClick={() => toggleBookmarkMut.mutate(novel.id)}
             className={`w-9 h-9 flex items-center justify-center rounded-full border transition-colors shadow-lg ${
               isBookmarked
                 ? "bg-amber-500/20 border-amber-500/50 text-amber-400"
@@ -599,7 +621,7 @@ export default function ChapterReader({
 
       {showToc && (
         <TocModal
-          story={story}
+          novel={novel}
           currentChapterId={chapter.id}
           allChapters={allChapters}
           onClose={() => setShowToc(false)}

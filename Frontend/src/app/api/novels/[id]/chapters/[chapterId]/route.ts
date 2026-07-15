@@ -1,48 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
-import { updateChapterSchema } from "@/schemas/chapter";
 
-type Params = Promise<{ id: string; chapterId: string }>;
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-export async function GET(_req: NextRequest, { params }: { params: Params }) {
-  const { id, chapterId } = await params;
-  const story = db.stories.findById(id);
-  if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
+type Params = Promise<{ id: string; chapterId: string }>; // [id] = slug
 
-  const reader = db.chapters.getReader(story, chapterId);
-  if (!reader) return NextResponse.json({ message: "Không tìm thấy chương" }, { status: 404 });
-
-  return NextResponse.json({ chapter: reader.chapter, content: reader.content });
+// GET /api/novels/:slug/chapters/:chapterId — nội dung chương (BE tự blank nếu khoá)
+export async function GET(req: NextRequest, { params }: { params: Params }) {
+  const { id: slug, chapterId } = await params;
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}/chapters/${chapterId}`, {
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
 }
 
+// PATCH /api/novels/:slug/chapters/:chapterId — sửa chương. BE check owner qua cookie.
 export async function PATCH(req: NextRequest, { params }: { params: Params }) {
-  const { id, chapterId } = await params;
+  const { id: slug, chapterId } = await params;
   const body = await req.json();
 
-  const result = updateChapterSchema.safeParse(body);
-  if (!result.success) {
-    return NextResponse.json(
-      { message: "Dữ liệu không hợp lệ", errors: result.error.flatten() },
-      { status: 400 }
-    );
+  // Whitelist theo UpdateChapterDto (bỏ userId...)
+  const payload: Record<string, unknown> = {};
+  for (const k of ["title", "content", "price"] as const) {
+    if (body[k] !== undefined) payload[k] = body[k];
   }
 
-  const story = db.stories.findById(id);
-  if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
-
-  const chapter = db.chapters.update(story, chapterId, result.data);
-  if (!chapter) return NextResponse.json({ message: "Không tìm thấy chương" }, { status: 404 });
-
-  return NextResponse.json({ chapter });
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}/chapters/${chapterId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", Cookie: req.headers.get("cookie") ?? "" },
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Params }) {
-  const { id, chapterId } = await params;
-  const story = db.stories.findById(id);
-  if (!story) return NextResponse.json({ message: "Không tìm thấy truyện" }, { status: 404 });
-
-  const deleted = db.chapters.delete(story, chapterId);
-  if (!deleted) return NextResponse.json({ message: "Không tìm thấy chương" }, { status: 404 });
-
-  return NextResponse.json({ message: "Đã xóa chương" });
+// DELETE /api/novels/:slug/chapters/:chapterId — xoá chương. BE check owner qua cookie.
+export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+  const { id: slug, chapterId } = await params;
+  const res = await fetch(`${BE_URL}/api/v1/novels/${slug}/chapters/${chapterId}`, {
+    method: "DELETE",
+    headers: { Cookie: req.headers.get("cookie") ?? "" },
+  });
+  const data = await res.json().catch(() => ({ message: "Đã xóa chương" }));
+  return NextResponse.json(data, { status: res.status });
 }

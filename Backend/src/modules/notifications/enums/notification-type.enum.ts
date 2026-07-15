@@ -8,6 +8,9 @@ export enum NotificationType {
   // Nạp tiền (candy) thành công qua SePay
   PAYMENT_SUCCESS = 'payment_success',
 
+  // Tặng / được tặng đều ở trong enum này
+  GIFT_CANDY = 'gift_candy',
+
   // Thông báo từ admin: bảo trì, sự kiện, khuyến mãi...
   SYSTEM = 'system',
 }

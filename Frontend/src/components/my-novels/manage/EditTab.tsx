@@ -4,15 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X, ImagePlus } from "lucide-react";
+import { ImagePlus } from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
 import { useUpdateNovel } from "@/hooks/useNovels";
 import { showToast } from "@/lib/toast";
 
-import type { Story } from "@/types/story";
-import { CATEGORIES } from "@/config/category";
-import { STATUS_OPTIONS } from "@/enums/story";
+import type { Novel } from "@/types/novel";
+import { useCategories } from "@/hooks/useCategories";
+import { STATUS_OPTIONS } from "@/enums/novel";
 import { editNovelFormSchema } from "@/schemas/novel";
+import GenreSelector from "../GenreSelector";
 
 type EditNovelFormData = z.infer<typeof editNovelFormSchema>;
 
@@ -22,12 +23,13 @@ const MAX_SIZE_BYTE = 2 * 1024 * 1024;
 const inputCls =
   "w-full text-stone-200 text-sm bg-stone-800 border border-stone-700 focus:border-amber-500/60 rounded-xl px-4 py-2.5 outline-none transition-colors placeholder-stone-600";
 
-type Props = { story: Story; onUpdated: (s: Story) => void };
+type Props = { novel: Novel; onUpdated: (s: Novel) => void };
 
-export default function EditTab({ story, onUpdated }: Props) {
+export default function EditTab({ novel, onUpdated }: Props) {
   const user = useAuthStore((s) => s.user);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const updateMutation = useUpdateNovel(story.id);
+  const updateMutation = useUpdateNovel(novel.slug);
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
 
   const {
     register,
@@ -37,11 +39,11 @@ export default function EditTab({ story, onUpdated }: Props) {
   } = useForm<EditNovelFormData>({
     resolver: zodResolver(editNovelFormSchema),
     defaultValues: {
-      name: story.name,
-      author: story.author,
-      status: story.status,
-      categoryIds: story.categories.map((c) => c.name),
-      description: story.description ?? "",
+      name: novel.name,
+      author: novel.author,
+      status: novel.status,
+      categoryIds: novel.categories.map((c) => c.id),
+      description: novel.description ?? "",
     },
   });
 
@@ -82,32 +84,44 @@ export default function EditTab({ story, onUpdated }: Props) {
   const onSubmit = async (data: EditNovelFormData) => {
     if (!user || coverError) return;
     try {
-      const result = await updateMutation.mutateAsync({ userId: user.id, ...data });
+      // BE check owner qua cookie (không gửi userId)
+      const result = await updateMutation.mutateAsync({
+        name: data.name,
+        author: data.author,
+        status: data.status,
+        description: data.description,
+        categories: data.categoryIds,
+      });
 
       if (coverFile) {
         const form = new FormData();
         form.append("cover", coverFile);
-        const coverRes = await fetch(`/api/cover/${story.id}`, { method: "POST", body: form });
+        // Dùng slug MỚI trả về từ update — đổi tên có thể làm đổi slug (BE tự sinh lại theo tên mới)
+        const coverRes = await fetch(`/api/cover/${result.novel.slug}`, {
+          method: "POST",
+          body: form,
+        });
         if (!coverRes.ok) {
           const err = await coverRes.json().catch(() => ({}));
           showToast.error(err.message ?? "Upload ảnh bìa thất bại");
-          onUpdated(result.story);
+          onUpdated(result.novel);
           return;
         }
         const { posterUrl } = await coverRes.json();
-        result.story.posterUrl = posterUrl;
+        result.novel.posterUrl = posterUrl;
         setCoverFile(null);
         setCoverPreview(null);
       }
 
       showToast.success("Đã lưu thay đổi");
-      onUpdated(result.story);
+      onUpdated(result.novel);
     } catch {
-      showToast.error("Lỗi kết nối, thử lại sau");
+      // updateMutation.mutateAsync ném lỗi khi BE trả lỗi (vd trùng tên) — hook
+      // useUpdateNovel đã tự hiện toast đúng message qua onError, không lặp lại ở đây.
     }
   };
 
-  const currentCover = coverPreview ?? (story.posterUrl ? `/api/cover/${story.id}` : null);
+  const currentCover = coverPreview ?? novel.posterUrl ?? null;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -149,7 +163,7 @@ export default function EditTab({ story, onUpdated }: Props) {
               onClick={() => fileInputRef.current?.click()}
               className="self-start px-3 py-1.5 rounded-lg border border-stone-600 text-stone-300 hover:bg-stone-800 hover:text-white transition-colors"
             >
-              {story.posterUrl || coverFile ? "Đổi ảnh bìa" : "Chọn ảnh bìa"}
+              {novel.posterUrl || coverFile ? "Đổi ảnh bìa" : "Chọn ảnh bìa"}
             </button>
             {coverFile && (
               <button
@@ -212,38 +226,23 @@ export default function EditTab({ story, onUpdated }: Props) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-stone-400 text-xs font-medium">Thể loại</label>
-        <Controller
-          name="categoryIds"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-wrap gap-2">
-              {CATEGORIES.map((g) => {
-                const active = field.value.includes(g.name);
-                return (
-                  <button
-                    key={g.slug}
-                    type="button"
-                    onClick={() =>
-                      field.onChange(
-                        active ? field.value.filter((x) => x !== g.name) : [...field.value, g.name]
-                      )
-                    }
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium border transition-colors ${
-                      active
-                        ? "bg-amber-500/15 border-amber-500/30 text-amber-400"
-                        : "bg-stone-800 border-stone-700 text-stone-400 hover:border-stone-600"
-                    }`}
-                  >
-                    {g.name}
-                    {active && <X className="w-3 h-3" />}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        />
-        {errors.categoryIds && <p className="text-red-400 text-xs">{errors.categoryIds.message}</p>}
+        <label className="text-stone-400 text-xs font-medium">
+          Thể loại <span className="text-red-400">*</span>
+        </label>
+        {categoriesLoading ? (
+          <p className="text-stone-600 text-xs">Đang tải thể loại...</p>
+        ) : (
+          <Controller
+            name="categoryIds"
+            control={control}
+            render={({ field }) => (
+              <GenreSelector categories={categories} selected={field.value} onChange={field.onChange} />
+            )}
+          />
+        )}
+        {errors.categoryIds && (
+          <p className="text-red-400 text-xs">{errors.categoryIds.message}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-1.5">

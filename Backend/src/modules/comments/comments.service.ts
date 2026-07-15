@@ -6,12 +6,17 @@ import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { CommentTargetType } from './enums/comment-target-type.enum';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { NotificationType } from 'src/modules/notifications/enums/notification-type.enum';
 
 @Injectable()
 export class CommentsService {
   constructor(
     @InjectRepository(Comment)
     private readonly commentRepository: Repository<Comment>,
+    @InjectRepository(Novel)
+    private readonly novelRepository: Repository<Novel>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async findByTarget(
@@ -67,6 +72,31 @@ export class CommentsService {
       relations: { user: true },
       select: { user: { id: true, name: true, avatarUrl: true } },
     });
+
+    // Báo tác giả truyện — bỏ qua nếu tác giả tự comment vào truyện của mình.
+    // Comment vào chapter chưa có endpoint tạo nên chỉ xử lý target NOVEL.
+    if (targetType === CommentTargetType.NOVEL) {
+      try {
+        const novel = await this.novelRepository.findOne({
+          where: { id: targetId },
+          relations: { postedBy: true },
+          select: { id: true, name: true, postedBy: { id: true } },
+        });
+
+        if (novel?.postedBy && novel.postedBy.id !== userId) {
+          await this.notificationsService.create({
+            userId: novel.postedBy.id,
+            type: NotificationType.NEW_COMMENT,
+            title: 'Bình luận mới',
+            content: `${saved!.user.name} đã bình luận về "${novel.name}"`,
+            referenceType: 'comment',
+            referenceId: comment.id,
+          });
+        }
+      } catch {
+        // bỏ qua — bình luận đã lưu thành công, không chặn vì lỗi thông báo
+      }
+    }
 
     return this.toResponse(saved!);
   }

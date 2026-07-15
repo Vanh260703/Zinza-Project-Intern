@@ -12,8 +12,11 @@ import { ChapterPurchase } from 'src/modules/payments/entities/chapter-purchase.
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
 import { TransactionType } from 'src/modules/payments/enums/transaction-type.enum';
+import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmark.entity';
 import { CreateChapterDto } from './dto/create-chapter.dto';
 import { UpdateChapterDto } from './dto/update-chapter.dto';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { NotificationType } from 'src/modules/notifications/enums/notification-type.enum';
 
 @Injectable()
 export class ChaptersService {
@@ -23,6 +26,9 @@ export class ChaptersService {
     private readonly chapterRepository: Repository<Chapter>,
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
+    @InjectRepository(UserNovelBookMark)
+    private readonly bookmarkRepository: Repository<UserNovelBookMark>,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async unlockChapter(
@@ -97,6 +103,42 @@ export class ChaptersService {
         }),
       );
 
+      // Chỉ số kẹo truyện nhận được
+      await em.increment(
+        Novel,
+        { id: chapter.novel.id },
+        'candyReceived',
+        chapter.price,
+      );
+
+      // Cộng kẹo vào ví người đăng truyện. Owner đã bị chặn ở trên nên buyer ≠ postedBy.
+      // increment atomic → không lock ví người nhận, tránh deadlock. postedBy có thể null.
+      const authorWallet = chapter.novel.postedBy
+        ? await em.findOne(UserWallet, {
+            where: { user: { id: chapter.novel.postedBy.id } },
+          })
+        : null;
+      if (chapter.novel.postedBy && authorWallet) {
+        await em.increment(
+          UserWallet,
+          { id: authorWallet.id },
+          'balance',
+          chapter.price,
+        );
+        await em.save(
+          em.create(WalletTransaction, {
+            user: { id: chapter.novel.postedBy.id },
+            type: TransactionType.EARN,
+            amount: chapter.price,
+            balanceBefore: authorWallet.balance,
+            balanceAfter: authorWallet.balance + chapter.price,
+            referenceType: 'chapter',
+            referenceId: chapterId,
+            description: `Nhận ${chapter.price} kẹo từ mở khoá chương "${chapter.title}"`,
+          }),
+        );
+      }
+
       return { message: 'Mở khoá thành công', remainingBalance: balanceAfter };
     });
   }
@@ -161,7 +203,7 @@ export class ChaptersService {
     slug: string,
     dto: CreateChapterDto,
   ): Promise<Chapter> {
-    return this.dataSource.transaction(async (em) => {
+    const { chapter, novel } = await this.dataSource.transaction(async (em) => {
       // Pessimistic lock trên novel để serialize concurrent chapter creates
       const novel = await em.findOne(Novel, {
         where: { slug, postedBy: { id: userId } },
@@ -199,8 +241,35 @@ export class ChaptersService {
         await em.update(Novel, novel.id, { vip: true });
       }
 
-      return chapter;
+      return { chapter, novel };
     });
+
+    // Báo người đang theo dõi (bookmark) truyện — không chặn việc đăng chương
+    // nếu bước này lỗi.
+    try {
+      const bookmarks = await this.bookmarkRepository.find({
+        where: { novel: { id: novel.id } },
+        relations: { user: true },
+        select: { user: { id: true } },
+      });
+
+      if (bookmarks.length > 0) {
+        await this.notificationsService.createMany(
+          bookmarks.map((b) => ({
+            userId: b.user.id,
+            type: NotificationType.NEW_CHAPTER,
+            title: 'Chương mới',
+            content: `"${novel.name}" vừa đăng Chương ${chapter.number}: ${chapter.title}`,
+            referenceType: 'chapter',
+            referenceId: chapter.id,
+          })),
+        );
+      }
+    } catch {
+      // bỏ qua — chương đã đăng thành công, không chặn vì lỗi thông báo
+    }
+
+    return chapter;
   }
 
   async updateChapter(
@@ -273,7 +342,14 @@ export class ChaptersService {
 
     const [chapters, total] = await this.chapterRepository.findAndCount({
       where: { novel: { id: novel.id } },
-      select: { id: true, number: true, title: true, price: true },
+      select: {
+        id: true,
+        number: true,
+        title: true,
+        price: true,
+        wordCount: true,
+        createdAt: true,
+      },
       order: { number: 'ASC' },
       skip: (page - 1) * limit,
       take: limit,

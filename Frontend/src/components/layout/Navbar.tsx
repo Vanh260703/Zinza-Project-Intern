@@ -17,7 +17,6 @@ import {
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAuthStore } from "@/stores/userStore";
 import { useNotifications, useMarkAllRead } from "@/hooks/useUser";
-import { useLibraryStore } from "@/stores/libraryStore";
 
 const NAV_LINKS = [
   { href: "/", label: "Trang chủ" },
@@ -120,10 +119,10 @@ function SearchBox() {
             </div>
           ) : (
             <>
-              {results.map((story) => (
+              {results.map((novel) => (
                 <Link
-                  key={story.id}
-                  href={`/novels/${story.slug}`}
+                  key={novel.id}
+                  href={`/novels/${novel.slug}`}
                   onClick={() => {
                     setOpen(false);
                     setQ("");
@@ -131,10 +130,10 @@ function SearchBox() {
                   className="flex items-center gap-3 px-3 py-2.5 hover:bg-stone-800 transition-colors"
                 >
                   <div className="w-8 h-10 rounded-md overflow-hidden bg-stone-800 shrink-0">
-                    {story.posterUrl ? (
+                    {novel.posterUrl ? (
                       <img
-                        src={`/api/cover/${story.id}`}
-                        alt={story.name}
+                        src={novel.posterUrl}
+                        alt={novel.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -144,12 +143,12 @@ function SearchBox() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-stone-200 text-sm font-medium truncate">{story.name}</p>
-                    <p className="text-stone-500 text-xs truncate">{story.author}</p>
+                    <p className="text-stone-200 text-sm font-medium truncate">{novel.name}</p>
+                    <p className="text-stone-500 text-xs truncate">{novel.author}</p>
                   </div>
-                  {story.categories[0] && (
+                  {novel.categories[0] && (
                     <span className="text-[10px] px-1.5 py-0.5 bg-stone-700 text-stone-400 rounded-md shrink-0">
-                      {story.categories[0].name}
+                      {novel.categories[0].name}
                     </span>
                   )}
                 </Link>
@@ -308,7 +307,6 @@ function NotificationDropdown() {
 function UserDropdown() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const clearLibrary = useLibraryStore((state) => state.clear);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -324,7 +322,6 @@ function UserDropdown() {
 
   const handleLogout = () => {
     logout();
-    clearLibrary();
     router.push("/");
   };
 
@@ -335,10 +332,14 @@ function UserDropdown() {
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-stone-200
           hover:bg-stone-700/60 transition-colors"
       >
-        <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
-          <span className="text-amber-400 text-xs font-bold">
-            {user?.name.charAt(0).toUpperCase()}
-          </span>
+        <div className="w-7 h-7 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center overflow-hidden">
+          {user?.avatarUrl ? (
+            <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-amber-400 text-xs font-bold">
+              {user?.name.charAt(0).toUpperCase()}
+            </span>
+          )}
         </div>
         <span className="hidden sm:block max-w-28 truncate">{user?.name}</span>
         <ChevronDown

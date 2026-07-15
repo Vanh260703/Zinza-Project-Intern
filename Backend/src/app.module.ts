@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { validate } from './config/env.validation';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -35,13 +36,15 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { NovelsModule } from './modules/novels/novels.module';
 import { ChaptersModule } from './modules/chapters/chapters.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
-import { AdminModule } from './modules/admin/admin.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import { Comment } from './modules/comments/entities/comment.entity';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate,
     }),
 
     TypeOrmModule.forRootAsync({
@@ -107,6 +110,7 @@ import { Comment } from './modules/comments/entities/comment.entity';
     NovelsModule,
     ChaptersModule,
     NotificationsModule,
+    CategoriesModule,
     AdminModule,
   ],
   controllers: [AppController],

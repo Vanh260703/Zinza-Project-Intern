@@ -4,9 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmark.entity';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
+import { Status } from 'src/modules/novels/enums';
 import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
 import { PaymentOrder } from 'src/modules/payments/entities/payment-order.entity';
 import { ChapterPurchase } from 'src/modules/payments/entities/chapter-purchase.entity';
@@ -43,26 +45,66 @@ export class AdminService {
     private readonly walletRepository: Repository<UserWallet>,
     @InjectRepository(WalletTransaction)
     private readonly transactionRepository: Repository<WalletTransaction>,
+    @InjectRepository(UserNovelBookMark)
+    private readonly bookmarkRepository: Repository<UserNovelBookMark>,
   ) {}
 
   async getStats() {
-    const [totalUsers, totalStories, totalChapters, revenueResult] =
-      await Promise.all([
-        this.userRepository.count(),
-        this.novelRepository.count(),
-        this.chapterRepository.count(),
-        this.transactionRepository
-          .createQueryBuilder('t')
-          .select('SUM(ABS(t.amount))', 'totalCandyCirculated')
-          .getRawOne<{ totalCandyCirculated: string }>(),
-      ]);
+    const [
+      totalUsers,
+      totalNovels,
+      totalChapters,
+      revenueResult,
+      vipNovels,
+      pending,
+      completed,
+      recentUsers,
+      recentNovels,
+    ] = await Promise.all([
+      this.userRepository.count(),
+      this.novelRepository.count(),
+      this.chapterRepository.count(),
+      this.transactionRepository
+        .createQueryBuilder('t')
+        .select('SUM(ABS(t.amount))', 'total')
+        .getRawOne<{ total: string }>(),
+      this.novelRepository.countBy({ vip: true }),
+      this.novelRepository.countBy({ status: Status.PENDING }),
+      this.novelRepository.countBy({ status: Status.COMPLETED }),
+      this.userRepository.find({
+        select: ['id', 'name', 'email', 'role', 'joinedAt'],
+        order: { joinedAt: 'DESC' },
+        take: 5,
+      }),
+      this.novelRepository.find({
+        select: [
+          'id',
+          'slug',
+          'name',
+          'author',
+          'status',
+          'chapterCount',
+          'vip',
+          'poster',
+          'updatedAt',
+        ],
+        order: { updatedAt: 'DESC' },
+        take: 5,
+      }),
+    ]);
 
     return {
       totalUsers,
-      totalStories,
+      totalNovels,
       totalChapters,
-      totalCandyCirculated:
-        parseInt(revenueResult?.totalCandyCirculated ?? '0') || 0,
+      totalCandy: parseInt(revenueResult?.total ?? '0') || 0,
+      vipNovels,
+      novelsByStatus: { pending, completed },
+      recentUsers,
+      recentNovels: recentNovels.map(({ poster, ...rest }) => ({
+        ...rest,
+        posterUrl: poster ?? null,
+      })),
     };
   }
 
@@ -92,8 +134,18 @@ export class AdminService {
 
     const [data, total] = await qb.getManyAndCount();
 
+    const wallets = await this.walletRepository.find({
+      where: { user: { id: In(data.map((u) => u.id)) } },
+      relations: { user: true },
+    });
+    const candyMap = new Map(wallets.map((w) => [w.user.id, w.balance]));
+    const withCandy = data.map((u) => ({
+      ...u,
+      candy: candyMap.get(u.id) ?? 0,
+    }));
+
     return {
-      data,
+      data: withCandy,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -118,11 +170,18 @@ export class AdminService {
 
     if (!user) throw new NotFoundException('Người dùng không tồn tại');
 
-    const unlockedChapters = await this.chapterPurchaseRepository.countBy({
-      user: { id },
-    });
+    const [wallet, unlockedChapters, bookmarksCount] = await Promise.all([
+      this.walletRepository.findOne({ where: { user: { id } } }),
+      this.chapterPurchaseRepository.countBy({ user: { id } }),
+      this.bookmarkRepository.countBy({ user: { id } }),
+    ]);
 
-    return { ...user, unlockedChapters };
+    return {
+      ...user,
+      candy: wallet?.balance ?? 0,
+      unlockedChapters,
+      bookmarksCount,
+    };
   }
 
   async topupCandy(userId: string, dto: TopupCandyDto) {

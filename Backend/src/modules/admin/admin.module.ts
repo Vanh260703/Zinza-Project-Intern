@@ -11,10 +11,22 @@ import { CandyPackage } from 'src/modules/payments/entities/candy-package.entity
 import { Notification } from 'src/modules/notifications/entities/notification.entity';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
+import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmark.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Novel, Chapter, PaymentOrder, ChapterPurchase, CandyPackage, UserWallet, WalletTransaction, Notification]),
+    TypeOrmModule.forFeature([
+      User,
+      Novel,
+      Chapter,
+      PaymentOrder,
+      ChapterPurchase,
+      CandyPackage,
+      UserWallet,
+      WalletTransaction,
+      Notification,
+      UserNovelBookMark,
+    ]),
   ],
   controllers: [AdminController],
   providers: [AdminService],

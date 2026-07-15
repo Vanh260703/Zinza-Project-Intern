@@ -1,13 +1,12 @@
 import { notFound } from "next/navigation";
-import { db } from "@/lib/mock-db";
+import { getManageNovel } from "@/lib/api/manageNovel";
 import CreateChapterPage from "@/components/my-novels/manage/CreateChapterPage";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 export default async function Page({ params }: Props) {
-  const { id } = await params;
-  const story = db.stories.findById(id);
-  if (!story) notFound();
-  const chapters = db.chapters.getIndex(story.slug);
-  return <CreateChapterPage story={story} nextNumber={chapters.length + 1} />;
+  const { slug } = await params;
+  const novel = await getManageNovel(slug);
+  if (!novel) notFound();
+  return <CreateChapterPage novel={novel} nextNumber={novel.chapterCount + 1} />;
 }

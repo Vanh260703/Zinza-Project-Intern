@@ -14,6 +14,7 @@ import { NovelRating } from './entities/novel-rating.entity';
 import { NovelCategory } from './entities/novel-category.entity';
 import { NovelTag } from './entities/novel-tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UserDailyRead } from 'src/modules/users/entities/user-daily-read.entity';
 import { Category } from 'src/modules/categories/entities/category.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { Chapter } from 'src/modules/chapters/entities/chapter.entity';
@@ -22,6 +23,7 @@ import { generateSlug } from 'src/shared/utils/slug.util';
 import { parseOverview } from './utils/parse-overview';
 import { QueryNovelsDto } from './dto/query-novels.dto';
 import { CreateNovelDto } from './dto/create-novel.dto';
+import { UpdateNovelDto } from './dto/update-novel.dto';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { UpdateRatingDto } from './dto/update-rating.dto';
 import { SortOrder, Status } from './enums';
@@ -43,6 +45,8 @@ export class NovelsService {
     private readonly tagRepository: Repository<Tag>,
     @InjectRepository(Chapter)
     private readonly chapterRepository: Repository<Chapter>,
+    @InjectRepository(UserDailyRead)
+    private readonly dailyReadRepository: Repository<UserDailyRead>,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -101,13 +105,107 @@ export class NovelsService {
       author: novel.author,
       poster: novel.poster ?? null,
       status: novel.status,
-      categories: categories.map((c) => c.name),
+      categories: categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
     };
   }
 
+  // Sửa truyện — chỉ người đăng (postedBy) mới được sửa
+  async update(userId: string, slug: string, dto: UpdateNovelDto) {
+    const novel = await this.novelRepository.findOne({
+      where: { slug, postedBy: { id: userId } },
+    });
+    if (!novel) {
+      throw new ForbiddenException(
+        'Truyện không tồn tại hoặc bạn không có quyền chỉnh sửa',
+      );
+    }
+
+    // Validate thể loại (nếu có gửi lên) trước khi vào transaction
+    let categories: Category[] | null = null;
+    if (dto.categories) {
+      categories = await this.categoryRepository.findBy({
+        id: In(dto.categories),
+      });
+      if (categories.length !== dto.categories.length) {
+        throw new BadRequestException('Một hoặc nhiều thể loại không tồn tại');
+      }
+    }
+
+    // Đổi tên → sinh lại slug theo tên mới (chấp nhận vỡ URL cũ đang dùng)
+    let newSlug = slug;
+    if (dto.name !== undefined && dto.name !== novel.name) {
+      newSlug = generateSlug(dto.name);
+      if (newSlug !== slug) {
+        const exists = await this.novelRepository.existsBy({ slug: newSlug });
+        if (exists) {
+          throw new ConflictException('Truyện với tên này đã tồn tại');
+        }
+      }
+    }
+
+    await this.dataSource.transaction(async (em) => {
+      const patch: Partial<Novel> = {};
+      if (dto.name !== undefined) patch.name = dto.name;
+      if (newSlug !== slug) patch.slug = newSlug;
+      if (dto.author !== undefined) patch.author = dto.author;
+      if (dto.description !== undefined) patch.description = dto.description;
+      if (dto.status !== undefined) patch.status = dto.status;
+      if (Object.keys(patch).length > 0) {
+        await em.update(Novel, novel.id, patch);
+      }
+
+      // Thay toàn bộ thể loại nếu client gửi categories
+      if (categories) {
+        await em.delete(NovelCategory, { novel: { id: novel.id } });
+        await em.insert(
+          NovelCategory,
+          categories.map((cat) => ({
+            novel: { id: novel.id },
+            category: cat,
+          })),
+        );
+      }
+    });
+
+    return this.findOne(newSlug);
+  }
+
+  // Xoá truyện — chỉ người đăng mới được xoá. CASCADE tự xoá chương/rating/nomination/bookmark/read/purchase.
+  async remove(userId: string, slug: string): Promise<void> {
+    const novel = await this.novelRepository.findOne({
+      where: { slug, postedBy: { id: userId } },
+    });
+    if (!novel) {
+      throw new ForbiddenException(
+        'Truyện không tồn tại hoặc bạn không có quyền xoá',
+      );
+    }
+
+    await this.novelRepository.delete(novel.id);
+  }
+
   async findAll(dto: QueryNovelsDto) {
-    const { q, category, sort, status, page = 1, limit = 10 } = dto;
+    const {
+      q,
+      category,
+      ids,
+      vip,
+      postedBy,
+      sort,
+      status,
+      page = 1,
+      limit = 10,
+    } = dto;
     const skip = (page - 1) * limit;
+
+    const idList = ids ? ids.split(',').filter(Boolean) : null;
+    if (idList && idList.length === 0) {
+      return { data: [], meta: { total: 0, page, limit, totalPages: 0 } };
+    }
 
     const qb = this.baseQuery();
 
@@ -119,8 +217,20 @@ export class NovelsService {
       );
     }
 
+    if (idList) {
+      qb.andWhere('novel.id IN (:...idList)', { idList });
+    }
+
     if (category) {
       qb.andWhere('category.slug = :category', { category });
+    }
+
+    if (vip !== undefined) {
+      qb.andWhere('novel.vip = :vip', { vip: vip === 'true' });
+    }
+
+    if (postedBy) {
+      qb.andWhere('novel.postedBy = :postedBy', { postedBy });
     }
 
     if (status) {
@@ -134,12 +244,18 @@ export class NovelsService {
       case SortOrder.NOMINATIONS:
         qb.orderBy('novel.nominations', 'DESC');
         break;
+      case SortOrder.VIEWS:
+        qb.orderBy('novel.views', 'DESC');
+        break;
       case SortOrder.NEWEST:
       default:
         qb.orderBy('novel.createdAt', 'DESC');
     }
 
-    const [novels, total] = await qb.skip(skip).take(limit).getManyAndCount();
+    // Khi lấy theo ids cụ thể → trả hết, bỏ phân trang
+    const [novels, total] = idList
+      ? await qb.take(idList.length).getManyAndCount()
+      : await qb.skip(skip).take(limit).getManyAndCount();
 
     return {
       data: novels.map(this.toResponse),
@@ -147,9 +263,77 @@ export class NovelsService {
     };
   }
 
+  // 1 truyện ngẫu nhiên, ưu tiên chất lượng ≥ 4.5⭐ (fallback bất kỳ)
+  async findRandom() {
+    const pickSlug = async (minRating?: number) => {
+      const qb = this.novelRepository
+        .createQueryBuilder('novel')
+        .select('novel.slug', 'slug')
+        .orderBy('RANDOM()')
+        .limit(1);
+      if (minRating !== undefined) {
+        qb.where('novel.rating >= :min', { min: minRating });
+      }
+      const row = await qb.getRawOne<{ slug: string }>();
+      return row?.slug;
+    };
+
+    const slug = (await pickSlug(4.5)) ?? (await pickSlug());
+    if (!slug) return null;
+    return this.findOne(slug);
+  }
+
+  // BXH theo lượt đọc trong kỳ (từ user_daily_reads); fallback đề cử khi chưa có lượt đọc
+  async getRankings(period: 'day' | 'week' | 'month', limit = 5) {
+    const since = new Date();
+    const days = period === 'day' ? 1 : period === 'week' ? 7 : 30;
+    since.setDate(since.getDate() - days);
+
+    const rows = await this.dailyReadRepository
+      .createQueryBuilder('udr')
+      .innerJoin('udr.chapter', 'chapter')
+      .innerJoin('chapter.novel', 'novel')
+      .select('novel.id', 'novelId')
+      .addSelect('COUNT(*)', 'reads')
+      .where('udr.readDate >= :since', { since })
+      .groupBy('novel.id')
+      .orderBy('reads', 'DESC')
+      .limit(limit)
+      .getRawMany<{ novelId: string; reads: string }>();
+
+    const orderedIds = rows.map((r) => r.novelId);
+
+    if (orderedIds.length === 0) {
+      const top = await this.baseQuery()
+        .orderBy('novel.nominations', 'DESC')
+        .take(limit)
+        .getMany();
+      return top.map(this.toResponse);
+    }
+
+    const novels = await this.baseQuery()
+      .where('novel.id IN (:...ids)', { ids: orderedIds })
+      .getMany();
+
+    // giữ đúng thứ tự theo lượt đọc
+    const byId = new Map(novels.map((n) => [n.id, n]));
+    return orderedIds
+      .map((id) => byId.get(id))
+      .filter((n): n is Novel => !!n)
+      .map(this.toResponse);
+  }
+
+  async getRankingsAll() {
+    const [day, week, month] = await Promise.all([
+      this.getRankings('day'),
+      this.getRankings('week'),
+      this.getRankings('month'),
+    ]);
+    return { day, week, month };
+  }
+
   async findOne(slug: string) {
     const novel = await this.baseQuery()
-      .leftJoinAndSelect('novel.postedBy', 'postedBy')
       .where('novel.slug = :slug', { slug })
       .getOne();
 
@@ -171,7 +355,12 @@ export class NovelsService {
       nominations: novel.nominations,
       commentCount: novel.commentCount,
       views: novel.views,
-      categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
+      categories:
+        novel.novelCategories?.map((nc) => ({
+          id: nc.category.id,
+          name: nc.category.name,
+          slug: nc.category.slug,
+        })) ?? [],
       tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
       postedBy: novel.postedBy
         ? { id: novel.postedBy.id, name: novel.postedBy.name }
@@ -219,6 +408,7 @@ export class NovelsService {
     const [ratings, total] = await this.ratingRepository.findAndCount({
       where: { novel: { id: novel.id } },
       relations: { user: true },
+      select: { user: { id: true, name: true, avatarUrl: true } },
       order: { createdAt: 'DESC' },
       skip,
       take: limit,
@@ -327,9 +517,10 @@ export class NovelsService {
       .where('n.id = :novelId', { novelId: novel.id })
       .getRawOne<{ avg: string; count: string }>();
 
+    // Xoá đánh giá cuối cùng → AVG trên tập rỗng trả null → tránh ghi NaN vào cột số
     await this.novelRepository.update(novel.id, {
-      rating: raw ? Math.round(parseFloat(raw.avg) * 100) / 100 : 0,
-      ratingCount: raw ? parseInt(raw.count) : 0,
+      rating: raw?.avg ? Math.round(parseFloat(raw.avg) * 100) / 100 : 0,
+      ratingCount: parseInt(raw?.count ?? '0', 10),
     });
 
     return { message: 'Xoá đánh giá thành công' };
@@ -339,12 +530,21 @@ export class NovelsService {
     userId: string,
     slug: string,
   ): Promise<{ message: string; remainingTickets: number }> {
-    const novel = await this.novelRepository.findOne({ where: { slug } });
+    const novel = await this.novelRepository.findOne({
+      where: { slug },
+      relations: { postedBy: true },
+    });
     if (!novel) throw new NotFoundException('Truyện không tồn tại');
+
+    // Không cho tự đề cử truyện của chính mình (tránh tự thổi phồng xếp hạng)
+    if (novel.postedBy?.id === userId) {
+      throw new BadRequestException('Không thể đề cử truyện của chính mình');
+    }
 
     return this.dataSource.transaction(async (em) => {
       const user = await em.findOne(User, {
         where: { id: userId },
+        select: { id: true, recommendationTicket: true },
         lock: { mode: 'pessimistic_write' },
       });
       if (!user) throw new NotFoundException('Người dùng không tồn tại');
@@ -414,6 +614,12 @@ export class NovelsService {
         'Không tìm thấy file chương nào (định dạng: 00001_*.txt)',
       );
     }
+
+    // Ảnh bìa (optional): {prefix}00000_poster.jpg|jpeg|png|webp
+    const posterEntry = entries.find((e) => {
+      const name = e.entryName.slice(prefix.length);
+      return /^00000_poster\.(jpe?g|png|webp)$/i.test(name);
+    });
 
     // Lookup categories, tự động tạo nếu chưa tồn tại
     const categories: Category[] = [];
@@ -501,14 +707,37 @@ export class NovelsService {
       return { ...saved, chapterCount: actualChapterCount };
     });
 
+    // Upload ảnh bìa lên Cloudinary — để NGOÀI transaction (là network call).
+    // Poster optional → upload lỗi thì bỏ qua, không fail cả job import.
+    if (posterEntry) {
+      try {
+        const result = await this.cloudinaryService.uploadStream(
+          posterEntry.getData(),
+          'novels',
+          novel.slug,
+        );
+        await this.novelRepository.update(novel.id, {
+          poster: result.secure_url,
+        });
+        novel.poster = result.secure_url;
+      } catch {
+        // bỏ qua nếu upload thất bại — truyện vẫn import thành công, poster null
+      }
+    }
+
     return {
       id: novel.id,
       slug: novel.slug,
       name: novel.name,
       author: novel.author,
+      poster: novel.poster ?? null,
       status: novel.status,
       chapterCount: novel.chapterCount,
-      categories: categories.map((c) => c.name),
+      categories: categories.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+      })),
       tags: tags.map((t) => t.name),
     };
   }
@@ -519,7 +748,8 @@ export class NovelsService {
       .leftJoinAndSelect('novel.novelCategories', 'nc')
       .leftJoinAndSelect('nc.category', 'category')
       .leftJoinAndSelect('novel.novelTags', 'nt')
-      .leftJoinAndSelect('nt.tag', 'tag');
+      .leftJoinAndSelect('nt.tag', 'tag')
+      .leftJoinAndSelect('novel.postedBy', 'postedBy');
   }
 
   private readonly toResponse = (novel: Novel) => ({
@@ -532,8 +762,18 @@ export class NovelsService {
     chapterCount: novel.chapterCount,
     rating: novel.rating,
     nominations: novel.nominations,
+    views: novel.views,
+    candyReceived: novel.candyReceived,
     vip: novel.vip,
-    categories: novel.novelCategories?.map((nc) => nc.category.name) ?? [],
+    postedBy: novel.postedBy
+      ? { id: novel.postedBy.id, name: novel.postedBy.name }
+      : null,
+    categories:
+      novel.novelCategories?.map((nc) => ({
+        id: nc.category.id,
+        name: nc.category.name,
+        slug: nc.category.slug,
+      })) ?? [],
     tags: novel.novelTags?.map((nt) => nt.tag.name) ?? [],
     updatedAt: novel.updatedAt,
   });
