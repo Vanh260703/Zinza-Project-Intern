@@ -11,6 +11,7 @@ import { CandyPackage } from 'src/modules/payments/entities/candy-package.entity
 import { Notification } from 'src/modules/notifications/entities/notification.entity';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
+import { SuspenseTransaction } from 'src/modules/payments/entities/suspense-transaction.entity';
 import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmark.entity';
 
 @Module({
@@ -24,6 +25,7 @@ import { UserNovelBookMark } from 'src/modules/users/entities/user-novel-bookmar
       CandyPackage,
       UserWallet,
       WalletTransaction,
+      SuspenseTransaction,
       Notification,
       UserNovelBookMark,
     ]),

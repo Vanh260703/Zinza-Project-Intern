@@ -15,13 +15,18 @@ import { ChapterPurchase } from 'src/modules/payments/entities/chapter-purchase.
 import { CandyPackage } from 'src/modules/payments/entities/candy-package.entity';
 import { UserWallet } from 'src/modules/payments/entities/user-wallet.entity';
 import { WalletTransaction } from 'src/modules/payments/entities/wallet-transaction.entity';
+import { SuspenseTransaction } from 'src/modules/payments/entities/suspense-transaction.entity';
 import { TransactionType } from 'src/modules/payments/enums/transaction-type.enum';
+import { SuspenseStatus } from 'src/modules/payments/enums/suspense-status.enum';
+import { SuspenseReason } from 'src/modules/payments/enums/suspense-reason.enum';
 import { Notification } from 'src/modules/notifications/entities/notification.entity';
 import { NotificationType } from 'src/modules/notifications/enums/notification-type.enum';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { TopupCandyDto } from './dto/topup-candy.dto';
 import { CreateCandyPackageDto } from './dto/create-candy-package.dto';
 import { UpdateCandyPackageDto } from './dto/update-candy-package.dto';
+import { QuerySuspenseTransactionsDto } from './dto/query-suspense-transactions.dto';
+import { ResolveSuspenseTransactionDto } from './dto/resolve-suspense-transaction.dto';
 
 @Injectable()
 export class AdminService {
@@ -47,6 +52,8 @@ export class AdminService {
     private readonly transactionRepository: Repository<WalletTransaction>,
     @InjectRepository(UserNovelBookMark)
     private readonly bookmarkRepository: Repository<UserNovelBookMark>,
+    @InjectRepository(SuspenseTransaction)
+    private readonly suspenseRepository: Repository<SuspenseTransaction>,
   ) {}
 
   async getStats() {
@@ -272,5 +279,149 @@ export class AdminService {
 
     const pkg = this.candyPackageRepository.create(dto);
     return this.candyPackageRepository.save(pkg);
+  }
+
+  async getSuspenseTransactions(dto: QuerySuspenseTransactionsDto) {
+    const { status, reason, page = 1, limit = 20 } = dto;
+
+    const [data, total] = await this.suspenseRepository.findAndCount({
+      where: {
+        ...(status ? { status } : {}),
+        ...(reason ? { reason } : {}),
+      },
+      relations: { affectedUser: true },
+      select: {
+        affectedUser: { id: true, name: true, email: true },
+      },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async resolveSuspenseTransaction(
+    id: string,
+    adminId: string,
+    dto: ResolveSuspenseTransactionDto,
+  ) {
+    const { suspense, creditedTransaction, creditUserId, creditAmount } =
+      await this.dataSource.transaction(async (em) => {
+        // Lock trước, KHÔNG kèm relation — Postgres không cho FOR UPDATE áp
+        // dụng lên phía nullable của LEFT JOIN (affectedUser nullable)
+        const locked = await em.findOne(SuspenseTransaction, {
+          where: { id },
+          lock: { mode: 'pessimistic_write' },
+        });
+        if (!locked)
+          throw new NotFoundException('Suspense transaction không tồn tại');
+        if (locked.status !== SuspenseStatus.UNRESOLVED)
+          throw new ConflictException(
+            'Suspense transaction đã được xử lý trước đó',
+          );
+
+        const suspense = (await em.findOne(SuspenseTransaction, {
+          where: { id },
+          relations: { affectedUser: true },
+          select: {
+            affectedUser: { id: true, name: true, email: true },
+          },
+        }))!;
+
+        let creditUserId: string | undefined;
+        let creditAmount: number | undefined;
+        // missing_pair: hệ thống đã tự tính được số kẹo cần tặng và tác giả sẽ nhận kẹo
+        if (suspense.reason === SuspenseReason.MISSING_PAIR) {
+          creditUserId = suspense.affectedUser?.id;
+          creditAmount = suspense.amountCandy ?? undefined;
+        } else if (
+          // 2 case này sẽ chỉ xử lý mà không cần thêm kẹo
+          suspense.reason !== SuspenseReason.BALANCE_SUM_MISMATCH &&
+          suspense.reason !== SuspenseReason.BALANCE_CHAIN_MISMATCH
+        ) {
+          // Chỉ 6 case của sePay thì mới cho phép nhập tay
+          creditUserId = dto.creditUserId;
+          creditAmount = dto.creditAmount;
+        }
+
+        // Chỉ cộng kẹo khi xác định rõ user + số lượng — không phải mọi lần
+        // resolve đều cần cộng bù (vd mismatch benign, hoặc refund tay qua
+        // ngân hàng)
+        const creditedTransaction =
+          creditUserId && creditAmount
+            ? await (async (uid: string, amount: number) => {
+                const wallet = await em.findOne(UserWallet, {
+                  where: { user: { id: uid } },
+                  lock: { mode: 'pessimistic_write' },
+                });
+                if (!wallet)
+                  throw new NotFoundException('Ví người dùng không tồn tại');
+
+                const balanceBefore = wallet.balance;
+                const balanceAfter = balanceBefore + amount;
+
+                await em.update(UserWallet, wallet.id, {
+                  balance: balanceAfter,
+                });
+
+                // missing_pair: backfill phải là EARN + referenceType='novel' +
+                // referenceId=novelId để trùng đúng điều kiện query của
+                // auditMissingPairedTransactions — nếu không sẽ bị coi là vẫn
+                // còn thiếu và tạo suspense mới vào mỗi cron
+                const novelId =
+                  suspense.reason === SuspenseReason.MISSING_PAIR
+                    ? (suspense.details?.novelId as string | undefined)
+                    : undefined;
+
+                return em.save(
+                  em.create(WalletTransaction, {
+                    user: { id: uid },
+                    type: novelId
+                      ? TransactionType.EARN
+                      : TransactionType.BONUS,
+                    amount,
+                    balanceBefore,
+                    balanceAfter,
+                    referenceType: novelId ? 'novel' : 'suspense_transaction',
+                    referenceId: novelId ?? suspense.id,
+                    description: `Admin cộng bù kẹo từ suspense: ${dto.resolutionNote}`,
+                  }),
+                );
+              })(creditUserId, creditAmount)
+            : null;
+
+        suspense.status = dto.status;
+        suspense.resolutionNote = dto.resolutionNote;
+        suspense.resolvedBy = { id: adminId } as User;
+        suspense.resolvedAt = new Date();
+        if (creditedTransaction)
+          suspense.creditedWalletTransaction = creditedTransaction;
+
+        await em.save(suspense);
+
+        return { suspense, creditedTransaction, creditUserId, creditAmount };
+      });
+
+    if (creditedTransaction && creditUserId) {
+      try {
+        await this.notificationRepository.save(
+          this.notificationRepository.create({
+            user: { id: creditUserId },
+            type: NotificationType.SYSTEM,
+            title: 'Bạn vừa nhận được kẹo',
+            content: `Admin đã cộng ${creditAmount} kẹo vào ví của bạn`,
+            metadata: { amount: creditAmount },
+          }),
+        );
+      } catch {
+        // Không fail việc resolve nếu tạo thông báo lỗi
+      }
+    }
+
+    return suspense;
   }
 }
