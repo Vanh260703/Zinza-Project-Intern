@@ -20,6 +20,5 @@ export interface Novel {
   tags: string[];
   description: string;
   vip: boolean;
-  price: number;
   updatedAt?: Date;
 }

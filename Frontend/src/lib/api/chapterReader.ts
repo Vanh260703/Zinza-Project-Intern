@@ -66,7 +66,6 @@ export async function getChapterReader(slug: string, chapterId: string) {
     tags: [],
     description: "",
     vip: false,
-    price: 0,
   };
 
   return {
