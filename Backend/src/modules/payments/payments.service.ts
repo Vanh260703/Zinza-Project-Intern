@@ -11,8 +11,10 @@ import { WalletTransaction } from './entities/wallet-transaction.entity';
 import { CandyPackage } from './entities/candy-package.entity';
 import { PaymentOrder } from './entities/payment-order.entity';
 import { SepayWebhookLog } from './entities/sepay-webhook-log.entity';
+import { SuspenseService } from './suspense.service';
 import { TransactionType } from './enums/transaction-type.enum';
 import { PaymentStatus } from './enums/payment-status.enum';
+import { SuspenseReason } from './enums/suspense-reason.enum';
 import { Novel } from 'src/modules/novels/entities/novel.entity';
 import { CreatePaymentOrderDto } from './dto/create-payment-order.dto';
 import { SepayWebhookDto } from './dto/sepay-webhook.dto';
@@ -37,7 +39,26 @@ export class PaymentsService {
     @InjectRepository(Novel)
     private readonly novelRepository: Repository<Novel>,
     private readonly notificationsService: NotificationsService,
+    private readonly suspenseService: SuspenseService,
   ) {}
+
+  // caseKey khoá theo webhookLog.id — nếu SePay gửi lại đúng webhook này
+  // (retry) thì chỉ cập nhật lại case cũ, không tạo suspense trùng mỗi lần retry.
+  private async flagSuspense(
+    reason: SuspenseReason,
+    webhookLog: SepayWebhookLog,
+    dto: SepayWebhookDto,
+    details?: Record<string, unknown>,
+  ): Promise<void> {
+    await this.suspenseService.upsertCase({
+      caseKey: `sepay:${webhookLog.id}`,
+      reason,
+      webhookLog,
+      amountVnd: dto.transferAmount,
+      transferContent: dto.content,
+      details,
+    });
+  }
 
   async handleSepayWebhook(
     signature: string | undefined,
@@ -101,11 +122,21 @@ export class PaymentsService {
     }
 
     // 4. Lọc giao dịch hợp lệ
-    // Chỉ xử lý tiền vào (transferType = 'in') và phải có nội dung CK (code)
-    if (dto.transferType !== 'in' || !dto.code) {
-      log.errorMessage = 'Ignored: transferType out or no code';
+    // Tiền đi ra khỏi tài khoản — không liên quan nạp kẹo, bỏ qua thẳng.
+    // isProcessed=true vì đây là xử lý xong (không phải lỗi).
+    if (dto.transferType !== 'in') {
+      log.errorMessage = 'Ignored: transferType out';
+      log.isProcessed = true;
       await this.webhookLogRepository.save(log);
       return { success: true, message: 'Ignored' };
+    }
+
+    // Tiền vào tài khoản mà không có orderCode
+    if (!dto.code) {
+      log.errorMessage = 'No order code in content';
+      await this.webhookLogRepository.save(log);
+      await this.flagSuspense(SuspenseReason.NO_ORDER_CODE, log, dto);
+      return { success: true, message: 'No order code' };
     }
 
     // 5. Tìm order theo orderCode trong nội dung chuyển khoản
@@ -126,6 +157,7 @@ export class PaymentsService {
     if (!order) {
       log.errorMessage = `Order not found: ${dto.code}`;
       await this.webhookLogRepository.save(log);
+      await this.flagSuspense(SuspenseReason.ORDER_NOT_FOUND, log, dto);
       return { success: true, message: 'Order not found' };
     }
 
@@ -135,6 +167,9 @@ export class PaymentsService {
     if (order.status !== PaymentStatus.PENDING) {
       log.errorMessage = `Order already ${order.status}`;
       await this.webhookLogRepository.save(log);
+      await this.flagSuspense(SuspenseReason.ORDER_NOT_PENDING, log, dto, {
+        orderStatus: order.status,
+      });
       return { success: true, message: 'Order not pending' };
     }
 
@@ -144,6 +179,7 @@ export class PaymentsService {
       });
       log.errorMessage = 'Order expired';
       await this.webhookLogRepository.save(log);
+      await this.flagSuspense(SuspenseReason.ORDER_EXPIRED, log, dto);
       return { success: true, message: 'Order expired' };
     }
 
@@ -151,6 +187,7 @@ export class PaymentsService {
     if (dto.transferAmount !== order.amountVnd) {
       log.errorMessage = `Amount mismatch: got ${dto.transferAmount}, expected ${order.amountVnd}`;
       await this.webhookLogRepository.save(log);
+      await this.flagSuspense(SuspenseReason.AMOUNT_MISMATCH, log, dto);
       return { success: true, message: 'Amount mismatch' };
     }
 
@@ -387,17 +424,21 @@ export class PaymentsService {
   ): Promise<void> {
     const authorWallet = await em.findOne(UserWallet, {
       where: { user: { id: authorId } },
+      lock: { mode: 'pessimistic_write' },
     });
-    if (!authorWallet) return;
+    if (!authorWallet) throw new NotFoundException('Ví không tồn tại');
 
-    await em.increment(UserWallet, { id: authorWallet.id }, 'balance', amount);
+    const balanceBefore = authorWallet.balance;
+    const balanceAfter = balanceBefore + amount;
+
+    await em.update(UserWallet, authorWallet.id, { balance: balanceAfter });
     await em.save(
       em.create(WalletTransaction, {
         user: { id: authorId },
         type: TransactionType.EARN,
         amount,
-        balanceBefore: authorWallet.balance,
-        balanceAfter: authorWallet.balance + amount,
+        balanceBefore,
+        balanceAfter,
         referenceType,
         referenceId,
         description,
