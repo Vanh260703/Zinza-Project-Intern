@@ -47,7 +47,6 @@ export function normalizeNovel(n: BeNovel): Novel {
     tags: n.tags ?? [],
     description: n.description ?? "",
     vip: n.vip ?? false,
-    price: 0, // BE list không có; home không dùng price
     updatedAt: n.updatedAt ? new Date(n.updatedAt) : undefined,
   };
 }
