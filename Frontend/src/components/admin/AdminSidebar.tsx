@@ -2,9 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, Users, BookOpenText, ShieldCheck, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  BookOpenText,
+  ShieldCheck,
+  ShieldAlert,
+  LogOut,
+} from "lucide-react";
 import { useAuthStore } from "@/stores/userStore";
-import { useLibraryStore } from "@/stores/libraryStore";
 
 type NavItem = { href: string; icon: React.ElementType; label: string; exact?: boolean };
 
@@ -12,6 +18,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Tổng quan", exact: true },
   { href: "/admin/users", icon: Users, label: "Người dùng" },
   { href: "/admin/novels", icon: BookOpenText, label: "Tất cả truyện" },
+  { href: "/admin/suspense", icon: ShieldAlert, label: "Đối soát" },
 ];
 
 function NavLink({ href, icon: Icon, label, exact, pathname }: NavItem & { pathname: string }) {
@@ -35,11 +42,9 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuthStore();
-  const clearLibrary = useLibraryStore((s) => s.clear);
 
   const handleLogout = () => {
     logout();
-    clearLibrary();
     router.push("/");
   };
 

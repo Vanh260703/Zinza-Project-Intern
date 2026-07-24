@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/mock-db";
 import { topupSchema } from "@/schemas/admin";
+
+const BE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -12,12 +13,13 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ message: "Dữ liệu không hợp lệ" }, { status: 400 });
   }
 
-  const user = db.users.findById(id);
-  if (!user) return NextResponse.json({ message: "Không tìm thấy người dùng" }, { status: 404 });
+  const res = await fetch(`${BE_URL}/api/v1/admin/users/${id}/topup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: req.headers.get("cookie") ?? "" },
+    body: JSON.stringify(parsed.data),
+  });
+  const data = await res.json();
+  if (!res.ok) return NextResponse.json(data, { status: res.status });
 
-  const updated = db.users.update(id, { candy: user.candy + parsed.data.amount });
-  if (!updated) return NextResponse.json({ message: "Cập nhật thất bại" }, { status: 500 });
-
-  const { password: _, ...safe } = updated;
-  return NextResponse.json({ user: safe });
+  return NextResponse.json({ candy: data.balanceAfter });
 }

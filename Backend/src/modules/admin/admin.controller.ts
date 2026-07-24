@@ -15,10 +15,14 @@ import {
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard, AdminGuard } from 'src/shared/guards';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { User } from 'src/modules/users/entities/user.entity';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { TopupCandyDto } from './dto/topup-candy.dto';
 import { CreateCandyPackageDto } from './dto/create-candy-package.dto';
 import { UpdateCandyPackageDto } from './dto/update-candy-package.dto';
+import { QuerySuspenseTransactionsDto } from './dto/query-suspense-transactions.dto';
+import { ResolveSuspenseTransactionDto } from './dto/resolve-suspense-transaction.dto';
 
 @UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('admin')
@@ -83,5 +87,21 @@ export class AdminController {
     @Body() dto: TopupCandyDto,
   ) {
     return this.adminService.topupCandy(id, dto);
+  }
+
+  // [GET] /api/v1/admin/suspense-transactions?status=unresolved&reason=missing_pair&page=1&limit=20
+  @Get('suspense-transactions')
+  getSuspenseTransactions(@Query() dto: QuerySuspenseTransactionsDto) {
+    return this.adminService.getSuspenseTransactions(dto);
+  }
+
+  // [PATCH] /api/v1/admin/suspense-transactions/:id/resolve
+  @Patch('suspense-transactions/:id/resolve')
+  resolveSuspenseTransaction(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ResolveSuspenseTransactionDto,
+    @CurrentUser() admin: User,
+  ) {
+    return this.adminService.resolveSuspenseTransaction(id, admin.id, dto);
   }
 }

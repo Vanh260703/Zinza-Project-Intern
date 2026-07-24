@@ -29,6 +29,7 @@ import { WalletTransaction } from './modules/payments/entities/wallet-transactio
 import { ChapterPurchase } from './modules/payments/entities/chapter-purchase.entity';
 import { SepayWebhookLog } from './modules/payments/entities/sepay-webhook-log.entity';
 import { CandyPackage } from './modules/payments/entities/candy-package.entity';
+import { SuspenseTransaction } from './modules/payments/entities/suspense-transaction.entity';
 import { Notification } from './modules/notifications/entities/notification.entity';
 import { MailModule } from './shared/mail/mail.module';
 import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
@@ -72,6 +73,7 @@ import { AdminModule } from './modules/admin/admin.module';
           ChapterPurchase,
           SepayWebhookLog,
           CandyPackage,
+          SuspenseTransaction,
           Notification,
           Comment,
         ],

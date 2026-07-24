@@ -16,7 +16,7 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
-import { getStoryStatus } from "@/config/statuses";
+import { getNovelStatus } from "@/config/statuses";
 
 function StatCard({
   icon: Icon,
@@ -51,10 +51,10 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default function NovelDetailContent({ novelId }: { novelId: string }) {
+export default function NovelDetailContent({ novelSlug }: { novelSlug: string }) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const { data, isLoading, isError } = useAdminNovelDetail(novelId);
+  const { data, isLoading, isError } = useAdminNovelDetail(novelSlug);
 
   if (isError) {
     router.replace("/admin/novels");
@@ -96,7 +96,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
         <div className="w-28 h-40 sm:w-32 sm:h-44 rounded-2xl overflow-hidden bg-stone-800 shrink-0 mx-auto sm:mx-0">
           {novel.posterUrl ? (
             <img
-              src={`/api/cover/${novel.id}`}
+              src={novel.posterUrl}
               alt={novel.name}
               className="w-full h-full object-cover"
             />
@@ -120,9 +120,9 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
 
           <div className="flex items-center gap-2 flex-wrap">
             <span
-              className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${getStoryStatus(novel.status).cls}`}
+              className={`text-xs px-2.5 py-1 rounded-lg border font-semibold ${getNovelStatus(novel.status).cls}`}
             >
-              {getStoryStatus(novel.status).label}
+              {getNovelStatus(novel.status).label}
             </span>
             {novel.categories.slice(0, 3).map((g) => (
               <span
@@ -174,7 +174,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
             </Link>
             {user?.id === novel.postedBy && (
               <Link
-                href={`/my-novels/${novel.id}`}
+                href={`/my-novels/${novel.slug}`}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-violet-500/15 border border-violet-500/25 text-violet-400 hover:bg-violet-500/25 transition-colors"
               >
                 Quản lý truyện
@@ -240,7 +240,7 @@ export default function NovelDetailContent({ novelId }: { novelId: string }) {
             label="Giá mặc định"
             value={novel.price > 0 ? `${novel.price} kẹo / chương` : "Miễn phí"}
           />
-          <Row label="Trạng thái" value={getStoryStatus(novel.status).label} />
+          <Row label="Trạng thái" value={getNovelStatus(novel.status).label} />
           <Row
             label="VIP"
             value={

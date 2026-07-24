@@ -1,8 +1,8 @@
 import NovelDetailContent from "@/components/admin/novels/NovelDetailContent";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ slug: string }> };
 
 export default async function AdminNovelDetailPage({ params }: Props) {
-  const { id } = await params;
-  return <NovelDetailContent novelId={id} />;
+  const { slug } = await params;
+  return <NovelDetailContent novelSlug={slug} />;
 }
